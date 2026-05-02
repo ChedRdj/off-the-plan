@@ -4,20 +4,40 @@ import { PropertyCard } from "@/components/property-card";
 import { JournalCard } from "@/components/journal-card";
 import { HeroSearch } from "@/components/hero-search";
 import { MemberSignupForm } from "@/components/member-signup-form";
-import { Pill } from "@/components/pill";
 import { ChevronRightIcon } from "@/components/icons";
-import { mockDevelopments, mockJournalArticles } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
+import type { Development } from "@/types/development";
+import type { JournalArticle } from "@/types/journal";
 
-// When Supabase is connected, replace these with real queries:
-// import { createClient } from "@/lib/supabase/server";
-// const supabase = createClient();
-// const { data: featured } = await supabase.from("developments").select("*,developer:developers(*),images:development_images(*)").eq("is_featured", true).eq("is_published", true).order("updated_at", { ascending: false }).limit(7);
+export default async function HomePage() {
+  const supabase = createClient();
 
-const featured = mockDevelopments.filter((d) => d.is_featured).slice(0, 7);
-const trending = mockDevelopments.slice(0, 6);
-const articles = mockJournalArticles;
+  const [{ data: featuredData }, { data: trendingData }, { data: articlesData }] = await Promise.all([
+    supabase
+      .from("developments")
+      .select("*, developer:developers(*), images:development_images(*)")
+      .eq("is_featured", true)
+      .eq("is_published", true)
+      .order("updated_at", { ascending: false })
+      .limit(7),
+    supabase
+      .from("developments")
+      .select("*, developer:developers(*), images:development_images(*)")
+      .eq("is_published", true)
+      .order("updated_at", { ascending: false })
+      .limit(6),
+    supabase
+      .from("journal_articles")
+      .select("*")
+      .eq("is_published", true)
+      .order("published_at", { ascending: false })
+      .limit(4),
+  ]);
 
-export default function HomePage() {
+  const featured = (featuredData ?? []) as unknown as Development[];
+  const trending = (trendingData ?? []) as unknown as Development[];
+  const articles = (articlesData ?? []) as unknown as JournalArticle[];
+
   const [heroFeatured, ...restFeatured] = featured;
   const gridFeatured = restFeatured.slice(0, 6);
 
@@ -77,7 +97,7 @@ export default function HomePage() {
               href="/search"
               className="hidden md:flex items-center gap-2 font-mono text-label-lg uppercase tracking-widest text-ink/40 hover:text-orange transition-colors"
             >
-              View all 142
+              View all
               <ChevronRightIcon size={16} />
             </Link>
           </div>

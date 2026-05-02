@@ -1,21 +1,43 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { PropertyCard } from "@/components/property-card";
-import { mockDevelopers, mockDevelopments } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
+import type { Developer } from "@/types/developer";
+import type { Development } from "@/types/development";
 
 interface Props { params: { slug: string } }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const dev = mockDevelopers.find((d) => d.slug === params.slug);
+  const supabase = createClient();
+  const { data: dev } = await supabase
+    .from("developers")
+    .select("name, description")
+    .eq("slug", params.slug)
+    .single();
   if (!dev) return { title: "Not Found" };
   return { title: `${dev.name} — Developer`, description: dev.description ?? undefined };
 }
 
-export default function DeveloperProfilePage({ params }: Props) {
-  const dev = mockDevelopers.find((d) => d.slug === params.slug && d.is_published);
-  if (!dev) notFound();
+export default async function DeveloperProfilePage({ params }: Props) {
+  const supabase = createClient();
 
-  const devDevelopments = mockDevelopments.filter((d) => d.developer_id === dev.id && d.is_published);
+  const { data: rawDev } = await supabase
+    .from("developers")
+    .select("*")
+    .eq("slug", params.slug)
+    .eq("is_published", true)
+    .single();
+
+  if (!rawDev) notFound();
+  const dev = rawDev as unknown as Developer;
+
+  const { data: devsData } = await supabase
+    .from("developments")
+    .select("*, developer:developers(*), images:development_images(*)")
+    .eq("developer_id", rawDev.id)
+    .eq("is_published", true);
+
+  const devDevelopments = (devsData ?? []) as unknown as Development[];
 
   return (
     <div className="min-h-screen bg-cream pt-16">

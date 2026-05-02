@@ -1,14 +1,23 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { mockDevelopers, mockDevelopments } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
+import type { Developer } from "@/types/developer";
 
 export const metadata: Metadata = {
   title: "Developers",
   description: "Browse residential developers listing off-the-plan properties across Australia.",
 };
 
-export default function DevelopersPage() {
-  const developers = mockDevelopers.filter((d) => d.is_published);
+export default async function DevelopersPage() {
+  const supabase = createClient();
+
+  const [{ data: devsData }, { data: devsDevsData }] = await Promise.all([
+    supabase.from("developers").select("*").eq("is_published", true).order("name"),
+    supabase.from("developments").select("id, developer_id").eq("is_published", true),
+  ]);
+
+  const developers = (devsData ?? []) as unknown as Developer[];
+  const allDevelopments = devsDevsData ?? [];
 
   return (
     <div className="min-h-screen bg-cream pt-16">
@@ -22,7 +31,7 @@ export default function DevelopersPage() {
       <div className="container-padded py-14">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {developers.map((dev) => {
-            const devCount = mockDevelopments.filter((d) => d.developer_id === dev.id && d.is_published).length;
+            const devCount = allDevelopments.filter((d) => d.developer_id === dev.id).length;
             return (
               <Link
                 key={dev.id}

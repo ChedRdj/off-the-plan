@@ -6,40 +6,62 @@ import { PropertyCard } from "@/components/property-card";
 import { EnquiryForm } from "@/components/enquiry-form";
 import { Pill } from "@/components/pill";
 import { CheckIcon } from "@/components/icons";
-import { mockDevelopments, mockFloorPlans } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
+import type { Development, DevelopmentFloorPlan } from "@/types/development";
 
 interface Props {
   params: { slug: string };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const dev = mockDevelopments.find((d) => d.slug === params.slug);
+  const supabase = createClient();
+  const { data: dev } = await supabase
+    .from("developments")
+    .select("name, suburb, state, summary, hero_image_url, images:development_images(*)")
+    .eq("slug", params.slug)
+    .single();
   if (!dev) return { title: "Not Found" };
+  const d = dev as unknown as Development;
   return {
-    title: `${dev.name} — ${dev.suburb}, ${dev.state}`,
-    description: dev.summary ?? undefined,
+    title: `${d.name} — ${d.suburb}, ${d.state}`,
+    description: d.summary ?? undefined,
     openGraph: {
-      title: `${dev.name} | Off The Plan`,
-      description: dev.summary ?? "",
-      images: dev.hero_image_url ? [dev.hero_image_url] : dev.images?.[0]?.url ? [dev.images[0].url] : [],
+      title: `${d.name} | Off The Plan`,
+      description: d.summary ?? "",
+      images: d.hero_image_url ? [d.hero_image_url] : d.images?.[0]?.url ? [d.images[0].url] : [],
     },
   };
 }
 
-export default function DossierPage({ params }: Props) {
-  const dev = mockDevelopments.find((d) => d.slug === params.slug && d.is_published);
-  if (!dev) notFound();
+export default async function DossierPage({ params }: Props) {
+  const supabase = createClient();
+
+  const { data: rawDev } = await supabase
+    .from("developments")
+    .select("*, developer:developers(*), images:development_images(*), floor_plans:development_floor_plans(*)")
+    .eq("slug", params.slug)
+    .eq("is_published", true)
+    .single();
+
+  if (!rawDev) notFound();
+  const dev = rawDev as unknown as Development;
 
   const heroImageUrl =
     dev.images?.find((img) => img.is_hero)?.url ??
     dev.images?.[0]?.url ??
     dev.hero_image_url ??
     null;
-  const floorPlans = mockFloorPlans.filter((fp) => fp.development_id === dev.id);
-  const similar = mockDevelopments
-    .filter((d) => d.id !== dev.id && d.state === dev.state && d.is_published)
-    .slice(0, 3);
+  const floorPlans = (dev.floor_plans ?? []) as DevelopmentFloorPlan[];
+
+  const { data: similarData } = await supabase
+    .from("developments")
+    .select("*, developer:developers(*), images:development_images(*)")
+    .eq("is_published", true)
+    .eq("state", rawDev.state ?? "")
+    .neq("id", rawDev.id)
+    .limit(3);
+  const similar = (similarData ?? []) as unknown as Development[];
 
   const specs = [
     { label: "Architect", value: dev.architect },

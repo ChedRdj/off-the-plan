@@ -1,9 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { PropertyCard } from "@/components/property-card";
-import { Pill } from "@/components/pill";
-import { mockDevelopments } from "@/lib/mock-data";
-import type { AustralianState, DevelopmentType, DevelopmentStatus } from "@/types/development";
+import { createClient } from "@/lib/supabase/server";
+import type { Development } from "@/types/development";
 
 export const metadata: Metadata = {
   title: "Search Developments",
@@ -26,41 +25,45 @@ interface SearchPageProps {
 
 const PAGE_SIZE = 24;
 
-export default function SearchPage({ searchParams }: SearchPageProps) {
-  // Filter mock data (swap for real Supabase query when connected)
-  let results = mockDevelopments.filter((d) => d.is_published);
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const supabase = createClient();
+
+  let query = supabase
+    .from("developments")
+    .select("*, developer:developers(*), images:development_images(*)")
+    .eq("is_published", true);
 
   if (searchParams.suburb) {
-    const s = searchParams.suburb.toLowerCase();
-    results = results.filter(
-      (d) => d.suburb?.toLowerCase().includes(s) || d.state?.toLowerCase().includes(s)
-    );
+    const s = searchParams.suburb;
+    query = query.or(`suburb.ilike.%${s}%,state.ilike.%${s}%`);
   }
   if (searchParams.state) {
-    results = results.filter((d) => d.state === searchParams.state);
+    query = query.eq("state", searchParams.state);
   }
   if (searchParams.type) {
-    results = results.filter((d) => d.type === searchParams.type);
+    query = query.eq("type", searchParams.type);
   }
   if (searchParams.status) {
-    results = results.filter((d) => d.status === searchParams.status);
+    query = query.eq("status", searchParams.status);
   }
   if (searchParams.price_max) {
-    const max = parseInt(searchParams.price_max) * 100; // to cents
-    results = results.filter((d) => !d.price_from || d.price_from <= max);
+    const max = parseInt(searchParams.price_max) * 100;
+    query = query.or(`price_from.is.null,price_from.lte.${max}`);
   }
   if (searchParams.tag) {
-    results = results.filter((d) => d.tag === searchParams.tag);
+    query = query.eq("tag", searchParams.tag);
   }
 
-  // Sort
   if (searchParams.sort === "price_asc") {
-    results = [...results].sort((a, b) => (a.price_from ?? 0) - (b.price_from ?? 0));
+    query = query.order("price_from", { ascending: true });
   } else if (searchParams.sort === "price_desc") {
-    results = [...results].sort((a, b) => (b.price_from ?? 0) - (a.price_from ?? 0));
+    query = query.order("price_from", { ascending: false });
   } else {
-    results = [...results].sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
+    query = query.order("is_featured", { ascending: false });
   }
+
+  const { data } = await query;
+  const results = (data ?? []) as unknown as Development[];
 
   const page = parseInt(searchParams.page ?? "1");
   const totalPages = Math.ceil(results.length / PAGE_SIZE);

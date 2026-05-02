@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { JournalCard } from "@/components/journal-card";
-import { mockJournalArticles } from "@/lib/mock-data";
-import type { JournalCategory } from "@/types/journal";
+import { createClient } from "@/lib/supabase/server";
+import type { JournalArticle, JournalCategory } from "@/types/journal";
 
 export const metadata: Metadata = {
   title: "The Residences Journal",
@@ -15,11 +15,22 @@ interface JournalPageProps {
   searchParams: { category?: string };
 }
 
-export default function JournalPage({ searchParams }: JournalPageProps) {
+export default async function JournalPage({ searchParams }: JournalPageProps) {
+  const supabase = createClient();
   const activeCategory = searchParams.category as JournalCategory | undefined;
-  const articles = activeCategory
-    ? mockJournalArticles.filter((a) => a.category === activeCategory && a.is_published)
-    : mockJournalArticles.filter((a) => a.is_published);
+
+  let query = supabase
+    .from("journal_articles")
+    .select("*")
+    .eq("is_published", true)
+    .order("published_at", { ascending: false });
+
+  if (activeCategory) {
+    query = query.eq("category", activeCategory);
+  }
+
+  const { data } = await query;
+  const articles = (data ?? []) as unknown as JournalArticle[];
 
   return (
     <div className="min-h-screen bg-cream pt-16">
