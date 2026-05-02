@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Pill } from "@/components/pill";
 import type { Development } from "@/types/development";
@@ -20,23 +22,62 @@ function tagVariant(tag: Development["tag"]): "orange" | "navy" | "ghost" {
   return "ghost";
 }
 
+function HeartIcon({ filled }: { filled: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 20 20" fill={filled ? "#E8722C" : "none"} aria-hidden="true">
+      <path
+        d="M10 16.5L3.5 9.5C3.5 7 5.3 5 7.5 5c1.1 0 2.1.5 2.8 1.3L10 7l-.2-.7C10.5 5.5 11.5 5 12.5 5c2.2 0 4 2 4 4.5L10 16.5z"
+        stroke={filled ? "#E8722C" : "currentColor"}
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function PropertyCard({
   development,
   layout = "tall",
   className,
   onSave,
-  isSaved = false,
+  isSaved: initialSaved = false,
 }: PropertyCardProps) {
+  const router = useRouter();
+  const [saved, setSaved] = useState(initialSaved);
+  const [loading, setLoading] = useState(false);
+
   const heroImageUrl =
     development.images?.find((img) => img.is_hero)?.url ??
     development.images?.[0]?.url ??
     development.hero_image_url ??
     null;
 
-  const handleSave = (e: React.MouseEvent) => {
+  const handleSave = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    onSave?.(development.id);
+    if (loading) return;
+
+    // If a parent handler is provided, delegate to it
+    if (onSave) {
+      onSave(development.id);
+      return;
+    }
+
+    setLoading(true);
+    const method = saved ? "DELETE" : "POST";
+    const res = await fetch("/api/saved", {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ development_id: development.id }),
+    });
+
+    if (res.status === 401) {
+      router.push(`/login?redirect=/saved`);
+      return;
+    }
+
+    if (res.ok) setSaved(!saved);
+    setLoading(false);
   };
 
   if (layout === "wide") {
@@ -118,22 +159,21 @@ export function PropertyCard({
                 {development.status}
               </Pill>
             )}
-            {onSave && (
-              <button
-                onClick={handleSave}
-                aria-label={isSaved ? "Remove from saved" : "Save development"}
-                className="p-2 text-ink/30 hover:text-orange transition-colors"
-              >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill={isSaved ? "#E8722C" : "none"}>
-                  <path
-                    d="M10 16.5L3.5 9.5C3.5 7 5.3 5 7.5 5c1.1 0 2.1.5 2.8 1.3L10 7l-.2-.7C10.5 5.5 11.5 5 12.5 5c2.2 0 4 2 4 4.5L10 16.5z"
-                    stroke={isSaved ? "#E8722C" : "currentColor"}
-                    strokeWidth="1.3"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            )}
+            <button
+              onClick={handleSave}
+              aria-label={saved ? "Remove from saved" : "Save development"}
+              disabled={loading}
+              className="p-2 text-ink/30 hover:text-orange transition-colors disabled:opacity-50"
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill={saved ? "#E8722C" : "none"}>
+                <path
+                  d="M10 16.5L3.5 9.5C3.5 7 5.3 5 7.5 5c1.1 0 2.1.5 2.8 1.3L10 7l-.2-.7C10.5 5.5 11.5 5 12.5 5c2.2 0 4 2 4 4.5L10 16.5z"
+                  stroke={saved ? "#E8722C" : "currentColor"}
+                  strokeWidth="1.3"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </Link>
@@ -168,22 +208,14 @@ export function PropertyCard({
         </div>
 
         {/* Save button */}
-        {onSave && (
-          <button
-            onClick={handleSave}
-            aria-label={isSaved ? "Remove from saved" : "Save development"}
-            className="absolute top-3 right-3 p-1.5 bg-white/90 hover:bg-white transition-colors"
-          >
-            <svg width="16" height="16" viewBox="0 0 20 20" fill={isSaved ? "#E8722C" : "none"}>
-              <path
-                d="M10 16.5L3.5 9.5C3.5 7 5.3 5 7.5 5c1.1 0 2.1.5 2.8 1.3L10 7l-.2-.7C10.5 5.5 11.5 5 12.5 5c2.2 0 4 2 4 4.5L10 16.5z"
-                stroke={isSaved ? "#E8722C" : "#14181d"}
-                strokeWidth="1.3"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        )}
+        <button
+          onClick={handleSave}
+          aria-label={saved ? "Remove from saved" : "Save development"}
+          disabled={loading}
+          className="absolute top-3 right-3 p-1.5 bg-white/90 hover:bg-white transition-colors disabled:opacity-50"
+        >
+          <HeartIcon filled={saved} />
+        </button>
       </div>
 
       {/* Content */}
