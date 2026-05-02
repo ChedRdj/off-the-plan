@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const footerColumns = [
   {
@@ -48,7 +49,7 @@ export function Footer() {
           {/* Brand column */}
           <div className="md:col-span-1">
             <Link href="/" className="inline-block mb-4">
-              <span className="font-display text-xl font-light text-ink-light">Off The Plan</span>
+              <Image src="/logo.png" alt="Off The Plan" width={100} height={28} className="h-6 w-auto object-contain brightness-0 invert" />
             </Link>
             <p className="font-sans text-body-md text-ink-light/60 leading-relaxed max-w-xs">
               Australia's curated marketplace for off-the-plan residential real estate.

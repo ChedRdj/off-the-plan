@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -38,10 +39,15 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
         )}
       >
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <span className={cn("font-display text-xl font-light tracking-tight", isDark ? "text-ink-light" : "text-navy")}>
-            Off The Plan
-          </span>
+        <Link href="/" className="flex items-center flex-shrink-0">
+          <Image
+            src="/logo.png"
+            alt="Off The Plan"
+            width={120}
+            height={32}
+            className={cn("h-7 w-auto object-contain", isDark && "brightness-0 invert")}
+            priority
+          />
         </Link>
 
         {/* Desktop nav */}
@@ -142,7 +148,7 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
         aria-label="Navigation menu"
       >
         <div className="flex justify-between items-center mb-10">
-          <span className="font-display text-lg font-light text-navy">Off The Plan</span>
+          <Image src="/logo.png" alt="Off The Plan" width={100} height={28} className="h-6 w-auto object-contain" />
           <button
             onClick={() => setMenuOpen(false)}
             aria-label="Close menu"
