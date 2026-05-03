@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import Map, { Marker, Popup, NavigationControl } from "react-map-gl";
+import Map, { Marker, Popup, NavigationControl } from "react-map-gl/mapbox";
 import Link from "next/link";
 import type { Development } from "@/types/development";
 import "mapbox-gl/dist/mapbox-gl.css";
