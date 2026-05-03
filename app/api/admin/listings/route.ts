@@ -85,8 +85,12 @@ function buildListingData(fields: Record<string, unknown>) {
     agent_agency: fields.agent_agency ?? null,
     // Uploads
     hero_image_url: fields.hero_image_url ?? null,
+    hero_alt_text: fields.hero_alt_text ?? null,
+    feature_image_url: fields.feature_image_url ?? null,
     brochure_url: fields.brochure_url ?? null,
     video_url: fields.video_url ?? null,
+    agent_logo_1: fields.agent_logo_1 ?? null,
+    agent_logo_2: fields.agent_logo_2 ?? null,
     virtual_tour_url: fields.virtual_tour_url ?? null,
     // SEO
     seo_title: fields.seo_title ?? null,

@@ -97,8 +97,12 @@ interface ListingData {
   agent_agency?: string;
   // Uploads
   hero_image_url?: string;
+  hero_alt_text?: string;
+  feature_image_url?: string;
   brochure_url?: string;
   video_url?: string;
+  agent_logo_1?: string;
+  agent_logo_2?: string;
   virtual_tour_url?: string;
   // SEO
   seo_title?: string;
@@ -366,6 +370,82 @@ function AddYourOwn({
   );
 }
 
+function SingleUpload({
+  label,
+  hint,
+  value,
+  onChange,
+  altText,
+  onAltTextChange,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (url: string) => void;
+  altText?: string;
+  onAltTextChange?: (v: string) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function upload(file: File) {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("bucket", "development-images");
+    const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+    const json = await res.json();
+    if (res.ok) onChange(json.url);
+    setUploading(false);
+  }
+
+  const filename = value ? value.split("/").pop() : null;
+
+  return (
+    <div className="border-b border-line pb-5 mb-5 last:border-0 last:mb-0 last:pb-0">
+      {filename && (
+        <div className="flex items-center gap-2 mb-1">
+          <a href={value} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-orange hover:underline truncate max-w-xs">
+            {filename}
+          </a>
+          <button type="button" onClick={() => onChange("")} className="text-red-400 hover:text-red-600 flex-shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M9 6V4h6v2" />
+            </svg>
+          </button>
+        </div>
+      )}
+      <div className="flex items-start justify-between gap-6">
+        <div className="flex-1">
+          <p className="font-sans text-sm font-medium text-ink/80 mb-2">
+            {label}
+          </p>
+          <div className="flex items-center gap-3 mb-1.5">
+            <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = ""; }} className="sr-only" />
+            <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading} className="font-mono text-[10px] uppercase tracking-widest px-3 py-2 border border-orange text-orange hover:bg-orange hover:text-white transition-colors disabled:opacity-50 whitespace-nowrap">
+              {uploading ? "Uploading…" : value ? "Select Another File" : "Select File"}
+            </button>
+            {!value && <span className="font-sans text-sm text-ink/40">No file chosen</span>}
+          </div>
+          {hint && <p className="font-sans text-xs text-ink/40">{hint}</p>}
+          <p className="font-sans text-xs text-ink/40 mt-1">Or upload photo from your computer.</p>
+          {value && (
+            <div className="mt-2">
+              <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="Or paste an image URL" className="w-full border border-line px-2 py-1.5 bg-white font-sans text-xs text-ink/60 outline-none focus:border-orange/60" />
+            </div>
+          )}
+        </div>
+        {onAltTextChange !== undefined && (
+          <div className="w-72 flex-shrink-0">
+            <p className="font-sans text-sm text-ink/70 mb-2">Main Photo Alt Text:</p>
+            <input type="text" value={altText ?? ""} onChange={(e) => onAltTextChange(e.target.value)} className="w-full border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 transition-colors" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function AgentManager({
   developmentId,
   initialAgents,
@@ -589,43 +669,57 @@ function GalleryManager({
   }
 
   return (
-    <div>
-      <p className="section-label block mb-3">Gallery Images</p>
-      {gallery.length > 0 ? (
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          {gallery.map((img) => (
-            <div key={img.id} className="relative group">
-              <div className="relative w-full aspect-video overflow-hidden bg-navy/5">
-                <Image src={img.url} alt="" fill className="object-cover" sizes="200px" />
-              </div>
-              <button
-                type="button"
-                onClick={() => onRemove(img.id)}
-                className="absolute top-1 right-1 bg-white/90 hover:bg-red-500 hover:text-white text-ink px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-widest transition-colors opacity-0 group-hover:opacity-100"
-              >
-                Remove
-              </button>
-            </div>
-          ))}
+    <div className="border-b border-line pb-5 mb-5">
+      <div className="flex items-start gap-8">
+        {/* Left: upload controls */}
+        <div className="flex-shrink-0 w-72">
+          <p className="font-sans text-sm font-medium text-ink/80 mb-2">
+            Select up to 20 images
+          </p>
+          <div className="flex items-center gap-3 mb-1.5">
+            <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f); e.target.value = ""; }} className="sr-only" />
+            <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading || gallery.length >= 20} className="font-mono text-[10px] uppercase tracking-widest px-3 py-2 border border-orange text-orange hover:bg-orange hover:text-white transition-colors disabled:opacity-50 whitespace-nowrap">
+              {uploading ? "Uploading…" : "Select File"}
+            </button>
+            {!uploading && <span className="font-sans text-sm text-ink/40">No file chosen</span>}
+          </div>
+          <p className="font-sans text-xs text-ink/40">Or upload photo from your computer.</p>
+          <p className="font-sans text-xs text-ink/40">(File size: up to 10MB, Dimensions: 1920×1080)</p>
+          {gallery.length >= 20 && (
+            <p className="font-sans text-xs text-orange mt-1">Maximum 20 images reached.</p>
+          )}
         </div>
-      ) : (
-        <p className="font-sans text-sm text-ink/40 mb-3">No gallery images yet.</p>
-      )}
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f); e.target.value = ""; }}
-        className="sr-only"
-      />
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        disabled={uploading}
-        className="font-mono text-[10px] uppercase tracking-widest px-4 py-2 border border-line text-ink/60 hover:border-navy hover:text-navy transition-colors disabled:opacity-50"
-      >
-        {uploading ? "Uploading…" : "+ Add Image"}
-      </button>
+
+        {/* Right: numbered list */}
+        {gallery.length > 0 && (
+          <div className="flex-1">
+            <p className="font-sans text-sm text-orange hover:underline cursor-default mb-3">
+              Click and drag images to change their order
+            </p>
+            <div className="flex flex-col gap-2">
+              {gallery.map((img, i) => {
+                const filename = img.url.split("/").pop() ?? img.url;
+                return (
+                  <div key={img.id} className="flex items-center gap-3">
+                    <span className="font-sans text-sm text-ink/50 w-4 flex-shrink-0">{i + 1}.</span>
+                    <div className="relative w-10 h-10 overflow-hidden bg-navy/5 flex-shrink-0">
+                      <Image src={img.url} alt="" fill className="object-cover" sizes="40px" />
+                    </div>
+                    <a href={img.url} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-orange hover:underline truncate flex-1 max-w-xs">
+                      {filename}
+                    </a>
+                    <button type="button" onClick={() => onRemove(img.id)} className="text-red-400 hover:text-red-600 flex-shrink-0">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M9 6V4h6v2" />
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -725,8 +819,12 @@ export function ListingForm({
 
   // Uploads
   const [heroImageUrl, setHeroImageUrl] = useState(existing?.hero_image_url ?? "");
+  const [heroAltText, setHeroAltText] = useState(existing?.hero_alt_text ?? "");
+  const [featureImageUrl, setFeatureImageUrl] = useState(existing?.feature_image_url ?? "");
   const [brochureUrl, setBrochureUrl] = useState(existing?.brochure_url ?? "");
   const [videoUrl, setVideoUrl] = useState(existing?.video_url ?? "");
+  const [agentLogo1, setAgentLogo1] = useState(existing?.agent_logo_1 ?? "");
+  const [agentLogo2, setAgentLogo2] = useState(existing?.agent_logo_2 ?? "");
 
   // Optional Uploads
   const [virtualTourUrl, setVirtualTourUrl] = useState(existing?.virtual_tour_url ?? "");
@@ -879,8 +977,12 @@ export function ListingForm({
       agent_agency: agentAgency || null,
       // Uploads
       hero_image_url: heroImageUrl || null,
+      hero_alt_text: heroAltText || null,
+      feature_image_url: featureImageUrl || null,
       brochure_url: brochureUrl || null,
       video_url: videoUrl || null,
+      agent_logo_1: agentLogo1 || null,
+      agent_logo_2: agentLogo2 || null,
       virtual_tour_url: virtualTourUrl || null,
       // SEO
       seo_title: seoTitle || null,
@@ -1313,32 +1415,69 @@ export function ListingForm({
 
         {/* ── 7. Uploads ───────────────────────────────────────────────────── */}
         <AccordionSection title="Uploads">
-          <div className="mb-6">
-            <ImageUpload label="Hero Image" value={heroImageUrl} onChange={setHeroImageUrl} bucket="development-images" />
+          {/* Main Photo */}
+          <SingleUpload
+            label="Main Photo Upload *"
+            hint="(File size: up to 10MB, Dimensions: 1920×1080)"
+            value={heroImageUrl}
+            onChange={setHeroImageUrl}
+            altText={heroAltText}
+            onAltTextChange={setHeroAltText}
+          />
+
+          {/* Homepage Feature Image */}
+          <SingleUpload
+            label="Homepage Feature Image"
+            hint="(File size: up to 5MB, Dimensions: 500×500) (This is applicable to premier listings only)"
+            value={featureImageUrl}
+            onChange={setFeatureImageUrl}
+          />
+
+          {/* Gallery */}
+          {isNew ? (
+            <div className="border-b border-line pb-5 mb-5">
+              <p className="font-sans text-sm font-medium text-ink/80 mb-1">Gallery Images</p>
+              <p className="font-sans text-sm text-ink/40 italic">Save the listing first to add gallery images.</p>
+            </div>
+          ) : (
+            <GalleryManager gallery={gallery} onAdd={addGalleryImage} onRemove={removeGalleryImage} />
+          )}
+
+          {/* Video Link */}
+          <div className="mb-5">
+            <label className="font-sans text-sm text-ink/70 block mb-2">Video Link:</label>
+            <input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://youtube.com/..." className={inp} />
           </div>
+
+          {/* Selling Agent Logos */}
+          <div className={g2}>
+            <SingleUpload
+              label="Selling Agent's Logo -1"
+              hint="(Image size up to 5MB)"
+              value={agentLogo1}
+              onChange={setAgentLogo1}
+            />
+            <SingleUpload
+              label="Selling Agent's Logo -2"
+              hint="(Image size up to 5MB)"
+              value={agentLogo2}
+              onChange={setAgentLogo2}
+            />
+          </div>
+        </AccordionSection>
+
+        {/* ── 8. Optional Uploads ──────────────────────────────────────────── */}
+        <AccordionSection title="Optional Uploads">
           <div className={g2}>
             <div>
               <label className={lbl}>Brochure URL</label>
               <input type="url" value={brochureUrl} onChange={(e) => setBrochureUrl(e.target.value)} placeholder="https://..." className={inp} />
             </div>
             <div>
-              <label className={lbl}>Video URL</label>
-              <input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://youtube.com/..." className={inp} />
+              <label className={lbl}>Virtual Tour URL</label>
+              <input type="url" value={virtualTourUrl} onChange={(e) => setVirtualTourUrl(e.target.value)} placeholder="https://..." className={inp} />
             </div>
           </div>
-        </AccordionSection>
-
-        {/* ── 8. Optional Uploads ──────────────────────────────────────────── */}
-        <AccordionSection title="Optional Uploads">
-          <div className="mb-6">
-            <label className={lbl}>Virtual Tour URL</label>
-            <input type="url" value={virtualTourUrl} onChange={(e) => setVirtualTourUrl(e.target.value)} placeholder="https://..." className={inp} />
-          </div>
-          {isNew ? (
-            <p className="font-sans text-sm text-ink/40 italic">Save the listing first to add gallery images.</p>
-          ) : (
-            <GalleryManager gallery={gallery} onAdd={addGalleryImage} onRemove={removeGalleryImage} />
-          )}
         </AccordionSection>
 
         {/* ── 9. Mini Stocklist (Optional) ─────────────────────────────────── */}
