@@ -27,9 +27,9 @@ export async function POST(request: Request) {
   }
 
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const allowedTypes = ["jpg", "jpeg", "png", "webp", "gif"];
+  const allowedTypes = ["jpg", "jpeg", "png", "webp", "gif", "pdf"];
   if (!allowedTypes.includes(ext)) {
-    return NextResponse.json({ error: "File type not allowed. Use JPG, PNG, or WebP." }, { status: 400 });
+    return NextResponse.json({ error: "File type not allowed. Use JPG, PNG, WebP, or PDF." }, { status: 400 });
   }
 
   if (file.size > 10 * 1024 * 1024) {

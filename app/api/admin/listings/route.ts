@@ -92,6 +92,10 @@ function buildListingData(fields: Record<string, unknown>) {
     agent_logo_1: fields.agent_logo_1 ?? null,
     agent_logo_2: fields.agent_logo_2 ?? null,
     virtual_tour_url: fields.virtual_tour_url ?? null,
+    floor_plan_upload_url: fields.floor_plan_upload_url ?? null,
+    additional_video_url: fields.additional_video_url ?? null,
+    price_list_url: fields.price_list_url ?? null,
+    specifications_url: fields.specifications_url ?? null,
     // SEO
     seo_title: fields.seo_title ?? null,
     seo_description: fields.seo_description ?? null,

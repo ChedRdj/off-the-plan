@@ -104,6 +104,10 @@ interface ListingData {
   agent_logo_1?: string;
   agent_logo_2?: string;
   virtual_tour_url?: string;
+  floor_plan_upload_url?: string;
+  additional_video_url?: string;
+  price_list_url?: string;
+  specifications_url?: string;
   // SEO
   seo_title?: string;
   seo_description?: string;
@@ -377,6 +381,7 @@ function SingleUpload({
   onChange,
   altText,
   onAltTextChange,
+  accept = "image/jpeg,image/png,image/webp",
 }: {
   label: string;
   hint?: string;
@@ -384,18 +389,23 @@ function SingleUpload({
   onChange: (url: string) => void;
   altText?: string;
   onAltTextChange?: (v: string) => void;
+  accept?: string;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isImageOnly = !accept.includes("pdf");
 
   async function upload(file: File) {
     setUploading(true);
+    setUploadError(null);
     const formData = new FormData();
     formData.append("file", file);
     formData.append("bucket", "development-images");
     const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
     const json = await res.json();
     if (res.ok) onChange(json.url);
+    else setUploadError(json.error ?? "Upload failed");
     setUploading(false);
   }
 
@@ -421,15 +431,16 @@ function SingleUpload({
             {label}
           </p>
           <div className="flex items-center gap-3 mb-1.5">
-            <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = ""; }} className="sr-only" />
+            <input ref={inputRef} type="file" accept={accept} onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); e.target.value = ""; }} className="sr-only" />
             <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading} className="font-mono text-[10px] uppercase tracking-widest px-3 py-2 border border-orange text-orange hover:bg-orange hover:text-white transition-colors disabled:opacity-50 whitespace-nowrap">
               {uploading ? "Uploading…" : value ? "Select Another File" : "Select File"}
             </button>
             {!value && <span className="font-sans text-sm text-ink/40">No file chosen</span>}
           </div>
+          {uploadError && <p className="font-sans text-xs text-red-500 mb-1">{uploadError}</p>}
           {hint && <p className="font-sans text-xs text-ink/40">{hint}</p>}
-          <p className="font-sans text-xs text-ink/40 mt-1">Or upload photo from your computer.</p>
-          {value && (
+          {isImageOnly && <p className="font-sans text-xs text-ink/40 mt-1">Or upload photo from your computer.</p>}
+          {isImageOnly && value && (
             <div className="mt-2">
               <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder="Or paste an image URL" className="w-full border border-line px-2 py-1.5 bg-white font-sans text-xs text-ink/60 outline-none focus:border-orange/60" />
             </div>
@@ -828,6 +839,10 @@ export function ListingForm({
 
   // Optional Uploads
   const [virtualTourUrl, setVirtualTourUrl] = useState(existing?.virtual_tour_url ?? "");
+  const [floorPlanUploadUrl, setFloorPlanUploadUrl] = useState(existing?.floor_plan_upload_url ?? "");
+  const [additionalVideoUrl, setAdditionalVideoUrl] = useState(existing?.additional_video_url ?? "");
+  const [priceListUrl, setPriceListUrl] = useState(existing?.price_list_url ?? "");
+  const [specificationsUrl, setSpecificationsUrl] = useState(existing?.specifications_url ?? "");
   const [gallery, setGallery] = useState<GalleryImage[]>(initialGallery);
 
   // Mini Stocklist
@@ -984,6 +999,10 @@ export function ListingForm({
       agent_logo_1: agentLogo1 || null,
       agent_logo_2: agentLogo2 || null,
       virtual_tour_url: virtualTourUrl || null,
+      floor_plan_upload_url: floorPlanUploadUrl || null,
+      additional_video_url: additionalVideoUrl || null,
+      price_list_url: priceListUrl || null,
+      specifications_url: specificationsUrl || null,
       // SEO
       seo_title: seoTitle || null,
       seo_description: seoDescription || null,
@@ -1468,16 +1487,98 @@ export function ListingForm({
 
         {/* ── 8. Optional Uploads ──────────────────────────────────────────── */}
         <AccordionSection title="Optional Uploads">
-          <div className={g2}>
-            <div>
-              <label className={lbl}>Brochure URL</label>
-              <input type="url" value={brochureUrl} onChange={(e) => setBrochureUrl(e.target.value)} placeholder="https://..." className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Virtual Tour URL</label>
-              <input type="url" value={virtualTourUrl} onChange={(e) => setVirtualTourUrl(e.target.value)} placeholder="https://..." className={inp} />
+          {/* Upload floor plans */}
+          <SingleUpload
+            label="Upload floor plans"
+            hint="(File size: up to 10MB)"
+            value={floorPlanUploadUrl}
+            onChange={setFloorPlanUploadUrl}
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+          />
+
+          {/* Upload Additional Video */}
+          <div className="border-b border-line pb-5 mb-5">
+            <p className="font-sans text-sm font-medium text-ink/80 mb-2">Upload Additional Video</p>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={additionalVideoUrl}
+                onChange={(e) => setAdditionalVideoUrl(e.target.value)}
+                placeholder="https://youtube.com/..."
+                className={inp}
+              />
+              <button
+                type="button"
+                onClick={() => setAdditionalVideoUrl("")}
+                className="font-mono text-[10px] uppercase tracking-widest px-3 py-2 border border-orange text-orange hover:bg-orange hover:text-white transition-colors whitespace-nowrap"
+              >
+                + Add
+              </button>
+              <button
+                type="button"
+                className="font-mono text-[10px] uppercase tracking-widest px-3 py-2 border border-teal-400 text-teal-600 hover:bg-teal-500 hover:text-white transition-colors whitespace-nowrap"
+              >
+                Save
+              </button>
             </div>
           </div>
+
+          {/* 3D Tour Link */}
+          <div className="border-b border-line pb-5 mb-5">
+            <p className="font-sans text-sm font-medium text-ink/80 mb-2">3D Tour Link</p>
+            <p className="font-sans text-xs text-ink/40 mb-2">
+              If using a video that is already online, you can insert the URL here.
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={virtualTourUrl}
+                onChange={(e) => setVirtualTourUrl(e.target.value)}
+                placeholder="https://..."
+                className={inp}
+              />
+              <button
+                type="button"
+                onClick={() => setVirtualTourUrl("")}
+                className="font-mono text-[10px] uppercase tracking-widest px-3 py-2 border border-orange text-orange hover:bg-orange hover:text-white transition-colors whitespace-nowrap"
+              >
+                + Add
+              </button>
+              <button
+                type="button"
+                className="font-mono text-[10px] uppercase tracking-widest px-3 py-2 border border-teal-400 text-teal-600 hover:bg-teal-500 hover:text-white transition-colors whitespace-nowrap"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+
+          {/* Price List */}
+          <SingleUpload
+            label="Price List"
+            hint="(File size: up to 10MB)"
+            value={priceListUrl}
+            onChange={setPriceListUrl}
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+          />
+
+          {/* Brochure */}
+          <SingleUpload
+            label="Brochure"
+            hint="(File size: up to 10MB)"
+            value={brochureUrl}
+            onChange={setBrochureUrl}
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+          />
+
+          {/* Specifications */}
+          <SingleUpload
+            label="Specifications"
+            hint="(File size: up to 10MB)"
+            value={specificationsUrl}
+            onChange={setSpecificationsUrl}
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+          />
         </AccordionSection>
 
         {/* ── 9. Mini Stocklist (Optional) ─────────────────────────────────── */}
