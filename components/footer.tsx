@@ -173,7 +173,7 @@ export function Footer() {
               alt="Off The Plan"
               width={180}
               height={52}
-              className="h-12 w-auto object-contain invert"
+              className="h-12 w-auto object-contain invert mix-blend-screen"
             />
           </Link>
           <p className="font-sans text-sm font-semibold text-ink-light tracking-wide text-right">
