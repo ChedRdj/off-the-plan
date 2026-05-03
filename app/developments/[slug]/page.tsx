@@ -9,6 +9,7 @@ import { CheckIcon } from "@/components/icons";
 import { supabase } from "@/lib/supabase/public";
 import { formatPrice } from "@/lib/utils";
 import type { Development, DevelopmentFloorPlan } from "@/types/development";
+import { DevelopmentLocationMap } from "@/components/development-location-map";
 
 interface Props {
   params: { slug: string };
@@ -51,6 +52,11 @@ export default async function DossierPage({ params }: Props) {
     dev.hero_image_url ??
     null;
   const floorPlans = (dev.floor_plans ?? []) as DevelopmentFloorPlan[];
+
+  // Gallery: all images except the hero, up to 6
+  const galleryImages = (dev.images ?? [])
+    .filter((img) => img.url !== heroImageUrl)
+    .slice(0, 6);
 
   const { data: similarData } = await supabase
     .from("developments")
@@ -167,6 +173,67 @@ export default async function DossierPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* ─── Gallery ─────────────────────────────────────────── */}
+      {galleryImages.length > 0 && (
+        <section className="bg-white py-16 border-t border-line">
+          <div className="container-padded">
+            <div className="flex items-baseline gap-3 mb-8">
+              <h2 className="font-display font-light text-navy text-section-lg">Gallery</h2>
+              <span className="font-mono text-label-sm uppercase tracking-widest text-ink/30">
+                {galleryImages.length} {galleryImages.length === 1 ? "image" : "images"}
+              </span>
+            </div>
+
+            {galleryImages.length === 1 && (
+              <div className="relative w-full h-[480px] overflow-hidden">
+                <Image src={galleryImages[0].url} alt={galleryImages[0].caption ?? dev.name} fill className="object-cover" sizes="100vw" />
+              </div>
+            )}
+
+            {galleryImages.length === 2 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {galleryImages.map((img, i) => (
+                  <div key={img.id} className="relative h-[360px] overflow-hidden">
+                    <Image src={img.url} alt={img.caption ?? `${dev.name} ${i + 1}`} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {galleryImages.length >= 3 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* First image: full-width feature */}
+                <div className="relative md:col-span-2 h-[420px] overflow-hidden">
+                  <Image src={galleryImages[0].url} alt={galleryImages[0].caption ?? dev.name} fill className="object-cover" sizes="100vw" />
+                </div>
+                {/* Remaining images: 2 or 3 column grid */}
+                {galleryImages.slice(1).map((img, i) => (
+                  <div key={img.id} className="relative h-[280px] overflow-hidden">
+                    <Image src={img.url} alt={img.caption ?? `${dev.name} ${i + 2}`} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ─── Location Map ─────────────────────────────────────── */}
+      {dev.lat && dev.lng && (
+        <section className="bg-cream border-t border-line">
+          <div className="container-padded pt-16 pb-0">
+            <h2 className="font-display font-light text-navy text-section-lg mb-8">Location</h2>
+          </div>
+          <DevelopmentLocationMap
+            lat={dev.lat}
+            lng={dev.lng}
+            name={dev.name}
+            suburb={dev.suburb}
+            state={dev.state}
+          />
+        </section>
+      )}
 
       {/* ─── Floor Plans ──────────────────────────────────────── */}
       {floorPlans.length > 0 && (
