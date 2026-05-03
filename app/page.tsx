@@ -132,7 +132,7 @@ export default async function HomePage() {
 
           <div className="mt-8 md:hidden text-center">
             <Link href="/search" className="btn-ghost inline-flex items-center gap-2">
-              View all developments
+              View all listings
               <ChevronRightIcon size={16} />
             </Link>
           </div>
@@ -187,7 +187,7 @@ export default async function HomePage() {
               <ul className="flex flex-col gap-4 mb-8">
                 {[
                   "Early access to new launches before they reach the market",
-                  "Curated fortnightly digest of hand-picked developments",
+                  "Curated fortnightly digest of hand-picked listings",
                   "Market reports and suburb analysis from our editorial team",
                   "Invitations to private developer preview events",
                 ].map((benefit) => (

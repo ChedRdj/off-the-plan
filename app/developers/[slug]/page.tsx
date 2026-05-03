@@ -62,13 +62,13 @@ export default async function DeveloperProfilePage({ params }: Props) {
           <p className="font-sans text-body-lg text-ink/70 max-w-2xl mb-12">{dev.description}</p>
         )}
 
-        <h2 className="font-display font-light text-navy text-section-lg mb-6">Current developments</h2>
+        <h2 className="font-display font-light text-navy text-section-lg mb-6">Current listings</h2>
         {devDevelopments.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {devDevelopments.map((d) => <PropertyCard key={d.id} development={d} layout="tall" />)}
           </div>
         ) : (
-          <p className="font-sans text-body-md text-ink/40">No published developments at this time.</p>
+          <p className="font-sans text-body-md text-ink/40">No published listings at this time.</p>
         )}
       </div>
     </div>

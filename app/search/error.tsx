@@ -17,7 +17,7 @@ export default function SearchError({ error, reset }: Props) {
       <div className="text-center max-w-md">
         <p className="font-mono text-label-sm uppercase tracking-widest text-orange mb-4">Error</p>
         <h2 className="font-display font-light text-navy text-section-md mb-4">
-          Couldn't load developments
+          Couldn't load listings
         </h2>
         <p className="font-sans text-body-md text-ink/60 mb-8">
           There was a problem fetching the listings. Please try again.

@@ -6,7 +6,7 @@ import type { Development } from "@/types/development";
 
 export const metadata: Metadata = {
   title: "Map View",
-  description: "Browse off-the-plan developments across Australia on an interactive map.",
+  description: "Browse off-the-plan listings across Australia on an interactive map.",
 };
 
 // Dynamic import — mapbox-gl is browser-only
@@ -87,12 +87,12 @@ export default async function MapPage({ searchParams }: Props) {
         {/* Development list */}
         <div className="p-4 flex flex-col gap-1">
           <p className="font-mono text-label-sm uppercase tracking-widest text-ink-light/30 mb-2">
-            {developments.length} development{developments.length !== 1 ? "s" : ""}
+            {developments.length} listing{developments.length !== 1 ? "s" : ""}
           </p>
           {developments.map((dev) => (
             <Link
               key={dev.id}
-              href={`/developments/${dev.slug}`}
+              href={`/listings/${dev.slug}`}
               className="flex items-start gap-3 p-3 hover:bg-white/5 transition-colors border border-transparent hover:border-white/10 rounded"
             >
               <div className="mt-1.5 w-2 h-2 rounded-full bg-orange flex-shrink-0" />

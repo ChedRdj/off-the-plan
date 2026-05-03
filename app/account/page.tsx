@@ -36,7 +36,7 @@ export default async function AccountPage() {
 
         <div className="border-t border-line pt-6 mt-8 flex flex-col gap-4">
           <Link href="/saved" className="font-mono text-label-lg uppercase tracking-widest text-ink/60 hover:text-navy transition-colors">
-            View saved developments →
+            View saved listings →
           </Link>
           <form action="/api/auth/logout" method="POST">
             <button type="submit" className="font-mono text-label-lg uppercase tracking-widest text-ink/40 hover:text-orange transition-colors">

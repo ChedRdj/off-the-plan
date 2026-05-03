@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { DevelopmentForm } from "./development-form";
+import { ListingForm } from "./listing-form";
 
 interface Props { params: { id: string } }
 
-export default async function AdminDevelopmentEditPage({ params }: Props) {
+export default async function AdminListingEditPage({ params }: Props) {
   const isNew = params.id === "new";
 
   let dev = undefined;
@@ -19,5 +19,5 @@ export default async function AdminDevelopmentEditPage({ params }: Props) {
     dev = data;
   }
 
-  return <DevelopmentForm id={params.id} existing={dev ?? undefined} />;
+  return <ListingForm id={params.id} existing={dev ?? undefined} />;
 }

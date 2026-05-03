@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ImageUpload } from "@/components/admin/image-upload";
 
-interface DevelopmentData {
+interface ListingData {
   id?: string;
   name?: string;
   slug?: string;
@@ -26,10 +26,10 @@ interface DevelopmentData {
 
 interface Props {
   id: string;
-  existing?: DevelopmentData;
+  existing?: ListingData;
 }
 
-export function DevelopmentForm({ id, existing }: Props) {
+export function ListingForm({ id, existing }: Props) {
   const router = useRouter();
   const isNew = id === "new";
 
@@ -76,7 +76,7 @@ export function DevelopmentForm({ id, existing }: Props) {
       lng: lng === "" ? null : lng,
     };
 
-    const res = await fetch("/api/admin/developments", {
+    const res = await fetch("/api/admin/listings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...payload, _method: isNew ? "POST" : "PATCH" }),
@@ -89,14 +89,14 @@ export function DevelopmentForm({ id, existing }: Props) {
       return;
     }
 
-    router.push("/admin/developments");
+    router.push("/admin/listings");
     router.refresh();
   }
 
   async function handleDelete() {
-    if (!confirm(`Are you sure you want to delete "${existing?.name ?? "this development"}"? This cannot be undone.`)) return;
+    if (!confirm(`Are you sure you want to delete "${existing?.name ?? "this listing"}"? This cannot be undone.`)) return;
     setDeleting(true);
-    const res = await fetch("/api/admin/developments", {
+    const res = await fetch("/api/admin/listings", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
@@ -107,7 +107,7 @@ export function DevelopmentForm({ id, existing }: Props) {
       setDeleting(false);
       return;
     }
-    router.push("/admin/developments");
+    router.push("/admin/listings");
     router.refresh();
   }
 
@@ -118,14 +118,14 @@ export function DevelopmentForm({ id, existing }: Props) {
   return (
     <div>
       <Link
-        href="/admin/developments"
+        href="/admin/listings"
         className="inline-flex items-center gap-1.5 font-mono text-label-sm uppercase tracking-widest text-ink/40 hover:text-orange transition-colors mb-6"
       >
-        ← Back to Developments
+        ← Back to Listings
       </Link>
 
       <h1 className="font-display font-light text-navy text-section-lg mb-8">
-        {isNew ? "New development" : `Edit: ${existing?.name}`}
+        {isNew ? "New listing" : `Edit: ${existing?.name}`}
       </h1>
 
       {error && (
@@ -263,9 +263,9 @@ export function DevelopmentForm({ id, existing }: Props) {
         <div className="flex items-center justify-between pt-2">
           <div className="flex gap-3">
             <button type="submit" disabled={saving || deleting} className="btn-primary">
-              {saving ? "Saving…" : isNew ? "Create development" : "Save changes"}
+              {saving ? "Saving…" : isNew ? "Create listing" : "Save changes"}
             </button>
-            <Link href="/admin/developments" className="btn-ghost">Cancel</Link>
+            <Link href="/admin/listings" className="btn-ghost">Cancel</Link>
           </div>
           {!isNew && (
             <button
@@ -274,7 +274,7 @@ export function DevelopmentForm({ id, existing }: Props) {
               disabled={deleting || saving}
               className="font-mono text-label-sm uppercase tracking-widest px-4 py-2 border border-red-300 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors disabled:opacity-50"
             >
-              {deleting ? "Deleting…" : "Delete development"}
+              {deleting ? "Deleting…" : "Delete listing"}
             </button>
           )}
         </div>

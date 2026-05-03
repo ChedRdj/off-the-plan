@@ -19,18 +19,18 @@ export async function POST(req: Request) {
     };
 
     if (!data.contact_name || !data.email || !data.development_name) {
-      return NextResponse.redirect(new URL("/list-a-development?error=1", req.url));
+      return NextResponse.redirect(new URL("/list-a-listing?error=1", req.url));
     }
 
     const { error } = await supabaseAdmin.from("developer_leads").insert(data);
     if (error) {
       console.error("Developer lead insert error:", error);
-      return NextResponse.redirect(new URL("/list-a-development?error=1", req.url));
+      return NextResponse.redirect(new URL("/list-a-listing?error=1", req.url));
     }
 
-    return NextResponse.redirect(new URL("/list-a-development?submitted=1", req.url));
+    return NextResponse.redirect(new URL("/list-a-listing?submitted=1", req.url));
   } catch (err) {
     console.error("Leads route error:", err);
-    return NextResponse.redirect(new URL("/list-a-development?error=1", req.url));
+    return NextResponse.redirect(new URL("/list-a-listing?error=1", req.url));
   }
 }

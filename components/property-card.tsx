@@ -83,7 +83,7 @@ export function PropertyCard({
   if (layout === "wide") {
     return (
       <Link
-        href={`/developments/${development.slug}`}
+        href={`/listings/${development.slug}`}
         className={cn("group relative flex gap-0 overflow-hidden bg-cream-alt border border-line", className)}
       >
         {/* Image side */}
@@ -161,7 +161,7 @@ export function PropertyCard({
             )}
             <button
               onClick={handleSave}
-              aria-label={saved ? "Remove from saved" : "Save development"}
+              aria-label={saved ? "Remove from saved" : "Save listing"}
               disabled={loading}
               className="p-2 text-ink/30 hover:text-orange transition-colors disabled:opacity-50"
             >
@@ -183,7 +183,7 @@ export function PropertyCard({
   // Tall (default) layout
   return (
     <Link
-      href={`/developments/${development.slug}`}
+      href={`/listings/${development.slug}`}
       className={cn("group relative flex flex-col overflow-hidden bg-cream-alt border border-line", className)}
     >
       {/* Image */}
@@ -210,7 +210,7 @@ export function PropertyCard({
         {/* Save button */}
         <button
           onClick={handleSave}
-          aria-label={saved ? "Remove from saved" : "Save development"}
+          aria-label={saved ? "Remove from saved" : "Save listing"}
           disabled={loading}
           className="absolute top-3 right-3 p-1.5 bg-white/90 hover:bg-white transition-colors disabled:opacity-50"
         >

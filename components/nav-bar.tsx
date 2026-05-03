@@ -6,7 +6,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { label: "Developments", href: "/search" },
+  { label: "Listings", href: "/search" },
   { label: "Map", href: "/map" },
   { label: "Journal", href: "/journal" },
   { label: "Developers", href: "/developers" },
@@ -72,7 +72,7 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
         {/* Desktop CTAs */}
         <div className="hidden md:flex items-center gap-4">
           <Link
-            href="/list-a-development"
+            href="/list-a-listing"
             className={cn(
               "font-mono text-label-lg uppercase tracking-widest px-4 py-2 border transition-colors",
               isDark
@@ -80,7 +80,7 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
                 : "border-ink/20 text-ink hover:bg-ink/5"
             )}
           >
-            List a development
+            List a listing
           </Link>
           {user ? (
             <div className="flex items-center gap-4">
@@ -186,11 +186,11 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
 
         <div className="mt-auto flex flex-col gap-4">
           <Link
-            href="/list-a-development"
+            href="/list-a-listing"
             onClick={() => setMenuOpen(false)}
             className="font-mono text-label-lg uppercase tracking-widest text-center py-3 bg-orange text-white"
           >
-            List a development
+            List a listing
           </Link>
           {user ? (
             <>

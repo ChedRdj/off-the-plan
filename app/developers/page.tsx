@@ -46,7 +46,7 @@ export default async function DevelopersPage() {
                 </div>
                 <p className="font-sans text-body-md text-ink/60 line-clamp-2 mb-3">{dev.description}</p>
                 <p className="font-mono text-label-sm uppercase tracking-widest text-ink/30">
-                  {devCount} active development{devCount !== 1 ? "s" : ""} · {dev.state}
+                  {devCount} active listing{devCount !== 1 ? "s" : ""} · {dev.state}
                 </p>
               </Link>
             );
@@ -54,11 +54,11 @@ export default async function DevelopersPage() {
         </div>
 
         <div className="mt-14 pt-10 border-t border-line text-center">
-          <p className="font-display font-light text-navy text-section-lg mb-4">List your development</p>
+          <p className="font-display font-light text-navy text-section-lg mb-4">List your listing</p>
           <p className="font-sans text-body-md text-ink/60 mb-6 max-w-md mx-auto">
-            Reach qualified buyers before your development reaches the general market.
+            Reach qualified buyers before your listing reaches the general market.
           </p>
-          <Link href="/list-a-development" className="btn-primary inline-block">
+          <Link href="/list-a-listing" className="btn-primary inline-block">
             Get in touch
           </Link>
         </div>

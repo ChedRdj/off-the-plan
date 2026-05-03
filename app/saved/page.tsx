@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PropertyCard } from "@/components/property-card";
 import type { Development } from "@/types/development";
 
-export const metadata: Metadata = { title: "Saved Developments" };
+export const metadata: Metadata = { title: "Saved Listings" };
 
 export default async function SavedPage() {
   const supabase = createClient();
@@ -26,7 +26,7 @@ export default async function SavedPage() {
         <div className="flex items-baseline gap-4 mb-10">
           <h1 className="font-display font-light text-navy text-section-xl">Saved</h1>
           {saved.length > 0 && (
-            <p className="font-mono text-label-sm text-ink/30 uppercase tracking-widest">{saved.length} development{saved.length !== 1 ? "s" : ""}</p>
+            <p className="font-mono text-label-sm text-ink/30 uppercase tracking-widest">{saved.length} listing{saved.length !== 1 ? "s" : ""}</p>
           )}
         </div>
         {saved.length > 0 ? (
@@ -38,8 +38,8 @@ export default async function SavedPage() {
         ) : (
           <div className="text-center py-20">
             <p className="font-display font-light text-navy/30 text-section-lg mb-3">Nothing saved yet</p>
-            <p className="font-sans text-body-md text-ink/50 mb-6">Browse developments and save the ones you like.</p>
-            <Link href="/search" className="btn-primary inline-block">Browse developments</Link>
+            <p className="font-sans text-body-md text-ink/50 mb-6">Browse listings and save the ones you like.</p>
+            <Link href="/search" className="btn-primary inline-block">Browse listings</Link>
           </div>
         )}
       </div>

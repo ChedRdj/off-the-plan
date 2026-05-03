@@ -80,10 +80,10 @@ export function DevelopmentsMap({ developments }: Props) {
               <p className="font-mono text-label-sm text-orange mb-2">From {selected.price_display}</p>
             )}
             <Link
-              href={`/developments/${selected.slug}`}
+              href={`/listings/${selected.slug}`}
               className="font-mono text-[10px] uppercase tracking-widest text-navy hover:text-orange transition-colors"
             >
-              View development →
+              View listing →
             </Link>
           </div>
         </Popup>

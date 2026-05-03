@@ -11,8 +11,8 @@ const moreInfoLinks = [
   { label: "Resources", href: "/resources" },
   { label: "News", href: "/journal" },
   { label: "Guides", href: "/resources" },
-  { label: "Features & Pricing", href: "/list-a-development" },
-  { label: "List with us", href: "/list-a-development" },
+  { label: "Features & Pricing", href: "/list-a-listing" },
+  { label: "List with us", href: "/list-a-listing" },
 ];
 
 const propertyLinks = [
@@ -115,7 +115,7 @@ function NewsletterForm() {
   }
 
   if (status === "success") {
-    return <p className="font-sans text-sm text-ink-light/80 leading-relaxed">You're on the list — we'll be in touch with new developments.</p>;
+    return <p className="font-sans text-sm text-ink-light/80 leading-relaxed">You're on the list — we'll be in touch with new listings.</p>;
   }
 
   return (
@@ -177,14 +177,14 @@ export function Footer() {
             />
           </Link>
           <p className="font-sans text-sm font-semibold text-ink-light tracking-wide text-right">
-            Australia's Destination for New Developments
+            Australia's Destination for New Listings
           </p>
         </div>
 
         <div className="border-t border-ink-light/10 pt-8 grid md:grid-cols-2 gap-6 mb-10">
           <p className="font-sans text-sm text-ink-light/80 leading-relaxed">
             Australia's Home Of New Property | Off The Plan™ is an Australian property platform for new
-            apartments, new homes, developments and house & land packages available off-the-plan®.
+            apartments, new homes, listings and house & land packages available off-the-plan®.
             We connect buyers with current and upcoming property opportunities across Australia,
             providing direct access to new projects, developers and project marketing teams.
           </p>

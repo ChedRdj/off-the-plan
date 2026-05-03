@@ -135,7 +135,7 @@ export function CirclePopup() {
         ) : (
           <>
             <h2 className="font-display font-light text-white text-2xl md:text-3xl uppercase tracking-wide mb-2">
-              Sign up today for the latest news and developments
+              Sign up today for the latest news and listings
             </h2>
             <p className="font-sans text-white/80 text-sm mb-7">
               Tell us what you're looking for and we'll send you the best matches

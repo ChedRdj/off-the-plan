@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "List a Development",
-  description: "Get your off-the-plan development in front of Australia's qualified buyer network.",
+  title: "List a Listing",
+  description: "Get your off-the-plan listing in front of Australia's qualified buyer network.",
 };
 
 interface Props {
   searchParams: { submitted?: string; error?: string };
 }
 
-export default function ListADevelopmentPage({ searchParams }: Props) {
+export default function ListAListingPage({ searchParams }: Props) {
   const submitted = searchParams.submitted === "1";
   const hasError = searchParams.error === "1";
 
@@ -19,9 +19,9 @@ export default function ListADevelopmentPage({ searchParams }: Props) {
       <section className="bg-navy py-16">
         <div className="container-padded max-w-2xl">
           <p className="section-label text-ink-light/30 mb-3">For developers &amp; agents</p>
-          <h1 className="font-display font-light text-ink-light text-section-xl mb-4">List your development</h1>
+          <h1 className="font-display font-light text-ink-light text-section-xl mb-4">List your listing</h1>
           <p className="font-sans text-body-lg text-ink-light/60">
-            Reach Australia's qualified buyer network before your development hits the general market.
+            Reach Australia's qualified buyer network before your listing hits the general market.
           </p>
         </div>
       </section>
@@ -64,7 +64,7 @@ export default function ListADevelopmentPage({ searchParams }: Props) {
             </div>
           </div>
           <div>
-            <label htmlFor="development_name" className="section-label block mb-1.5">Development name *</label>
+            <label htmlFor="development_name" className="section-label block mb-1.5">Listing name *</label>
             <input id="development_name" name="development_name" type="text" required className="w-full border border-line px-3 py-2.5 bg-white font-sans text-body-md outline-none focus:border-orange/60" />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -15,17 +15,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/developers`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${BASE_URL}/resources`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
     { url: `${BASE_URL}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE_URL}/list-a-development`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE_URL}/list-a-listing`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
   ];
 
-  // Published developments
+  // Published listings
   const { data: developments } = await supabase
     .from("developments")
     .select("slug, updated_at")
     .eq("is_published", true);
 
-  const developmentRoutes: MetadataRoute.Sitemap = (developments ?? []).map((d) => ({
-    url: `${BASE_URL}/developments/${d.slug}`,
+  const listingRoutes: MetadataRoute.Sitemap = (developments ?? []).map((d) => ({
+    url: `${BASE_URL}/listings/${d.slug}`,
     lastModified: d.updated_at ?? now,
     changeFrequency: "weekly" as const,
     priority: 0.8,
@@ -44,5 +44,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...developmentRoutes, ...journalRoutes];
+  return [...staticRoutes, ...listingRoutes, ...journalRoutes];
 }

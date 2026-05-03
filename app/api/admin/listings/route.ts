@@ -41,10 +41,11 @@ export async function POST(req: Request) {
     revalidatePath("/");
     revalidatePath("/search");
     revalidatePath("/map");
+    revalidatePath("/listings", "layout");
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Development save error:", err);
+    console.error("Listing save error:", err);
     return NextResponse.json({ error: "Unexpected error." }, { status: 500 });
   }
 }
@@ -60,10 +61,11 @@ export async function DELETE(req: Request) {
     revalidatePath("/");
     revalidatePath("/search");
     revalidatePath("/map");
+    revalidatePath("/listings", "layout");
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("Development delete error:", err);
+    console.error("Listing delete error:", err);
     return NextResponse.json({ error: "Unexpected error." }, { status: 500 });
   }
 }

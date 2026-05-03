@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
-export default async function AdminDevelopmentsPage() {
+export default async function AdminListingsPage() {
   const { data } = await supabaseAdmin
     .from("developments")
     .select("id, name, suburb, state, status, is_published")
@@ -12,8 +12,8 @@ export default async function AdminDevelopmentsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display font-light text-navy text-section-lg">Developments</h1>
-        <Link href="/admin/developments/new" className="btn-primary">+ Add development</Link>
+        <h1 className="font-display font-light text-navy text-section-lg">Listings</h1>
+        <Link href="/admin/listings/new" className="btn-primary">+ Add listing</Link>
       </div>
 
       <div className="bg-white border border-line overflow-hidden">
@@ -39,7 +39,7 @@ export default async function AdminDevelopmentsPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/admin/developments/${dev.id}`} className="font-sans text-sm font-medium text-orange hover:underline">
+                  <Link href={`/admin/listings/${dev.id}`} className="font-sans text-sm font-medium text-orange hover:underline">
                     Edit
                   </Link>
                 </td>

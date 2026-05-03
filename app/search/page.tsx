@@ -7,7 +7,7 @@ import type { Development } from "@/types/development";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Search Developments",
+  title: "Search Listings",
   description: "Browse off-the-plan apartments, townhouses, and houses across Australia.",
 };
 
@@ -171,7 +171,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <div className="container-padded py-10">
         {/* Result count */}
         <p className="font-mono text-label-lg text-ink/40 mb-8 uppercase tracking-widest">
-          {results.length} development{results.length !== 1 ? "s" : ""}
+          {results.length} listing{results.length !== 1 ? "s" : ""}
         </p>
 
         {/* Results grid */}
@@ -185,7 +185,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="text-center py-20">
             <p className="font-display text-section-lg font-light text-navy/30 mb-4">No results</p>
             <p className="font-sans text-body-md text-ink/50 mb-6">
-              Try broadening your filters to see more developments.
+              Try broadening your filters to see more listings.
             </p>
             <Link href="/search" className="btn-ghost inline-block">
               Clear filters

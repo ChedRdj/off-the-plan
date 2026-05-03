@@ -13,7 +13,10 @@
       "mcp__Claude_in_Chrome__tabs_context_mcp",
       "WebFetch(domain:offtheplan.com.au)",
       "WebSearch",
-      "WebFetch(domain:www.offtheplan.com.au)"
+      "WebFetch(domain:www.offtheplan.com.au)",
+      "Bash(git mv *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

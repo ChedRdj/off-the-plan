@@ -23,8 +23,8 @@ export default async function AdminDashboard() {
   ]);
 
   const statCards = [
-    { label: "Active Listings", count: totalListings ?? 0, href: "/admin/developments", action: "View listings" },
-    { label: "Featured Listings", count: featuredListings ?? 0, href: "/admin/developments", action: "View listings" },
+    { label: "Active Listings", count: totalListings ?? 0, href: "/admin/listings", action: "View listings" },
+    { label: "Featured Listings", count: featuredListings ?? 0, href: "/admin/listings", action: "View listings" },
     { label: "Total Enquiries", count: enquiryCount ?? 0, href: "/admin/enquiries", action: "View enquiries" },
     { label: "Member Sign Ups", count: memberCount ?? 0, href: "/admin/members", action: "View members" },
     { label: "Developer Leads", count: leadCount ?? 0, href: "/admin/leads", action: "View leads" },
