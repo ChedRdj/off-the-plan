@@ -9,7 +9,6 @@ import { CheckIcon } from "@/components/icons";
 import { supabase } from "@/lib/supabase/public";
 import { formatPrice } from "@/lib/utils";
 import type { Development, DevelopmentFloorPlan } from "@/types/development";
-import { DevelopmentLocationMap } from "@/components/development-location-map";
 
 interface Props {
   params: { slug: string };
@@ -216,22 +215,6 @@ export default async function DossierPage({ params }: Props) {
               </div>
             )}
           </div>
-        </section>
-      )}
-
-      {/* ─── Location Map ─────────────────────────────────────── */}
-      {dev.lat && dev.lng && (
-        <section className="bg-cream border-t border-line">
-          <div className="container-padded pt-16 pb-0">
-            <h2 className="font-display font-light text-navy text-section-lg mb-8">Location</h2>
-          </div>
-          <DevelopmentLocationMap
-            lat={dev.lat}
-            lng={dev.lng}
-            name={dev.name}
-            suburb={dev.suburb}
-            state={dev.state}
-          />
         </section>
       )}
 
