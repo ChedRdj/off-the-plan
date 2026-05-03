@@ -12,7 +12,7 @@ export default async function AdminListingEditPage({ params }: Props) {
   if (!isNew) {
     const { data } = await supabaseAdmin
       .from("developments")
-      .select("id, name, slug, suburb, state, price_display, completion_quarter, beds_min, beds_max, summary, status, tier, is_published, is_featured, hero_image_url")
+      .select("id, name, slug, suburb, state, price_display, completion_quarter, beds_min, beds_max, summary, status, is_published, is_featured, hero_image_url")
       .eq("id", params.id)
       .single();
     if (!data) notFound();
