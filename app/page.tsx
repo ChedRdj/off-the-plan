@@ -59,10 +59,29 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-navy/60" />
 
         {/* Centered title */}
-        <div className="relative z-10 text-center px-6">
-          <h1 className="font-display font-light text-ink-light leading-none tracking-tight text-[clamp(64px,10vw,160px)]">
-            Off The Plan
+        <div className="relative z-10 text-center px-6 flex flex-col items-center gap-6">
+          {/* Thin rule above */}
+          <div className="w-12 h-px bg-orange" aria-hidden="true" />
+
+          {/* Eyebrow */}
+          <p className="font-mono text-label-lg uppercase tracking-[0.3em] text-ink-light/50">
+            Est. 2014 · Australia
+          </p>
+
+          {/* Main title */}
+          <h1 className="font-display font-light text-ink-light leading-[0.9] tracking-tight text-[clamp(56px,9vw,148px)]">
+            Off{" "}
+            <em className="not-italic italic text-orange">The</em>
+            {" "}Plan
           </h1>
+
+          {/* Tagline */}
+          <p className="font-sans font-light text-ink-light/70 text-[clamp(16px,1.8vw,22px)] tracking-wide max-w-md">
+            Where your future address begins
+          </p>
+
+          {/* Thin rule below */}
+          <div className="w-12 h-px bg-orange" aria-hidden="true" />
         </div>
       </section>
 
