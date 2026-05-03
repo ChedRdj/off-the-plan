@@ -12,10 +12,13 @@ interface Developer { id: string; name: string }
 interface GalleryImage { id: string; url: string; sort_order: number }
 interface FloorPlan {
   id?: string;
-  plan_type: string;
-  config: string;
+  beds: string;
+  bath: string;
+  garage: string;
   internal_sqm: string;
   price_from: string;
+  plan_type: string;
+  config: string;
   image_url: string;
 }
 
@@ -461,7 +464,7 @@ export function ListingForm({
   function addFloorPlan() {
     setFloorPlans((prev) => [
       ...prev,
-      { plan_type: "", config: "", internal_sqm: "", price_from: "", image_url: "" },
+      { beds: "", bath: "", garage: "", internal_sqm: "", price_from: "", plan_type: "", config: "", image_url: "" },
     ]);
   }
 
@@ -887,52 +890,65 @@ export function ListingForm({
 
         {/* ── 3. Configuration Summary ─────────────────────────────────────── */}
         <AccordionSection title="Configuration Summary">
-          <div className={`${g4} mb-4`}>
+          {isNew ? (
+            <p className="font-sans text-sm text-ink/40 italic">Save the listing first to add unit configurations.</p>
+          ) : (
             <div>
-              <label className={lbl}>Beds Min</label>
-              <input type="number" value={bedsMin} onChange={(e) => setBedsMin(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
+              {floorPlans.length > 0 && (
+                <div className="overflow-x-auto mb-4">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b-2 border-orange/20">
+                        {["Beds", "Bath", "Garage", "Total Size (sqm)", "Price From ($)", "Action"].map((h) => (
+                          <th key={h} className="font-sans text-sm font-semibold text-ink/70 px-4 py-3 whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {floorPlans.map((fp, i) => (
+                        <tr key={i} className="border-b border-line last:border-0">
+                          <td className="px-4 py-3">
+                            <input type="number" value={fp.beds} onChange={(e) => updateFloorPlan(i, "beds", e.target.value)} placeholder="1" className="border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 w-20" />
+                          </td>
+                          <td className="px-4 py-3">
+                            <input type="number" value={fp.bath} onChange={(e) => updateFloorPlan(i, "bath", e.target.value)} placeholder="1" className="border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 w-20" />
+                          </td>
+                          <td className="px-4 py-3">
+                            <input type="number" value={fp.garage} onChange={(e) => updateFloorPlan(i, "garage", e.target.value)} placeholder="1" className="border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 w-20" />
+                          </td>
+                          <td className="px-4 py-3">
+                            <input type="number" value={fp.internal_sqm} onChange={(e) => updateFloorPlan(i, "internal_sqm", e.target.value)} placeholder="75" className="border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 w-28" />
+                          </td>
+                          <td className="px-4 py-3">
+                            <input type="number" value={fp.price_from} onChange={(e) => updateFloorPlan(i, "price_from", e.target.value)} placeholder="650000" className="border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 w-32" />
+                          </td>
+                          <td className="px-4 py-3">
+                            <button
+                              type="button"
+                              onClick={() => removeFloorPlan(i)}
+                              className="font-mono text-[10px] uppercase tracking-widest px-3 py-2 border border-red-300 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={addFloorPlan}
+                className="font-mono text-[10px] uppercase tracking-widest px-4 py-2 border border-orange text-orange hover:bg-orange hover:text-white transition-colors mr-2"
+              >
+                + Add
+              </button>
+              <p className="font-sans text-xs text-ink/40 mt-3">
+                Changes save when you click <strong>Save changes</strong> at the bottom of the form.
+              </p>
             </div>
-            <div>
-              <label className={lbl}>Beds Max</label>
-              <input type="number" value={bedsMax} onChange={(e) => setBedsMax(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Baths Min</label>
-              <input type="number" value={bathsMin} onChange={(e) => setBathsMin(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Baths Max</label>
-              <input type="number" value={bathsMax} onChange={(e) => setBathsMax(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Car Parks Min</label>
-              <input type="number" value={carsMin} onChange={(e) => setCarsMin(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Car Parks Max</label>
-              <input type="number" value={carsMax} onChange={(e) => setCarsMax(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Internal Sqm Min</label>
-              <input type="number" value={internalSqmMin} onChange={(e) => setInternalSqmMin(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Internal Sqm Max</label>
-              <input type="number" value={internalSqmMax} onChange={(e) => setInternalSqmMax(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Land Size Min (sqm)</label>
-              <input type="number" value={landSizeMin} onChange={(e) => setLandSizeMin(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Land Size Max (sqm)</label>
-              <input type="number" value={landSizeMax} onChange={(e) => setLandSizeMax(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Levels</label>
-              <input type="number" value={levels} onChange={(e) => setLevels(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
-            </div>
-          </div>
+          )}
         </AccordionSection>
 
         {/* ── 4. Property Features ─────────────────────────────────────────── */}
@@ -1037,38 +1053,37 @@ export function ListingForm({
         <AccordionSection title="Mini Stocklist (Optional)">
           {isNew ? (
             <p className="font-sans text-sm text-ink/40 italic">Save the listing first to add floor plans.</p>
+          ) : floorPlans.length === 0 ? (
+            <p className="font-sans text-sm text-ink/40">Add unit configurations in the Configuration Summary section above, then add plan details and floor plan images here.</p>
           ) : (
-            <div>
-              {floorPlans.length > 0 && (
-                <div className="overflow-x-auto mb-4">
-                  <table className="w-full text-left border border-line">
-                    <thead>
-                      <tr className="border-b border-orange/30 bg-cream-alt">
-                        {["Plan Type", "Config", "Sqm", "Price From ($)", "Image URL", ""].map((h) => (
-                          <th key={h} className="font-mono text-[10px] uppercase tracking-widest text-orange px-3 py-2 whitespace-nowrap">{h}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {floorPlans.map((fp, i) => (
-                        <tr key={i} className="border-b border-line last:border-0">
-                          <td className="px-2 py-2"><input type="text" value={fp.plan_type} onChange={(e) => updateFloorPlan(i, "plan_type", e.target.value)} placeholder="Type A" className={smallInp + " w-24"} /></td>
-                          <td className="px-2 py-2"><input type="text" value={fp.config} onChange={(e) => updateFloorPlan(i, "config", e.target.value)} placeholder="2 bed 2 bath" className={smallInp + " w-32"} /></td>
-                          <td className="px-2 py-2"><input type="number" value={fp.internal_sqm} onChange={(e) => updateFloorPlan(i, "internal_sqm", e.target.value)} placeholder="85" className={smallInp + " w-20"} /></td>
-                          <td className="px-2 py-2"><input type="number" value={fp.price_from} onChange={(e) => updateFloorPlan(i, "price_from", e.target.value)} placeholder="750000" className={smallInp + " w-28"} /></td>
-                          <td className="px-2 py-2"><input type="text" value={fp.image_url} onChange={(e) => updateFloorPlan(i, "image_url", e.target.value)} placeholder="https://..." className={smallInp + " w-48"} /></td>
-                          <td className="px-2 py-2">
-                            <button type="button" onClick={() => removeFloorPlan(i)} className="font-mono text-[10px] uppercase tracking-widest px-2 py-1.5 border border-red-300 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors whitespace-nowrap">Remove</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              <button type="button" onClick={addFloorPlan} className="font-mono text-[10px] uppercase tracking-widest px-4 py-2 border border-line text-ink/60 hover:border-navy hover:text-navy transition-colors">
-                + Add Floor Plan
-              </button>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border border-line">
+                <thead>
+                  <tr className="border-b border-orange/30 bg-cream-alt">
+                    {["Beds", "Plan Type / Label", "Config Description", "Floor Plan Image URL"].map((h) => (
+                      <th key={h} className="font-mono text-[10px] uppercase tracking-widest text-orange px-3 py-2 whitespace-nowrap">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {floorPlans.map((fp, i) => (
+                    <tr key={i} className="border-b border-line last:border-0">
+                      <td className="px-3 py-2 font-sans text-sm text-ink/60 whitespace-nowrap">
+                        {fp.beds ? `${fp.beds} Bed` : "—"}
+                      </td>
+                      <td className="px-3 py-2">
+                        <input type="text" value={fp.plan_type} onChange={(e) => updateFloorPlan(i, "plan_type", e.target.value)} placeholder="e.g. Type A" className={smallInp + " w-28"} />
+                      </td>
+                      <td className="px-3 py-2">
+                        <input type="text" value={fp.config} onChange={(e) => updateFloorPlan(i, "config", e.target.value)} placeholder="e.g. North-facing corner" className={smallInp + " w-48"} />
+                      </td>
+                      <td className="px-3 py-2">
+                        <input type="text" value={fp.image_url} onChange={(e) => updateFloorPlan(i, "image_url", e.target.value)} placeholder="https://..." className={smallInp + " w-56"} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </AccordionSection>

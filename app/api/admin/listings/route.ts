@@ -98,12 +98,15 @@ async function syncFloorPlans(developmentId: string, floorPlans: unknown[]) {
   if (!Array.isArray(floorPlans)) return;
   await supabaseAdmin.from("development_floor_plans").delete().eq("development_id", developmentId);
   if (floorPlans.length === 0) return;
-  const rows = floorPlans.map((fp: Record<string, unknown>) => ({
+  const rows = (floorPlans as Record<string, unknown>[]).map((fp) => ({
     development_id: developmentId,
-    plan_type: fp.plan_type || null,
-    config: fp.config || null,
+    beds: fp.beds ? Number(fp.beds) : null,
+    bath: fp.bath ? Number(fp.bath) : null,
+    garage: fp.garage ? Number(fp.garage) : null,
     internal_sqm: fp.internal_sqm ? Number(fp.internal_sqm) : null,
     price_from: fp.price_from ? Number(fp.price_from) : null,
+    plan_type: fp.plan_type || null,
+    config: fp.config || null,
     image_url: fp.image_url || null,
   }));
   await supabaseAdmin.from("development_floor_plans").insert(rows);
