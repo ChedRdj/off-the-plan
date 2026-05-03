@@ -241,7 +241,7 @@ export function DevelopmentForm({ id, existing }: Props) {
               type="button"
               onClick={handleDelete}
               disabled={deleting || saving}
-              className="font-mono text-label-sm uppercase tracking-widest text-red-500 hover:text-red-700 transition-colors disabled:opacity-50"
+              className="font-mono text-label-sm uppercase tracking-widest px-4 py-2 border border-red-300 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors disabled:opacity-50"
             >
               {deleting ? "Deleting…" : "Delete development"}
             </button>
