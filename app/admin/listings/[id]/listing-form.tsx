@@ -21,50 +21,83 @@ interface FloorPlan {
 
 interface ListingData {
   id?: string;
-  name?: string;
-  slug?: string;
+  // Category
   type?: string;
   tag?: string;
   tier?: string | null;
+  // Project Overview
+  name?: string;
+  slug?: string;
   developer_id?: string | null;
-  suburb?: string;
+  developer_website?: string;
+  listing_duration?: string;
+  logo_url?: string;
+  residence_count?: number | null;
+  // Address
+  street_address?: string;
+  street_address_2?: string;
+  country?: string;
   state?: string;
-  status?: string;
+  city?: string;
+  postcode?: string;
+  suburb?: string;
+  location_description?: string;
+  // Sale office
+  sale_office_street?: string;
+  sale_office_street_2?: string;
+  sale_office_country?: string;
+  sale_office_state?: string;
+  sale_office_city?: string;
+  sale_office_postcode?: string;
+  // Details
+  display_suite_timing?: string;
+  description?: string;
   summary?: string;
+  status?: string;
   is_published?: boolean;
   is_featured?: boolean;
   lat?: number | null;
   lng?: number | null;
+  // Pricing / dates
+  price_from?: number | null;
+  search_price_max?: number | null;
+  price_display?: string;
+  show_price_on_search?: boolean;
+  promotional_banner?: string;
+  completion_quarter?: string;
+  configuration_label?: string;
+  // Configuration Summary
   beds_min?: number | null;
   beds_max?: number | null;
   baths_min?: number | null;
   baths_max?: number | null;
   cars_min?: number | null;
   cars_max?: number | null;
-  price_display?: string;
-  price_from?: number | null;
-  completion_quarter?: string;
   levels?: number | null;
-  residence_count?: number | null;
   internal_sqm_min?: number | null;
   internal_sqm_max?: number | null;
   land_size_min?: number | null;
   land_size_max?: number | null;
+  // Features
   lifestyle?: string[];
   features?: string[] | null;
   architect?: string;
   interiors?: string;
   landscape?: string;
   builder?: string;
+  // Amenities
   nearby_amenities?: string[] | null;
+  // Agent
   agent_name?: string;
   agent_phone?: string;
   agent_email?: string;
   agent_agency?: string;
+  // Uploads
   hero_image_url?: string;
   brochure_url?: string;
   video_url?: string;
   virtual_tour_url?: string;
+  // SEO
   seo_title?: string;
   seo_description?: string;
 }
@@ -79,7 +112,7 @@ interface Props {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const STATES = ["VIC", "NSW", "QLD", "WA", "SA", "ACT", "NT", "TAS"];
+const AU_STATES = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 
 const TYPES = [
   "Apartment", "House & Land", "Townhouse", "Villa",
@@ -89,6 +122,8 @@ const TYPES = [
 const STATUSES = [
   "Selling now", "Final release", "Register interest", "Cancelled", "Archived",
 ];
+
+const LISTING_DURATIONS = ["3 Months", "6 Months", "12 Months", "24 Months"];
 
 const LIFESTYLE_OPTIONS = [
   "Pool", "Gymnasium", "Concierge", "Rooftop Terrace", "BBQ Area",
@@ -140,6 +175,14 @@ function AccordionSection({
   );
 }
 
+function SectionDivider({ label }: { label: string }) {
+  return (
+    <p className="font-mono text-[10px] uppercase tracking-widest text-orange border-b border-orange/20 pb-1 mt-5 mb-4">
+      {label}
+    </p>
+  );
+}
+
 function TagInput({
   value,
   onChange,
@@ -184,10 +227,7 @@ function TagInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              addTag();
-            }
+            if (e.key === "Enter") { e.preventDefault(); addTag(); }
           }}
           placeholder={placeholder ?? "Type and press Enter to add"}
           className="flex-1 border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 transition-colors"
@@ -254,11 +294,7 @@ function GalleryManager({
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
-        onChange={(e) => {
-          const f = e.target.files?.[0];
-          if (f) uploadImage(f);
-          e.target.value = "";
-        }}
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadImage(f); e.target.value = ""; }}
         className="sr-only"
       />
       <button
@@ -290,18 +326,50 @@ export function ListingForm({
   const [tag, setTag] = useState(existing?.tag ?? "");
   const [tier, setTier] = useState(existing?.tier ?? "");
 
-  // Project Overview
+  // Project Overview – identity
   const [name, setName] = useState(existing?.name ?? "");
   const [slug, setSlug] = useState(existing?.slug ?? "");
   const [developerId, setDeveloperId] = useState(existing?.developer_id ?? "");
-  const [suburb, setSuburb] = useState(existing?.suburb ?? "");
+  const [developerWebsite, setDeveloperWebsite] = useState(existing?.developer_website ?? "");
+  const [listingDuration, setListingDuration] = useState(existing?.listing_duration ?? "");
+  const [logoUrl, setLogoUrl] = useState(existing?.logo_url ?? "");
+  const [residenceCount, setResidenceCount] = useState<number | "">(existing?.residence_count ?? "");
+
+  // Address
+  const [streetAddress, setStreetAddress] = useState(existing?.street_address ?? "");
+  const [streetAddress2, setStreetAddress2] = useState(existing?.street_address_2 ?? "");
+  const [country, setCountry] = useState(existing?.country ?? "Australia");
   const [state, setState] = useState(existing?.state ?? "");
+  const [city, setCity] = useState(existing?.city ?? "");
+  const [postcode, setPostcode] = useState(existing?.postcode ?? "");
+  const [suburb, setSuburb] = useState(existing?.suburb ?? "");
+  const [locationDescription, setLocationDescription] = useState(existing?.location_description ?? "");
+
+  // Sale office address
+  const [saleOfficeStreet, setSaleOfficeStreet] = useState(existing?.sale_office_street ?? "");
+  const [saleOfficeStreet2, setSaleOfficeStreet2] = useState(existing?.sale_office_street_2 ?? "");
+  const [saleOfficeCountry, setSaleOfficeCountry] = useState(existing?.sale_office_country ?? "");
+  const [saleOfficeState, setSaleOfficeState] = useState(existing?.sale_office_state ?? "");
+  const [saleOfficeCity, setSaleOfficeCity] = useState(existing?.sale_office_city ?? "");
+  const [saleOfficePostcode, setSaleOfficePostcode] = useState(existing?.sale_office_postcode ?? "");
+
+  // Description & timing
+  const [displaySuiteTiming, setDisplaySuiteTiming] = useState(existing?.display_suite_timing ?? "");
+  const [description, setDescription] = useState(existing?.description ?? existing?.summary ?? "");
   const [status, setStatus] = useState(existing?.status ?? "Selling now");
-  const [summary, setSummary] = useState(existing?.summary ?? "");
   const [isPublished, setIsPublished] = useState(existing?.is_published ?? false);
   const [isFeatured, setIsFeatured] = useState(existing?.is_featured ?? false);
   const [lat, setLat] = useState<number | "">(existing?.lat ?? "");
   const [lng, setLng] = useState<number | "">(existing?.lng ?? "");
+
+  // Pricing & dates
+  const [priceFrom, setPriceFrom] = useState<number | "">(existing?.price_from ?? "");
+  const [searchPriceMax, setSearchPriceMax] = useState<number | "">(existing?.search_price_max ?? "");
+  const [priceDisplay, setPriceDisplay] = useState(existing?.price_display ?? "");
+  const [showPriceOnSearch, setShowPriceOnSearch] = useState(existing?.show_price_on_search ?? true);
+  const [promotionalBanner, setPromotionalBanner] = useState(existing?.promotional_banner ?? "");
+  const [completionQuarter, setCompletionQuarter] = useState(existing?.completion_quarter ?? "");
+  const [configurationLabel, setConfigurationLabel] = useState(existing?.configuration_label ?? "");
 
   // Configuration Summary
   const [bedsMin, setBedsMin] = useState<number | "">(existing?.beds_min ?? "");
@@ -310,11 +378,7 @@ export function ListingForm({
   const [bathsMax, setBathsMax] = useState<number | "">(existing?.baths_max ?? "");
   const [carsMin, setCarsMin] = useState<number | "">(existing?.cars_min ?? "");
   const [carsMax, setCarsMax] = useState<number | "">(existing?.cars_max ?? "");
-  const [priceDisplay, setPriceDisplay] = useState(existing?.price_display ?? "");
-  const [priceFrom, setPriceFrom] = useState<number | "">(existing?.price_from ?? "");
-  const [completionQuarter, setCompletionQuarter] = useState(existing?.completion_quarter ?? "");
   const [levels, setLevels] = useState<number | "">(existing?.levels ?? "");
-  const [residenceCount, setResidenceCount] = useState<number | "">(existing?.residence_count ?? "");
   const [internalSqmMin, setInternalSqmMin] = useState<number | "">(existing?.internal_sqm_min ?? "");
   const [internalSqmMax, setInternalSqmMax] = useState<number | "">(existing?.internal_sqm_max ?? "");
   const [landSizeMin, setLandSizeMin] = useState<number | "">(existing?.land_size_min ?? "");
@@ -329,9 +393,7 @@ export function ListingForm({
   const [builder, setBuilder] = useState(existing?.builder ?? "");
 
   // Nearby Amenities
-  const [nearbyAmenities, setNearbyAmenities] = useState<string[]>(
-    existing?.nearby_amenities ?? []
-  );
+  const [nearbyAmenities, setNearbyAmenities] = useState<string[]>(existing?.nearby_amenities ?? []);
 
   // Selling Agent
   const [agentName, setAgentName] = useState(existing?.agent_name ?? "");
@@ -362,9 +424,7 @@ export function ListingForm({
 
   // ─── Helpers ─────────────────────────────────────────────────────────────
 
-  function n(v: number | ""): number | null {
-    return v === "" ? null : v;
-  }
+  function n(v: number | ""): number | null { return v === "" ? null : v; }
 
   function toggleLifestyle(item: string) {
     setLifestyle((prev) =>
@@ -372,7 +432,7 @@ export function ListingForm({
     );
   }
 
-  // ─── Gallery handlers ────────────────────────────────────────────────────
+  // ─── Gallery ─────────────────────────────────────────────────────────────
 
   async function addGalleryImage(url: string) {
     if (!url) return;
@@ -396,7 +456,7 @@ export function ListingForm({
     setGallery((prev) => prev.filter((g) => g.id !== imageId));
   }
 
-  // ─── Floor plan handlers ─────────────────────────────────────────────────
+  // ─── Floor plans ─────────────────────────────────────────────────────────
 
   function addFloorPlan() {
     setFloorPlans((prev) => [
@@ -433,14 +493,43 @@ export function ListingForm({
       name,
       slug,
       developer_id: developerId || null,
-      suburb: suburb || null,
+      developer_website: developerWebsite || null,
+      listing_duration: listingDuration || null,
+      logo_url: logoUrl || null,
+      residence_count: n(residenceCount),
+      // Address
+      street_address: streetAddress || null,
+      street_address_2: streetAddress2 || null,
+      country: country || null,
       state: state || null,
+      city: city || null,
+      postcode: postcode || null,
+      suburb: suburb || null,
+      location_description: locationDescription || null,
+      // Sale office
+      sale_office_street: saleOfficeStreet || null,
+      sale_office_street_2: saleOfficeStreet2 || null,
+      sale_office_country: saleOfficeCountry || null,
+      sale_office_state: saleOfficeState || null,
+      sale_office_city: saleOfficeCity || null,
+      sale_office_postcode: saleOfficePostcode || null,
+      // Details
+      display_suite_timing: displaySuiteTiming || null,
+      description: description || null,
+      summary: description || null,
       status,
-      summary: summary || null,
       is_published: isPublished,
       is_featured: isFeatured,
       lat: n(lat),
       lng: n(lng),
+      // Pricing
+      price_from: n(priceFrom),
+      search_price_max: n(searchPriceMax),
+      price_display: priceDisplay || null,
+      show_price_on_search: showPriceOnSearch,
+      promotional_banner: promotionalBanner || null,
+      completion_quarter: completionQuarter || null,
+      configuration_label: configurationLabel || null,
       // Configuration
       beds_min: n(bedsMin),
       beds_max: n(bedsMax),
@@ -448,11 +537,7 @@ export function ListingForm({
       baths_max: n(bathsMax),
       cars_min: n(carsMin),
       cars_max: n(carsMax),
-      price_display: priceDisplay || null,
-      price_from: n(priceFrom),
-      completion_quarter: completionQuarter || null,
       levels: n(levels),
-      residence_count: n(residenceCount),
       internal_sqm_min: n(internalSqmMin),
       internal_sqm_max: n(internalSqmMax),
       land_size_min: n(landSizeMin),
@@ -464,7 +549,6 @@ export function ListingForm({
       interiors: interiors || null,
       landscape: landscape || null,
       builder: builder || null,
-      // Amenities
       nearby_amenities: nearbyAmenities.length ? nearbyAmenities : null,
       // Agent
       agent_name: agentName || null,
@@ -501,12 +585,7 @@ export function ListingForm({
   }
 
   async function handleDelete() {
-    if (
-      !confirm(
-        `Are you sure you want to delete "${existing?.name ?? "this listing"}"? This cannot be undone.`
-      )
-    )
-      return;
+    if (!confirm(`Are you sure you want to delete "${existing?.name ?? "this listing"}"? This cannot be undone.`)) return;
     setDeleting(true);
     const res = await fetch("/api/admin/listings", {
       method: "DELETE",
@@ -525,14 +604,12 @@ export function ListingForm({
 
   // ─── Shared styles ────────────────────────────────────────────────────────
 
-  const input =
-    "w-full border border-line px-3 py-2.5 bg-white font-sans text-body-md text-ink outline-none focus:border-orange/60 transition-colors";
-  const label = "section-label block mb-1.5";
-  const grid2 = "grid grid-cols-2 gap-4";
-  const grid4 = "grid grid-cols-4 gap-4";
-
-  const smallInput =
-    "w-full border border-line px-2 py-1.5 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 transition-colors";
+  const inp = "w-full border border-line px-3 py-2.5 bg-white font-sans text-body-md text-ink outline-none focus:border-orange/60 transition-colors";
+  const lbl = "section-label block mb-1.5";
+  const g2 = "grid grid-cols-2 gap-4";
+  const g3 = "grid grid-cols-3 gap-4";
+  const g4 = "grid grid-cols-4 gap-4";
+  const smallInp = "w-full border border-line px-2 py-1.5 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 transition-colors";
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
@@ -559,37 +636,21 @@ export function ListingForm({
 
         {/* ── 1. Category ─────────────────────────────────────────────────── */}
         <AccordionSection title="Category" defaultOpen>
-          <div className={grid2}>
+          <div className={g2}>
             <div>
-              <label className={label}>Listing Type</label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                className={input + " cursor-pointer"}
-              >
+              <label className={lbl}>Listing Type</label>
+              <select value={type} onChange={(e) => setType(e.target.value)} className={inp + " cursor-pointer"}>
                 <option value="">— Select type —</option>
-                {TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
+                {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             <div>
-              <label className={label}>Tag</label>
-              <input
-                type="text"
-                value={tag}
-                onChange={(e) => setTag(e.target.value)}
-                placeholder="e.g. New Release"
-                className={input}
-              />
+              <label className={lbl}>Tag</label>
+              <input type="text" value={tag} onChange={(e) => setTag(e.target.value)} placeholder="e.g. New Release" className={inp} />
             </div>
             <div>
-              <label className={label}>Tier</label>
-              <select
-                value={tier}
-                onChange={(e) => setTier(e.target.value)}
-                className={input + " cursor-pointer"}
-              >
+              <label className={lbl}>Tier</label>
+              <select value={tier} onChange={(e) => setTier(e.target.value)} className={inp + " cursor-pointer"}>
                 <option value="">— No tier —</option>
                 <option value="1st Tier">1st Tier</option>
                 <option value="2nd Tier">2nd Tier</option>
@@ -600,195 +661,276 @@ export function ListingForm({
 
         {/* ── 2. Project Overview ──────────────────────────────────────────── */}
         <AccordionSection title="Project Overview" defaultOpen={isNew}>
-          <div className={`${grid2} mb-4`}>
+
+          {/* Row 1: name + listing duration */}
+          <div className={g2}>
             <div>
-              <label className={label}>Project Name *</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className={input}
-              />
+              <label className={lbl}>Project Name *</label>
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} required className={inp} />
             </div>
             <div>
-              <label className={label}>Slug *</label>
-              <input
-                type="text"
-                value={slug}
-                onChange={(e) => setSlug(e.target.value)}
-                required
-                className={input + " font-mono text-label-lg"}
-              />
-            </div>
-            <div>
-              <label className={label}>Developer</label>
-              <select
-                value={developerId}
-                onChange={(e) => setDeveloperId(e.target.value)}
-                className={input + " cursor-pointer"}
-              >
-                <option value="">— No developer —</option>
-                {developers.map((d) => (
-                  <option key={d.id} value={d.id}>{d.name}</option>
-                ))}
+              <label className={lbl}>Listing Duration</label>
+              <select value={listingDuration} onChange={(e) => setListingDuration(e.target.value)} className={inp + " cursor-pointer"}>
+                <option value="">— Select —</option>
+                {LISTING_DURATIONS.map((d) => <option key={d} value={d}>{d}</option>)}
               </select>
-            </div>
-            <div>
-              <label className={label}>Status</label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className={input + " cursor-pointer"}
-              >
-                {STATUSES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={label}>Suburb</label>
-              <input
-                type="text"
-                value={suburb}
-                onChange={(e) => setSuburb(e.target.value)}
-                className={input}
-              />
-            </div>
-            <div>
-              <label className={label}>State</label>
-              <select
-                value={state}
-                onChange={(e) => setState(e.target.value)}
-                className={input + " cursor-pointer"}
-              >
-                <option value="">Select</option>
-                {STATES.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={label}>Latitude</label>
-              <input
-                type="number"
-                step="any"
-                value={lat}
-                onChange={(e) => setLat(e.target.value === "" ? "" : Number(e.target.value))}
-                placeholder="e.g. -31.9344"
-                className={input}
-              />
-            </div>
-            <div>
-              <label className={label}>Longitude</label>
-              <input
-                type="number"
-                step="any"
-                value={lng}
-                onChange={(e) => setLng(e.target.value === "" ? "" : Number(e.target.value))}
-                placeholder="e.g. 115.7908"
-                className={input}
-              />
             </div>
           </div>
-          <p className="font-sans text-xs text-ink/40 mb-4">
-            Tip: right-click any location in Google Maps → copy the coordinates shown at the top.
-          </p>
-          <div className="mb-5">
-            <label className={label}>Summary / Description</label>
+
+          {/* Row 2: developer + website + number of residences */}
+          <div className={`${g3} mt-4`}>
+            <div>
+              <label className={lbl}>Project By (Developer)</label>
+              <select value={developerId} onChange={(e) => setDeveloperId(e.target.value)} className={inp + " cursor-pointer"}>
+                <option value="">— No developer —</option>
+                {developers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>Developer Website URL</label>
+              <input type="url" value={developerWebsite} onChange={(e) => setDeveloperWebsite(e.target.value)} placeholder="https://..." className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Number of Apartments / Lots</label>
+              <input type="number" value={residenceCount} onChange={(e) => setResidenceCount(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
+            </div>
+          </div>
+
+          {/* Project logo */}
+          <div className="mt-5">
+            <ImageUpload label="Project Logo" value={logoUrl} onChange={setLogoUrl} bucket="development-images" />
+          </div>
+
+          {/* URL slug */}
+          <div className="mt-4">
+            <label className={lbl}>URL Slug *</label>
+            <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} required className={inp + " font-mono text-label-lg"} />
+          </div>
+
+          {/* ── Address ── */}
+          <SectionDivider label="Address" />
+          <div className={`${g2} mb-4`}>
+            <div>
+              <label className={lbl}>Street Address *</label>
+              <input type="text" value={streetAddress} onChange={(e) => setStreetAddress(e.target.value)} placeholder="e.g. 35" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Street Address 2 *</label>
+              <input type="text" value={streetAddress2} onChange={(e) => setStreetAddress2(e.target.value)} placeholder="e.g. Northumberland Road" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Country</label>
+              <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Australia" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>State</label>
+              <select value={state} onChange={(e) => setState(e.target.value)} className={inp + " cursor-pointer"}>
+                <option value="">Select</option>
+                {AU_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>City</label>
+              <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>PostCode</label>
+              <input type="text" value={postcode} onChange={(e) => setPostcode(e.target.value)} className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Suburb</label>
+              <input type="text" value={suburb} onChange={(e) => setSuburb(e.target.value)} className={inp} />
+            </div>
+          </div>
+          <div>
+            <label className={lbl}>Location Description</label>
+            <textarea rows={3} value={locationDescription} onChange={(e) => setLocationDescription(e.target.value)} className={inp + " resize-none"} />
+          </div>
+
+          {/* ── Sale Office Address ── */}
+          <SectionDivider label="Sale Office Address (if different to above)" />
+          <div className={g2}>
+            <div>
+              <label className={lbl}>Street Address</label>
+              <input type="text" value={saleOfficeStreet} onChange={(e) => setSaleOfficeStreet(e.target.value)} className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Street Address 2</label>
+              <input type="text" value={saleOfficeStreet2} onChange={(e) => setSaleOfficeStreet2(e.target.value)} className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Country</label>
+              <input type="text" value={saleOfficeCountry} onChange={(e) => setSaleOfficeCountry(e.target.value)} placeholder="Australia" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>State</label>
+              <select value={saleOfficeState} onChange={(e) => setSaleOfficeState(e.target.value)} className={inp + " cursor-pointer"}>
+                <option value="">Select</option>
+                {AU_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className={lbl}>City</label>
+              <input type="text" value={saleOfficeCity} onChange={(e) => setSaleOfficeCity(e.target.value)} className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>PostCode</label>
+              <input type="text" value={saleOfficePostcode} onChange={(e) => setSaleOfficePostcode(e.target.value)} className={inp} />
+            </div>
+          </div>
+
+          {/* ── Timing & Description ── */}
+          <SectionDivider label="Listing Details" />
+          <div className="mb-4">
+            <label className={lbl}>Display Suite Timing</label>
             <textarea
-              rows={4}
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              className={input + " resize-none"}
+              rows={2}
+              value={displaySuiteTiming}
+              onChange={(e) => setDisplaySuiteTiming(e.target.value)}
+              placeholder="e.g. Monday to Sunday 10am – 6pm"
+              className={inp + " resize-none"}
             />
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="mb-4">
+            <label className={lbl}>Brief Description *</label>
+            <textarea
+              rows={8}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Write a detailed description of the project…"
+              className={inp + " resize-y"}
+            />
+          </div>
+
+          {/* ── Pricing & dates ── */}
+          <SectionDivider label="Pricing &amp; Dates" />
+          <div className={`${g3} mb-4`}>
+            <div>
+              <label className={lbl}>Search Price Minimum ($) *</label>
+              <input type="number" value={priceFrom} onChange={(e) => setPriceFrom(e.target.value === "" ? "" : Number(e.target.value))} placeholder="450000" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Search Price Maximum ($) *</label>
+              <input type="number" value={searchPriceMax} onChange={(e) => setSearchPriceMax(e.target.value === "" ? "" : Number(e.target.value))} placeholder="1275000" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Completion Date *</label>
+              <input type="text" value={completionQuarter} onChange={(e) => setCompletionQuarter(e.target.value)} placeholder="e.g. Q1 2028" className={inp} />
+            </div>
+          </div>
+          <div className={`${g2} mb-4`}>
+            <div>
+              <label className={lbl}>Lead In Pricing</label>
+              <input type="text" value={priceDisplay} onChange={(e) => setPriceDisplay(e.target.value)} placeholder="e.g. From $650,000" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Promotional Banner</label>
+              <input type="text" value={promotionalBanner} onChange={(e) => setPromotionalBanner(e.target.value)} placeholder="e.g. 2 BED FI $775,000" className={inp} />
+            </div>
+          </div>
+          <div className="mb-4">
+            <label className={lbl}>
+              Configuration{" "}
+              <span className="font-sans text-xs text-ink/40 font-normal">(max 25 characters)</span>
+            </label>
+            <input
+              type="text"
+              value={configurationLabel}
+              onChange={(e) => setConfigurationLabel(e.target.value.slice(0, 25))}
+              placeholder="e.g. 1, 2 & 3 Bedrooms"
+              maxLength={25}
+              className={inp}
+            />
+            <p className="font-mono text-label-sm text-ink/30 mt-1">
+              {configurationLabel.length} / 25 chars
+            </p>
+          </div>
+          <label className="flex items-center gap-3 cursor-pointer mb-4">
+            <input type="checkbox" checked={showPriceOnSearch} onChange={(e) => setShowPriceOnSearch(e.target.checked)} className="w-4 h-4 accent-orange" />
+            <span className="section-label">Display price on search results</span>
+          </label>
+
+          {/* ── Visibility ── */}
+          <SectionDivider label="Visibility &amp; Location" />
+          <div className={`${g2} mb-4`}>
+            <div>
+              <label className={lbl}>Status</label>
+              <select value={status} onChange={(e) => setStatus(e.target.value)} className={inp + " cursor-pointer"}>
+                {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3 mb-4">
             <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isPublished}
-                onChange={(e) => setIsPublished(e.target.checked)}
-                className="w-4 h-4 accent-orange"
-              />
+              <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="w-4 h-4 accent-orange" />
               <span className="section-label">Published (visible on site)</span>
             </label>
             <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isFeatured}
-                onChange={(e) => setIsFeatured(e.target.checked)}
-                className="w-4 h-4 accent-orange"
-              />
+              <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="w-4 h-4 accent-orange" />
               <span className="section-label">Featured on homepage</span>
             </label>
           </div>
+          <div className={g2}>
+            <div>
+              <label className={lbl}>Latitude</label>
+              <input type="number" step="any" value={lat} onChange={(e) => setLat(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. -33.8688" className={inp} />
+            </div>
+            <div>
+              <label className={lbl}>Longitude</label>
+              <input type="number" step="any" value={lng} onChange={(e) => setLng(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. 151.2093" className={inp} />
+            </div>
+          </div>
+          <p className="font-sans text-xs text-ink/40 mt-2">
+            Tip: right-click any location in Google Maps → copy the coordinates shown at the top.
+          </p>
         </AccordionSection>
 
         {/* ── 3. Configuration Summary ─────────────────────────────────────── */}
         <AccordionSection title="Configuration Summary">
-          <div className={`${grid4} mb-4`}>
+          <div className={`${g4} mb-4`}>
             <div>
-              <label className={label}>Beds Min</label>
-              <input type="number" value={bedsMin} onChange={(e) => setBedsMin(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
+              <label className={lbl}>Beds Min</label>
+              <input type="number" value={bedsMin} onChange={(e) => setBedsMin(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
             <div>
-              <label className={label}>Beds Max</label>
-              <input type="number" value={bedsMax} onChange={(e) => setBedsMax(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
+              <label className={lbl}>Beds Max</label>
+              <input type="number" value={bedsMax} onChange={(e) => setBedsMax(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
             <div>
-              <label className={label}>Baths Min</label>
-              <input type="number" value={bathsMin} onChange={(e) => setBathsMin(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
+              <label className={lbl}>Baths Min</label>
+              <input type="number" value={bathsMin} onChange={(e) => setBathsMin(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
             <div>
-              <label className={label}>Baths Max</label>
-              <input type="number" value={bathsMax} onChange={(e) => setBathsMax(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
+              <label className={lbl}>Baths Max</label>
+              <input type="number" value={bathsMax} onChange={(e) => setBathsMax(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
             <div>
-              <label className={label}>Car Parks Min</label>
-              <input type="number" value={carsMin} onChange={(e) => setCarsMin(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
+              <label className={lbl}>Car Parks Min</label>
+              <input type="number" value={carsMin} onChange={(e) => setCarsMin(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
             <div>
-              <label className={label}>Car Parks Max</label>
-              <input type="number" value={carsMax} onChange={(e) => setCarsMax(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
+              <label className={lbl}>Car Parks Max</label>
+              <input type="number" value={carsMax} onChange={(e) => setCarsMax(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
             <div>
-              <label className={label}>Internal Sqm Min</label>
-              <input type="number" value={internalSqmMin} onChange={(e) => setInternalSqmMin(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
+              <label className={lbl}>Internal Sqm Min</label>
+              <input type="number" value={internalSqmMin} onChange={(e) => setInternalSqmMin(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
             <div>
-              <label className={label}>Internal Sqm Max</label>
-              <input type="number" value={internalSqmMax} onChange={(e) => setInternalSqmMax(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
+              <label className={lbl}>Internal Sqm Max</label>
+              <input type="number" value={internalSqmMax} onChange={(e) => setInternalSqmMax(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
             <div>
-              <label className={label}>Land Size Min (sqm)</label>
-              <input type="number" value={landSizeMin} onChange={(e) => setLandSizeMin(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
+              <label className={lbl}>Land Size Min (sqm)</label>
+              <input type="number" value={landSizeMin} onChange={(e) => setLandSizeMin(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
             <div>
-              <label className={label}>Land Size Max (sqm)</label>
-              <input type="number" value={landSizeMax} onChange={(e) => setLandSizeMax(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
-            </div>
-          </div>
-          <div className={grid2}>
-            <div>
-              <label className={label}>Price Display</label>
-              <input type="text" value={priceDisplay} onChange={(e) => setPriceDisplay(e.target.value)} placeholder="e.g. From $750K" className={input} />
+              <label className={lbl}>Land Size Max (sqm)</label>
+              <input type="number" value={landSizeMax} onChange={(e) => setLandSizeMax(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
             <div>
-              <label className={label}>Price From ($)</label>
-              <input type="number" value={priceFrom} onChange={(e) => setPriceFrom(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
-            </div>
-            <div>
-              <label className={label}>Completion</label>
-              <input type="text" value={completionQuarter} onChange={(e) => setCompletionQuarter(e.target.value)} placeholder="e.g. Q4 2027" className={input} />
-            </div>
-            <div>
-              <label className={label}>Levels</label>
-              <input type="number" value={levels} onChange={(e) => setLevels(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
-            </div>
-            <div>
-              <label className={label}>Total Residences</label>
-              <input type="number" value={residenceCount} onChange={(e) => setResidenceCount(e.target.value === "" ? "" : Number(e.target.value))} className={input} />
+              <label className={lbl}>Levels</label>
+              <input type="number" value={levels} onChange={(e) => setLevels(e.target.value === "" ? "" : Number(e.target.value))} className={inp} />
             </div>
           </div>
         </AccordionSection>
@@ -796,42 +938,37 @@ export function ListingForm({
         {/* ── 4. Property Features ─────────────────────────────────────────── */}
         <AccordionSection title="Property Features">
           <div className="mb-6">
-            <label className={label}>Lifestyle &amp; Amenities</label>
+            <label className={lbl}>Lifestyle &amp; Amenities</label>
             <div className="grid grid-cols-3 gap-y-3 gap-x-2 mt-2">
               {LIFESTYLE_OPTIONS.map((item) => (
                 <label key={item} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={lifestyle.includes(item)}
-                    onChange={() => toggleLifestyle(item)}
-                    className="w-4 h-4 accent-orange flex-shrink-0"
-                  />
+                  <input type="checkbox" checked={lifestyle.includes(item)} onChange={() => toggleLifestyle(item)} className="w-4 h-4 accent-orange flex-shrink-0" />
                   <span className="font-sans text-sm text-ink/80">{item}</span>
                 </label>
               ))}
             </div>
           </div>
           <div className="mb-6">
-            <label className={label}>Additional Features</label>
+            <label className={lbl}>Additional Features</label>
             <p className="font-sans text-xs text-ink/40 mb-2">Type a feature and press Enter.</p>
             <TagInput value={features} onChange={setFeatures} placeholder="e.g. Ducted AC" />
           </div>
-          <div className={grid2}>
+          <div className={g2}>
             <div>
-              <label className={label}>Architect</label>
-              <input type="text" value={architect} onChange={(e) => setArchitect(e.target.value)} className={input} />
+              <label className={lbl}>Architect</label>
+              <input type="text" value={architect} onChange={(e) => setArchitect(e.target.value)} className={inp} />
             </div>
             <div>
-              <label className={label}>Interior Designer</label>
-              <input type="text" value={interiors} onChange={(e) => setInteriors(e.target.value)} className={input} />
+              <label className={lbl}>Interior Designer</label>
+              <input type="text" value={interiors} onChange={(e) => setInteriors(e.target.value)} className={inp} />
             </div>
             <div>
-              <label className={label}>Landscape Designer</label>
-              <input type="text" value={landscape} onChange={(e) => setLandscape(e.target.value)} className={input} />
+              <label className={lbl}>Landscape Designer</label>
+              <input type="text" value={landscape} onChange={(e) => setLandscape(e.target.value)} className={inp} />
             </div>
             <div>
-              <label className={label}>Builder</label>
-              <input type="text" value={builder} onChange={(e) => setBuilder(e.target.value)} className={input} />
+              <label className={lbl}>Builder</label>
+              <input type="text" value={builder} onChange={(e) => setBuilder(e.target.value)} className={inp} />
             </div>
           </div>
         </AccordionSection>
@@ -841,31 +978,27 @@ export function ListingForm({
           <p className="font-sans text-xs text-ink/40 mb-3">
             Add schools, transport, shopping centres, parks — anything nearby.
           </p>
-          <TagInput
-            value={nearbyAmenities}
-            onChange={setNearbyAmenities}
-            placeholder="e.g. Melbourne Central Station"
-          />
+          <TagInput value={nearbyAmenities} onChange={setNearbyAmenities} placeholder="e.g. Melbourne Central Station" />
         </AccordionSection>
 
         {/* ── 6. Selling Agent(s) / Contact Details ────────────────────────── */}
         <AccordionSection title="Selling Agent(s) / Contact Details">
-          <div className={grid2}>
+          <div className={g2}>
             <div>
-              <label className={label}>Agent Name</label>
-              <input type="text" value={agentName} onChange={(e) => setAgentName(e.target.value)} className={input} />
+              <label className={lbl}>Agent Name</label>
+              <input type="text" value={agentName} onChange={(e) => setAgentName(e.target.value)} className={inp} />
             </div>
             <div>
-              <label className={label}>Agency</label>
-              <input type="text" value={agentAgency} onChange={(e) => setAgentAgency(e.target.value)} className={input} />
+              <label className={lbl}>Agency</label>
+              <input type="text" value={agentAgency} onChange={(e) => setAgentAgency(e.target.value)} className={inp} />
             </div>
             <div>
-              <label className={label}>Phone</label>
-              <input type="tel" value={agentPhone} onChange={(e) => setAgentPhone(e.target.value)} className={input} />
+              <label className={lbl}>Phone</label>
+              <input type="tel" value={agentPhone} onChange={(e) => setAgentPhone(e.target.value)} className={inp} />
             </div>
             <div>
-              <label className={label}>Email</label>
-              <input type="email" value={agentEmail} onChange={(e) => setAgentEmail(e.target.value)} className={input} />
+              <label className={lbl}>Email</label>
+              <input type="email" value={agentEmail} onChange={(e) => setAgentEmail(e.target.value)} className={inp} />
             </div>
           </div>
         </AccordionSection>
@@ -873,33 +1006,16 @@ export function ListingForm({
         {/* ── 7. Uploads ───────────────────────────────────────────────────── */}
         <AccordionSection title="Uploads">
           <div className="mb-6">
-            <ImageUpload
-              label="Hero Image"
-              value={heroImageUrl}
-              onChange={setHeroImageUrl}
-              bucket="development-images"
-            />
+            <ImageUpload label="Hero Image" value={heroImageUrl} onChange={setHeroImageUrl} bucket="development-images" />
           </div>
-          <div className={grid2}>
+          <div className={g2}>
             <div>
-              <label className={label}>Brochure URL</label>
-              <input
-                type="url"
-                value={brochureUrl}
-                onChange={(e) => setBrochureUrl(e.target.value)}
-                placeholder="https://..."
-                className={input}
-              />
+              <label className={lbl}>Brochure URL</label>
+              <input type="url" value={brochureUrl} onChange={(e) => setBrochureUrl(e.target.value)} placeholder="https://..." className={inp} />
             </div>
             <div>
-              <label className={label}>Video URL</label>
-              <input
-                type="url"
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
-                placeholder="https://youtube.com/..."
-                className={input}
-              />
+              <label className={lbl}>Video URL</label>
+              <input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} placeholder="https://youtube.com/..." className={inp} />
             </div>
           </div>
         </AccordionSection>
@@ -907,34 +1023,20 @@ export function ListingForm({
         {/* ── 8. Optional Uploads ──────────────────────────────────────────── */}
         <AccordionSection title="Optional Uploads">
           <div className="mb-6">
-            <label className={label}>Virtual Tour URL</label>
-            <input
-              type="url"
-              value={virtualTourUrl}
-              onChange={(e) => setVirtualTourUrl(e.target.value)}
-              placeholder="https://..."
-              className={input}
-            />
+            <label className={lbl}>Virtual Tour URL</label>
+            <input type="url" value={virtualTourUrl} onChange={(e) => setVirtualTourUrl(e.target.value)} placeholder="https://..." className={inp} />
           </div>
           {isNew ? (
-            <p className="font-sans text-sm text-ink/40 italic">
-              Save the listing first to add gallery images.
-            </p>
+            <p className="font-sans text-sm text-ink/40 italic">Save the listing first to add gallery images.</p>
           ) : (
-            <GalleryManager
-              gallery={gallery}
-              onAdd={addGalleryImage}
-              onRemove={removeGalleryImage}
-            />
+            <GalleryManager gallery={gallery} onAdd={addGalleryImage} onRemove={removeGalleryImage} />
           )}
         </AccordionSection>
 
         {/* ── 9. Mini Stocklist (Optional) ─────────────────────────────────── */}
         <AccordionSection title="Mini Stocklist (Optional)">
           {isNew ? (
-            <p className="font-sans text-sm text-ink/40 italic">
-              Save the listing first to add floor plans.
-            </p>
+            <p className="font-sans text-sm text-ink/40 italic">Save the listing first to add floor plans.</p>
           ) : (
             <div>
               {floorPlans.length > 0 && (
@@ -942,74 +1044,21 @@ export function ListingForm({
                   <table className="w-full text-left border border-line">
                     <thead>
                       <tr className="border-b border-orange/30 bg-cream-alt">
-                        {["Plan Type", "Config", "Sqm", "Price From ($)", "Image URL", ""].map(
-                          (h) => (
-                            <th
-                              key={h}
-                              className="font-mono text-[10px] uppercase tracking-widest text-orange px-3 py-2 whitespace-nowrap"
-                            >
-                              {h}
-                            </th>
-                          )
-                        )}
+                        {["Plan Type", "Config", "Sqm", "Price From ($)", "Image URL", ""].map((h) => (
+                          <th key={h} className="font-mono text-[10px] uppercase tracking-widest text-orange px-3 py-2 whitespace-nowrap">{h}</th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody>
                       {floorPlans.map((fp, i) => (
                         <tr key={i} className="border-b border-line last:border-0">
+                          <td className="px-2 py-2"><input type="text" value={fp.plan_type} onChange={(e) => updateFloorPlan(i, "plan_type", e.target.value)} placeholder="Type A" className={smallInp + " w-24"} /></td>
+                          <td className="px-2 py-2"><input type="text" value={fp.config} onChange={(e) => updateFloorPlan(i, "config", e.target.value)} placeholder="2 bed 2 bath" className={smallInp + " w-32"} /></td>
+                          <td className="px-2 py-2"><input type="number" value={fp.internal_sqm} onChange={(e) => updateFloorPlan(i, "internal_sqm", e.target.value)} placeholder="85" className={smallInp + " w-20"} /></td>
+                          <td className="px-2 py-2"><input type="number" value={fp.price_from} onChange={(e) => updateFloorPlan(i, "price_from", e.target.value)} placeholder="750000" className={smallInp + " w-28"} /></td>
+                          <td className="px-2 py-2"><input type="text" value={fp.image_url} onChange={(e) => updateFloorPlan(i, "image_url", e.target.value)} placeholder="https://..." className={smallInp + " w-48"} /></td>
                           <td className="px-2 py-2">
-                            <input
-                              type="text"
-                              value={fp.plan_type}
-                              onChange={(e) => updateFloorPlan(i, "plan_type", e.target.value)}
-                              placeholder="Type A"
-                              className={smallInput + " w-24"}
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <input
-                              type="text"
-                              value={fp.config}
-                              onChange={(e) => updateFloorPlan(i, "config", e.target.value)}
-                              placeholder="2 bed 2 bath"
-                              className={smallInput + " w-32"}
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <input
-                              type="number"
-                              value={fp.internal_sqm}
-                              onChange={(e) => updateFloorPlan(i, "internal_sqm", e.target.value)}
-                              placeholder="85"
-                              className={smallInput + " w-20"}
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <input
-                              type="number"
-                              value={fp.price_from}
-                              onChange={(e) => updateFloorPlan(i, "price_from", e.target.value)}
-                              placeholder="750000"
-                              className={smallInput + " w-28"}
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <input
-                              type="text"
-                              value={fp.image_url}
-                              onChange={(e) => updateFloorPlan(i, "image_url", e.target.value)}
-                              placeholder="https://..."
-                              className={smallInput + " w-48"}
-                            />
-                          </td>
-                          <td className="px-2 py-2">
-                            <button
-                              type="button"
-                              onClick={() => removeFloorPlan(i)}
-                              className="font-mono text-[10px] uppercase tracking-widest px-2 py-1.5 border border-red-300 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors whitespace-nowrap"
-                            >
-                              Remove
-                            </button>
+                            <button type="button" onClick={() => removeFloorPlan(i)} className="font-mono text-[10px] uppercase tracking-widest px-2 py-1.5 border border-red-300 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors whitespace-nowrap">Remove</button>
                           </td>
                         </tr>
                       ))}
@@ -1017,11 +1066,7 @@ export function ListingForm({
                   </table>
                 </div>
               )}
-              <button
-                type="button"
-                onClick={addFloorPlan}
-                className="font-mono text-[10px] uppercase tracking-widest px-4 py-2 border border-line text-ink/60 hover:border-navy hover:text-navy transition-colors"
-              >
+              <button type="button" onClick={addFloorPlan} className="font-mono text-[10px] uppercase tracking-widest px-4 py-2 border border-line text-ink/60 hover:border-navy hover:text-navy transition-colors">
                 + Add Floor Plan
               </button>
             </div>
@@ -1032,27 +1077,13 @@ export function ListingForm({
         <AccordionSection title="SEO">
           <div className="flex flex-col gap-4">
             <div>
-              <label className={label}>SEO Title</label>
-              <input
-                type="text"
-                value={seoTitle}
-                onChange={(e) => setSeoTitle(e.target.value)}
-                placeholder="e.g. Luxury Apartments in Melbourne CBD | ProjectName"
-                className={input}
-              />
+              <label className={lbl}>SEO Title</label>
+              <input type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} placeholder="e.g. Luxury Apartments in Melbourne CBD | ProjectName" className={inp} />
             </div>
             <div>
-              <label className={label}>SEO Description</label>
-              <textarea
-                rows={3}
-                value={seoDescription}
-                onChange={(e) => setSeoDescription(e.target.value)}
-                placeholder="150–160 character description for search engines…"
-                className={input + " resize-none"}
-              />
-              <p className="font-mono text-label-sm text-ink/30 mt-1">
-                {seoDescription.length} / 160 chars
-              </p>
+              <label className={lbl}>SEO Description</label>
+              <textarea rows={3} value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} placeholder="150–160 character description for search engines…" className={inp + " resize-none"} />
+              <p className="font-mono text-label-sm text-ink/30 mt-1">{seoDescription.length} / 160 chars</p>
             </div>
           </div>
         </AccordionSection>
@@ -1063,9 +1094,7 @@ export function ListingForm({
             <button type="submit" disabled={saving || deleting} className="btn-primary">
               {saving ? "Saving…" : isNew ? "Create listing" : "Save changes"}
             </button>
-            <Link href="/admin/listings" className="btn-ghost">
-              Cancel
-            </Link>
+            <Link href="/admin/listings" className="btn-ghost">Cancel</Link>
           </div>
           {!isNew && (
             <button
