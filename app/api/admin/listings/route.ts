@@ -50,6 +50,23 @@ export async function POST(req: Request) {
   }
 }
 
+export async function PATCH(req: Request) {
+  try {
+    const { id, ...fields } = await req.json();
+    if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    const { error } = await supabaseAdmin.from("developments").update(fields).eq("id", id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidatePath("/admin/listings");
+    revalidatePath("/");
+    revalidatePath("/search");
+    revalidatePath("/listings", "layout");
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error("Listing patch error:", err);
+    return NextResponse.json({ error: "Unexpected error." }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
