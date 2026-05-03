@@ -7,7 +7,7 @@ interface Props { params: { id: string } }
 export default async function AdminListingEditPage({ params }: Props) {
   const isNew = params.id === "new";
 
-  const [developersResult, devResult, galleryResult, floorPlanResult] = await Promise.all([
+  const [developersResult, devResult, galleryResult, floorPlanResult, agentsResult] = await Promise.all([
     supabaseAdmin.from("developers").select("id, name").order("name"),
     isNew
       ? Promise.resolve({ data: null, error: null })
@@ -26,6 +26,13 @@ export default async function AdminListingEditPage({ params }: Props) {
           .select("id, beds, bath, garage, internal_sqm, price_from, plan_type, config, image_url")
           .eq("development_id", params.id)
           .order("id"),
+    isNew
+      ? Promise.resolve({ data: [], error: null })
+      : supabaseAdmin
+          .from("listing_agents")
+          .select("id, name, email, mobile, photo_url, sort_order")
+          .eq("development_id", params.id)
+          .order("sort_order"),
   ]);
 
   if (!isNew && !devResult.data) notFound();
@@ -48,6 +55,14 @@ export default async function AdminListingEditPage({ params }: Props) {
     image_url: (fp.image_url as string) ?? "",
   }));
 
+  const agents = (agentsResult.data ?? []).map((a) => ({
+    id: a.id as string,
+    name: (a.name as string) ?? "",
+    email: (a.email as string) ?? "",
+    mobile: (a.mobile as string) ?? "",
+    photo_url: (a.photo_url as string) ?? "",
+  }));
+
   return (
     <ListingForm
       id={params.id}
@@ -55,6 +70,7 @@ export default async function AdminListingEditPage({ params }: Props) {
       developers={developersResult.data ?? []}
       gallery={gallery}
       floorPlans={floorPlans}
+      agents={agents}
     />
   );
 }
