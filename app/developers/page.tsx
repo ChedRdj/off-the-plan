@@ -56,7 +56,7 @@ export default async function DevelopersPage() {
         <div className="mt-14 pt-10 border-t border-line text-center">
           <p className="font-display font-light text-navy text-section-lg mb-4">List your development</p>
           <p className="font-sans text-body-md text-ink/60 mb-6 max-w-md mx-auto">
-            Reach 24,000+ qualified buyers before your development reaches the general market.
+            Reach qualified buyers before your development reaches the general market.
           </p>
           <Link href="/list-a-development" className="btn-primary inline-block">
             Get in touch

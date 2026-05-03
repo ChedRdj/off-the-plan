@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "List a Development",
-  description: "Get your off-the-plan development in front of 24,000+ qualified buyers.",
+  description: "Get your off-the-plan development in front of Australia's qualified buyer network.",
 };
 
 interface Props {
@@ -21,7 +21,7 @@ export default function ListADevelopmentPage({ searchParams }: Props) {
           <p className="section-label text-ink-light/30 mb-3">For developers &amp; agents</p>
           <h1 className="font-display font-light text-ink-light text-section-xl mb-4">List your development</h1>
           <p className="font-sans text-body-lg text-ink-light/60">
-            Reach 24,000+ qualified buyers before your development hits the general market.
+            Reach Australia's qualified buyer network before your development hits the general market.
           </p>
         </div>
       </section>

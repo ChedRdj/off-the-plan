@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     template: "%s | Off The Plan",
   },
   description:
-    "Australia's curated marketplace for off-the-plan residential real estate. 24,000+ members. Discover new developments before they reach the general market.",
+    "Australia's curated marketplace for off-the-plan residential real estate. Discover new apartments, townhouses, and land estates before they reach the general market.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://offtheplan.com.au"),
   openGraph: {
     siteName: "Off The Plan",

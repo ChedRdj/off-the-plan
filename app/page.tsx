@@ -67,7 +67,7 @@ export default async function HomePage() {
 
           {/* Eyebrow */}
           <p className="font-mono text-label-lg uppercase tracking-[0.3em] text-ink-light/50">
-            Est. 2014 · Australia
+            Australia's New Home Portal
           </p>
 
           {/* Main title */}
@@ -200,7 +200,7 @@ export default async function HomePage() {
                 ))}
               </ul>
               <p className="font-mono text-label-lg text-ink-light/30 uppercase tracking-widest">
-                24,000+ buyers already inside
+                Australia's qualified buyer network
               </p>
             </div>
 
