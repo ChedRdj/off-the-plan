@@ -17,6 +17,7 @@ interface ListingData {
   beds_max?: number;
   summary?: string;
   status?: string;
+  tier?: string | null;
   is_published?: boolean;
   is_featured?: boolean;
   hero_image_url?: string;
@@ -43,6 +44,7 @@ export function ListingForm({ id, existing }: Props) {
   const [bedsMax, setBedsMax] = useState<number | "">(existing?.beds_max ?? "");
   const [summary, setSummary] = useState(existing?.summary ?? "");
   const [status, setStatus] = useState(existing?.status ?? "Selling now");
+  const [tier, setTier] = useState(existing?.tier ?? "");
   const [isPublished, setIsPublished] = useState(existing?.is_published ?? false);
   const [isFeatured, setIsFeatured] = useState(existing?.is_featured ?? false);
   const [heroImageUrl, setHeroImageUrl] = useState(existing?.hero_image_url ?? "");
@@ -69,6 +71,7 @@ export function ListingForm({ id, existing }: Props) {
       beds_max: bedsMax === "" ? null : bedsMax,
       summary: summary || null,
       status,
+      tier: tier || null,
       is_published: isPublished,
       is_featured: isFeatured,
       hero_image_url: heroImageUrl || null,
@@ -248,6 +251,15 @@ export function ListingForm({ id, existing }: Props) {
             <option value="Register interest">Register interest</option>
             <option value="Cancelled">Cancelled</option>
             <option value="Archived">Archived</option>
+          </select>
+        </div>
+
+        <div>
+          <label className={labelClass}>Tier</label>
+          <select value={tier} onChange={(e) => setTier(e.target.value)} className={inputClass + " cursor-pointer"}>
+            <option value="">— No tier —</option>
+            <option value="1st Tier">1st Tier</option>
+            <option value="2nd Tier">2nd Tier</option>
           </select>
         </div>
 

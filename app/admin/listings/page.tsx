@@ -11,7 +11,7 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
   const [{ data: allData }, { count: enquiryCount }] = await Promise.all([
     supabaseAdmin
       .from("developments")
-      .select("id, name, slug, suburb, state, is_published, is_featured, price_display, type, hero_image_url, developer:developers(name)")
+      .select("id, name, slug, suburb, state, is_published, is_featured, price_display, type, hero_image_url, tier, developer:developers(name)")
       .order("name"),
     supabaseAdmin.from("enquiries").select("*", { count: "exact", head: true }),
   ]);
@@ -242,6 +242,7 @@ function ListingSection({ title, listings }: { title: string; listings: any[] })
                     slug={listing.slug}
                     isPublished={listing.is_published}
                     isFeatured={listing.is_featured}
+                    tier={listing.tier ?? null}
                   />
                 </td>
               </tr>
