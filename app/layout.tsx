@@ -4,6 +4,7 @@ import "./globals.css";
 import { NavBar } from "@/components/nav-bar";
 import { SideRail } from "@/components/side-rail";
 import { Footer } from "@/components/footer";
+import { CirclePopup } from "@/components/circle-popup";
 import { createClient } from "@/lib/supabase/server";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -76,6 +77,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <SideRail />
         <main id="main-content">{children}</main>
         <Footer />
+        <CirclePopup />
         <Analytics />
       </body>
     </html>
