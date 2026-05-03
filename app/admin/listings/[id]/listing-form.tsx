@@ -1669,13 +1669,12 @@ export function ListingForm({
         <AccordionSection title="SEO">
           <div className="flex flex-col gap-4">
             <div>
-              <label className={lbl}>SEO Title</label>
+              <label className="font-sans text-sm text-ink/70 block mb-1.5">Page Title:</label>
               <input type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} placeholder="e.g. Luxury Apartments in Melbourne CBD | ProjectName" className={inp} />
             </div>
             <div>
-              <label className={lbl}>SEO Description</label>
-              <textarea rows={3} value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} placeholder="150–160 character description for search engines…" className={inp + " resize-none"} />
-              <p className="font-mono text-label-sm text-ink/30 mt-1">{seoDescription.length} / 160 chars</p>
+              <label className="font-sans text-sm text-ink/70 block mb-1.5">Meta Description:</label>
+              <textarea rows={8} value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} placeholder="150–160 character description for search engines…" className={inp + " resize-none"} />
             </div>
           </div>
         </AccordionSection>
@@ -1683,10 +1682,25 @@ export function ListingForm({
         {/* ── Form actions ─────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between pt-4">
           <div className="flex gap-3">
-            <button type="submit" disabled={saving || deleting} className="btn-primary">
-              {saving ? "Saving…" : isNew ? "Create listing" : "Save changes"}
+            <Link
+              href="/admin/listings"
+              className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 border border-orange text-orange hover:bg-orange hover:text-white transition-colors inline-flex items-center gap-1.5"
+            >
+              ← Back
+            </Link>
+            <button type="submit" disabled={saving || deleting} className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 border border-orange text-orange hover:bg-orange hover:text-white transition-colors disabled:opacity-50">
+              {saving ? "Saving…" : "Save"}
             </button>
-            <Link href="/admin/listings" className="btn-ghost">Cancel</Link>
+            {!isNew && existing?.slug && (
+              <Link
+                href={`/listings/${existing.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 border border-orange text-orange hover:bg-orange hover:text-white transition-colors"
+              >
+                Preview
+              </Link>
+            )}
           </div>
           {!isNew && (
             <button
