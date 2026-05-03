@@ -5,6 +5,7 @@ import { NavBar } from "@/components/nav-bar";
 import { SideRail } from "@/components/side-rail";
 import { Footer } from "@/components/footer";
 import { createClient } from "@/lib/supabase/server";
+import { Analytics } from "@vercel/analytics/next";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -75,6 +76,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <SideRail />
         <main id="main-content">{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
