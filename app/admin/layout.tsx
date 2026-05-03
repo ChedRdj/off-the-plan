@@ -25,17 +25,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Sidebar */}
       <aside className="w-56 bg-navy flex-shrink-0 flex flex-col">
         <div className="p-6 border-b border-line-dark">
-          <Link href="/" className="font-display text-lg font-light text-ink-light">
+          <Link href="/" className="font-display text-xl font-light text-white">
             Off The Plan
           </Link>
-          <p className="font-mono text-label-sm uppercase tracking-widest text-ink-light/30 mt-0.5">Admin</p>
+          <p className="font-sans text-sm text-ink-light/50 mt-1">Admin Panel</p>
         </div>
         <nav className="flex flex-col p-4 gap-1 flex-1" aria-label="Admin navigation">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="font-mono text-label-lg uppercase tracking-widest px-3 py-2 text-ink-light/50 hover:text-ink-light hover:bg-white/5 transition-colors"
+              className="font-sans text-base font-medium px-4 py-3 text-ink-light/70 hover:text-ink-light hover:bg-white/10 transition-colors rounded"
             >
               {item.label}
             </Link>
@@ -51,9 +51,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Main content */}
       <div className="flex-1 overflow-auto">
         <header className="bg-white border-b border-line px-8 py-4">
-          <p className="font-mono text-label-sm uppercase tracking-widest text-ink/40">Admin Dashboard</p>
+          <p className="font-sans text-sm font-medium text-ink/50 uppercase tracking-widest">Off The Plan — Admin</p>
         </header>
-        <main className="p-8">{children}</main>
+        <main className="p-8 text-base">{children}</main>
       </div>
     </div>
   );
