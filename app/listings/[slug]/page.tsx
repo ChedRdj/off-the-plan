@@ -346,7 +346,9 @@ export default async function DossierPage({ params }: Props) {
           <div className="flex flex-wrap gap-3">
             {/* Deposit Solutions */}
             <a
-              href="/resources/deposit-solutions"
+              href="https://www.enaybl.com.au/off-the-plan-deposit-bond/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center px-6 py-2.5 bg-orange text-white font-mono text-[11px] uppercase tracking-widest hover:bg-orange/90 transition-colors"
             >
               Deposit Solutions
