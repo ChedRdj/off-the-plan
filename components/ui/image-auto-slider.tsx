@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,9 @@ export interface SliderItem {
   href: string;
   image: string;
 }
+
+// Full loop duration in seconds — matches the keyframe animation
+const DURATION = 28;
 
 function ArrowLeft() {
   return (
@@ -33,37 +36,59 @@ export function ImageAutoSlider({
   items: SliderItem[];
   tileHeight?: string;
 }) {
-  const trackRef  = useRef<HTMLDivElement>(null);
-  const timerRef  = useRef<ReturnType<typeof setInterval> | null>(null);
-  const pausedRef = useRef(false);
+  const trackRef   = useRef<HTMLDivElement>(null);
+  const hoveredRef = useRef(false);
 
-  // ─── Auto-scroll: 1.5 px every 16 ms ≈ 90 px / s ───────────────────────
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      const track = trackRef.current;
-      if (!track || pausedRef.current) return;
+  // ─── Hover: pause / resume ───────────────────────────────────────────────
+  const onEnter = () => {
+    hoveredRef.current = true;
+    if (trackRef.current) trackRef.current.style.animationPlayState = "paused";
+  };
 
-      track.scrollLeft += 1.5;
+  const onLeave = () => {
+    hoveredRef.current = false;
+    if (trackRef.current) trackRef.current.style.animationPlayState = "running";
+  };
 
-      // Seamless loop — when we pass the first copy, jump back by one copy width
-      if (track.scrollLeft >= track.scrollWidth / 2) {
-        track.scrollLeft -= track.scrollWidth / 2;
-      }
-    }, 16);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, []);
-
-  // ─── Manual prev / next ──────────────────────────────────────────────────
-  const scrollManual = (dir: "prev" | "next") => {
+  // ─── Arrow: freeze → slide one tile → re-attach animation ───────────────
+  const skip = (dir: "prev" | "next") => {
     const track = trackRef.current;
     if (!track) return;
-    pausedRef.current = true;
-    track.scrollBy({ left: dir === "next" ? 272 : -272, behavior: "smooth" });
-    // Resume auto-scroll once the smooth scroll settles
-    setTimeout(() => { pausedRef.current = false; }, 800);
+
+    // 1. Read current animated position (pixels)
+    const currentX = new DOMMatrix(getComputedStyle(track).transform).m41;
+
+    // 2. Detach animation, pin at current position
+    track.style.animation = "none";
+    track.style.transform = `translateX(${currentX}px)`;
+
+    // 3. Force reflow so the browser sees the new transform before the transition
+    void track.offsetWidth;
+
+    // 4. Slide one tile (256 px + 16 px gap = 272 px)
+    const step = 272;
+    const targetX = currentX + (dir === "next" ? -step : step);
+    track.style.transition = "transform 0.55s cubic-bezier(0.16,1,0.3,1)";
+    track.style.transform  = `translateX(${targetX}px)`;
+
+    // 5. After transition settles, re-attach CSS animation from the target position
+    setTimeout(() => {
+      const half = track.scrollWidth / 2;
+
+      // Normalise targetX into [0 .. -half)
+      let pos = targetX % -half;
+      if (pos > 0)    pos -= half;
+      if (pos <= -half) pos += half;
+
+      // Negative delay = start this many seconds into the animation
+      const delay = -((Math.abs(pos) / half) * DURATION);
+
+      track.style.transition = "none";
+      track.style.transform  = "";
+      track.style.animation  =
+        `slider-scroll ${DURATION}s ${delay}s linear infinite`;
+      track.style.animationPlayState = hoveredRef.current ? "paused" : "running";
+    }, 580);
   };
 
   const strip = [...items, ...items];
@@ -77,7 +102,7 @@ export function ImageAutoSlider({
         </p>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => scrollManual("prev")}
+            onClick={() => skip("prev")}
             aria-label="Previous"
             className={cn(
               "w-12 h-12 rounded-full border border-ink/25 flex items-center justify-center",
@@ -88,7 +113,7 @@ export function ImageAutoSlider({
             <ArrowLeft />
           </button>
           <button
-            onClick={() => scrollManual("next")}
+            onClick={() => skip("next")}
             aria-label="Next"
             className={cn(
               "w-12 h-12 rounded-full border border-ink/25 flex items-center justify-center",
@@ -101,21 +126,22 @@ export function ImageAutoSlider({
         </div>
       </div>
 
-      {/* ─── Scrolling strip ────────────────────────────────────────────── */}
-      {/* onMouseEnter / Leave here so hovering any tile pauses the strip   */}
+      {/* ─── Strip ──────────────────────────────────────────────────────── */}
       <div
         className="w-full overflow-hidden"
         style={{
-          maskImage: "linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%)",
+          maskImage:
+            "linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%)",
         }}
-        onMouseEnter={() => { pausedRef.current = true; }}
-        onMouseLeave={() => { pausedRef.current = false; }}
+        onMouseEnter={onEnter}
+        onMouseLeave={onLeave}
       >
         <div
           ref={trackRef}
-          className="flex gap-4 overflow-x-scroll"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          className="flex gap-4 w-max"
+          style={{ animation: `slider-scroll ${DURATION}s linear infinite` }}
         >
           {strip.map((item, i) => (
             <Link
@@ -127,7 +153,7 @@ export function ImageAutoSlider({
               <img
                 src={item.image}
                 alt={item.label}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover/tile:scale-110"
+                className="w-full h-full object-cover transition-transform duration-300 ease-out group-hover/tile:scale-105 group-hover/tile:brightness-110"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/20 to-transparent group-hover/tile:from-navy/55 transition-all duration-500" />
