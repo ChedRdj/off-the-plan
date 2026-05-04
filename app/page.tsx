@@ -184,12 +184,7 @@ export default async function HomePage() {
 
       {/* ─── Section 2: Search by Category ─────────────────────────────────── */}
       <section className="bg-cream py-16">
-        <div className="container-padded">
-          <p className="font-mono text-[13px] uppercase tracking-widest text-ink mb-8">
-            Search by Category
-          </p>
-        </div>
-        <ImageAutoSlider items={CATEGORIES} speed={28} tileHeight="h-72" />
+        <ImageAutoSlider items={CATEGORIES} tileHeight="h-72" />
       </section>
 
       {/* ─── Section 3: Latest Listings (Tier 2) ────────────────────────────── */}
