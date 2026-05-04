@@ -5,6 +5,9 @@ import Link from "next/link";
 import { PropertyCard } from "@/components/property-card";
 import { EnquiryForm } from "@/components/enquiry-form";
 import { Pill } from "@/components/pill";
+import { HeroCarousel } from "@/components/hero-carousel";
+import { PropertiesTable } from "@/components/properties-table";
+import { ReadMore } from "@/components/read-more";
 import { CheckIcon } from "@/components/icons";
 import { supabase } from "@/lib/supabase/public";
 import { formatPrice } from "@/lib/utils";
@@ -34,7 +37,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function DossierPage({ params }: Props) {
-
   const { data: rawDev } = await supabase
     .from("developments")
     .select("*, developer:developers(*), images:development_images(*), floor_plans:development_floor_plans(*)")
@@ -50,12 +52,13 @@ export default async function DossierPage({ params }: Props) {
     dev.images?.[0]?.url ??
     dev.hero_image_url ??
     null;
+
   const floorPlans = (dev.floor_plans ?? []) as DevelopmentFloorPlan[];
 
-  // Gallery: all images except the hero, up to 6
-  const galleryImages = (dev.images ?? [])
-    .filter((img) => img.url !== heroImageUrl)
-    .slice(0, 6);
+  // All images for carousel and gallery, hero first
+  const heroImg = dev.images?.find((img) => img.is_hero) ?? dev.images?.[0] ?? null;
+  const otherImgs = (dev.images ?? []).filter((img) => img !== heroImg);
+  const allImages = heroImg ? [heroImg, ...otherImgs] : [...(dev.images ?? [])];
 
   const { data: similarData } = await supabase
     .from("developments")
@@ -63,17 +66,8 @@ export default async function DossierPage({ params }: Props) {
     .eq("is_published", true)
     .eq("state", rawDev.state ?? "")
     .neq("id", rawDev.id)
-    .limit(3);
+    .limit(2);
   const similar = (similarData ?? []) as unknown as Development[];
-
-  const specs = [
-    { label: "Architect", value: dev.architect },
-    { label: "Interiors", value: dev.interiors },
-    { label: "Landscape", value: dev.landscape },
-    { label: "Builder", value: dev.builder },
-    { label: "Levels", value: dev.levels?.toString() },
-    { label: "Residences", value: dev.residence_count?.toString() },
-  ].filter((s) => s.value);
 
   const amenities = dev.lifestyle ?? [];
 
@@ -83,240 +77,233 @@ export default async function DossierPage({ params }: Props) {
     "@type": "RealEstateListing",
     name: dev.name,
     description: dev.summary,
-    address: { "@type": "PostalAddress", addressLocality: dev.suburb, addressRegion: dev.state, addressCountry: "AU" },
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: dev.suburb,
+      addressRegion: dev.state,
+      addressCountry: "AU",
+    },
   };
+
+  const statPills = [
+    dev.price_display && { label: "From", value: dev.price_display },
+    (dev.beds_min || dev.beds_max) && {
+      label: "Beds",
+      value:
+        dev.beds_min === dev.beds_max
+          ? dev.beds_min?.toString()
+          : `${dev.beds_min ?? "?"}–${dev.beds_max ?? "?"}`,
+    },
+    dev.type && { label: "Type", value: dev.type },
+    dev.completion_quarter && { label: "Completion", value: dev.completion_quarter },
+    dev.status && { label: "Status", value: dev.status },
+  ].filter(Boolean) as { label: string; value: string }[];
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* ─── Hero ─────────────────────────────────────────────── */}
-      <section className="relative h-[70vh] bg-navy overflow-hidden">
-        {heroImageUrl ? (
-          <Image src={heroImageUrl} alt={dev.name} fill className="object-cover opacity-60" priority sizes="100vw" />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-navy-deep to-navy-mid" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/40 to-transparent" />
+      {/* ─── 1. Hero Carousel ─────────────────────────────────── */}
+      <HeroCarousel
+        images={allImages.map((img) => ({ url: img.url, caption: img.caption }))}
+        name={dev.name}
+      />
 
-        <div className="relative z-10 container-padded pt-24 pb-10 h-full flex flex-col justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/search" className="font-mono text-label-sm uppercase tracking-widest text-ink-light/50 hover:text-ink-light transition-colors">
-              ← Back to discover
-            </Link>
+      {/* ─── 2. Info Bar ──────────────────────────────────────── */}
+      <div className="bg-white border-b border-line">
+        <div className="container-padded py-5 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+          {/* Developer logo / name */}
+          <div className="flex-shrink-0">
+            {dev.developer?.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={dev.developer.logo_url}
+                alt={dev.developer.name}
+                className="h-10 max-w-[140px] object-contain"
+              />
+            ) : dev.developer ? (
+              <div className="flex flex-col">
+                <span className="block w-5 h-[1.5px] bg-ink/30 mb-1.5" aria-hidden="true" />
+                <p className="font-mono text-[8px] uppercase tracking-[0.22em] text-ink/50 leading-[1.7]">
+                  {dev.developer.name}
+                </p>
+              </div>
+            ) : null}
           </div>
-          <div>
-            <div className="flex gap-2 mb-4">
-              {dev.status && (
-                <Pill variant={dev.status === "Selling now" ? "orange" : "white"}>{dev.status}</Pill>
-              )}
-              {dev.tag && <Pill variant="white">{dev.tag}</Pill>}
-            </div>
-            <h1 className="font-display font-light text-ink-light leading-none tracking-tight text-[clamp(48px,7vw,104px)] mb-3">
+
+          {/* Dev name + location */}
+          <div className="flex-1 min-w-0">
+            <h1 className="font-sans font-bold text-ink text-[18px] leading-snug truncate">
               {dev.name}
             </h1>
-            <p className="font-mono text-label-lg uppercase tracking-widest text-ink-light/50 break-words">
-              {dev.suburb}, {dev.state} · {dev.developer?.name}
+            <p className="font-mono text-label-sm uppercase tracking-widest text-ink/40 mt-0.5">
+              {[dev.suburb, dev.state].filter(Boolean).join(", ")}
             </p>
           </div>
-        </div>
-      </section>
 
-      {/* ─── Spec Strip ───────────────────────────────────────── */}
-      <div className="bg-navy border-t border-line-dark">
-        <div className="container-padded py-5 grid grid-cols-2 md:grid-cols-4 gap-5">
-          {[
-            { label: "From", value: dev.price_display },
-            { label: "Beds", value: dev.beds_min === dev.beds_max ? dev.beds_min?.toString() : `${dev.beds_min}–${dev.beds_max}` },
-            { label: "Type", value: dev.type },
-            { label: "Completion", value: dev.completion_quarter },
-          ].map((kpi) => kpi.value && (
-            <div key={kpi.label}>
-              <p className="font-mono text-label-sm uppercase tracking-widest text-ink-light/30 mb-0.5">{kpi.label}</p>
-              <p className="font-mono text-label-lg text-ink-light">{kpi.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ─── Overview + Enquiry ───────────────────────────────── */}
-      <section className="bg-cream py-16">
-        <div className="container-padded">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Left: editorial content */}
-            <div className="lg:col-span-2">
-              <h2 className="font-display font-light text-navy text-section-lg mb-6">{dev.name}</h2>
-              {dev.summary && (
-                <p className="font-sans text-body-lg text-ink/70 leading-relaxed mb-8">{dev.summary}</p>
-              )}
-
-              {/* Spec grid */}
-              {specs.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-5 border-t border-line pt-8">
-                  {specs.map((spec) => (
-                    <div key={spec.label}>
-                      <p className="font-mono text-label-sm uppercase tracking-widest text-ink/30 mb-0.5">{spec.label}</p>
-                      <p className="font-sans text-body-md text-ink">{spec.value}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Right: sticky enquiry form */}
-            <div>
-              <div className="lg:sticky lg:top-24">
-                <EnquiryForm developmentId={dev.id} developmentName={dev.name} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Gallery ─────────────────────────────────────────── */}
-      {galleryImages.length > 0 && (
-        <section className="bg-white py-16 border-t border-line">
-          <div className="container-padded">
-            <div className="flex items-baseline gap-3 mb-8">
-              <h2 className="font-display font-light text-navy text-section-lg">Gallery</h2>
-              <span className="font-mono text-label-sm uppercase tracking-widest text-ink/30">
-                {galleryImages.length} {galleryImages.length === 1 ? "image" : "images"}
-              </span>
-            </div>
-
-            {galleryImages.length === 1 && (
-              <div className="relative w-full h-[480px] overflow-hidden">
-                <Image src={galleryImages[0].url} alt={galleryImages[0].caption ?? dev.name} fill className="object-cover" sizes="100vw" />
-              </div>
-            )}
-
-            {galleryImages.length === 2 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {galleryImages.map((img, i) => (
-                  <div key={img.id} className="relative h-[360px] overflow-hidden">
-                    <Image src={img.url} alt={img.caption ?? `${dev.name} ${i + 1}`} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {galleryImages.length >= 3 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {/* First image: full-width feature */}
-                <div className="relative md:col-span-2 h-[420px] overflow-hidden">
-                  <Image src={galleryImages[0].url} alt={galleryImages[0].caption ?? dev.name} fill className="object-cover" sizes="100vw" />
-                </div>
-                {/* Remaining images: 2 or 3 column grid */}
-                {galleryImages.slice(1).map((img, i) => (
-                  <div key={img.id} className="relative h-[280px] overflow-hidden">
-                    <Image src={img.url} alt={img.caption ?? `${dev.name} ${i + 2}`} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* ─── Floor Plans ──────────────────────────────────────── */}
-      {floorPlans.length > 0 && (
-        <section className="bg-white py-16 border-t border-line">
-          <div className="container-padded">
-            <div className="flex flex-wrap items-baseline gap-3 mb-8">
-              <h2 className="font-display font-light text-navy text-section-lg">Floor plans</h2>
-              <span className="font-mono text-label-sm uppercase tracking-widest text-ink/30">
-                ({floorPlans.length} {floorPlans.length === 1 ? "typology" : "typologies"})
-              </span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {floorPlans.map((fp) => (
-                <div key={fp.id} className="border border-line p-4">
-                  <div className="relative h-32 bg-navy/5 mb-3 overflow-hidden">
-                    {fp.image_url ? (
-                      <Image src={fp.image_url} alt={fp.plan_type ?? "Floor plan"} fill className="object-cover" sizes="(max-width: 768px) 50vw, 25vw" />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <p className="font-mono text-label-sm text-ink/30 uppercase tracking-widest">Plan image</p>
-                      </div>
-                    )}
-                  </div>
-                  <p className="font-mono text-label-lg text-navy mb-1">{fp.plan_type}</p>
-                  <p className="font-sans text-body-md text-ink/60">{fp.config}</p>
-                  {fp.internal_sqm && (
-                    <p className="font-mono text-label-sm text-ink/40">{fp.internal_sqm}m² internal</p>
-                  )}
-                  {fp.price_from && (
-                    <p className="font-mono text-label-lg text-orange mt-1">From {formatPrice(fp.price_from)}</p>
-                  )}
+          {/* Stat pills */}
+          {statPills.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {statPills.map((s) => (
+                <div key={s.label} className="flex flex-col items-center border border-line px-3 py-1.5">
+                  <span className="font-mono text-[8px] uppercase tracking-widest text-ink/40 leading-none mb-0.5">
+                    {s.label}
+                  </span>
+                  <span className="font-mono text-label-lg text-ink leading-none">{s.value}</span>
                 </div>
               ))}
             </div>
+          )}
 
-            {/* Price guide download / fallback */}
-            <div className="mt-8">
-              {dev.brochure_url ? (
-                <a
-                  href={dev.brochure_url}
-                  download
-                  className="btn-ghost inline-flex items-center gap-2"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    aria-hidden="true"
-                    className="flex-shrink-0"
-                  >
-                    <path
-                      d="M8 2v8M5 7l3 3 3-3M3 13h10"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+          {/* Enquire CTA */}
+          <a
+            href="#enquire"
+            className="flex-shrink-0 bg-orange text-white font-mono text-label-lg uppercase tracking-widest px-6 py-3 hover:bg-orange/90 transition-colors text-center"
+          >
+            Enquire
+          </a>
+        </div>
+      </div>
+
+      {/* ─── 3. About ─────────────────────────────────────────── */}
+      <section className="bg-cream py-16">
+        <div className="container-padded grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* Left: description */}
+          <div className="lg:col-span-2">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-3">About</p>
+            <h2 className="font-display font-light text-navy text-section-lg mb-6">{dev.name}</h2>
+            {dev.summary ? (
+              <ReadMore text={dev.summary} limit={320} />
+            ) : (
+              <p className="font-sans text-body-lg text-ink/40 italic">No description available.</p>
+            )}
+          </div>
+
+          {/* Right: sticky contact card + enquiry form */}
+          <div>
+            <div className="lg:sticky lg:top-24">
+              {/* Developer contact card */}
+              {dev.developer && (
+                <div className="bg-white border border-line px-5 py-4 mb-4 flex items-center gap-4">
+                  {dev.developer.logo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={dev.developer.logo_url}
+                      alt={dev.developer.name}
+                      className="h-10 max-w-[120px] object-contain flex-shrink-0"
                     />
-                  </svg>
-                  Download Price Guide
-                </a>
-              ) : (
-                <p className="font-mono text-label-sm text-ink/30">
-                  Price guide available on enquiry
-                </p>
+                  ) : (
+                    <div className="w-10 h-10 bg-navy/10 flex items-center justify-center flex-shrink-0">
+                      <span className="font-mono text-[8px] uppercase tracking-widest text-ink/40">
+                        {dev.developer.name.slice(0, 2)}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-mono text-label-sm uppercase tracking-widest text-ink/40 mb-0.5">Developer</p>
+                    <p className="font-sans font-medium text-body-md text-ink">{dev.developer.name}</p>
+                  </div>
+                </div>
               )}
+              <EnquiryForm developmentId={dev.id} developmentName={dev.name} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 4. Gallery ───────────────────────────────────────── */}
+      {allImages.length > 0 && (
+        <section className="bg-white py-16 border-t border-line">
+          <div className="container-padded">
+            <div className="flex items-baseline gap-3 mb-8">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40">Gallery</p>
+              <span className="font-mono text-label-sm text-ink/30">
+                {allImages.length} {allImages.length === 1 ? "image" : "images"}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {allImages.map((img, i) => (
+                <div key={img.id ?? i} className="relative h-52 overflow-hidden bg-navy/5">
+                  <Image
+                    src={img.url}
+                    alt={img.caption ?? `${dev.name} ${i + 1}`}
+                    fill
+                    className="object-cover hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* ─── Amenities ────────────────────────────────────────── */}
+      {/* ─── 5. Features & Amenities ──────────────────────────── */}
       {amenities.length > 0 && (
+        <section className="bg-navy py-16">
+          <div className="container-padded">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-white/40 mb-3">Lifestyle</p>
+            <h2 className="font-display font-light text-white text-section-lg mb-8">
+              Features &amp; Amenities
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
+              {amenities.map((a) => (
+                <div key={a} className="flex items-center gap-3 text-white/80">
+                  <span className="w-5 h-5 rounded-full border border-orange flex items-center justify-center flex-shrink-0">
+                    <CheckIcon size={11} className="text-orange" />
+                  </span>
+                  <span className="font-sans text-body-md">{a}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ─── 6. Properties Available ──────────────────────────── */}
+      <section className="bg-white py-16 border-t border-line">
+        <div className="container-padded">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-3">Availability</p>
+          <h2 className="font-display font-light text-navy text-section-lg">Properties Available</h2>
+          <PropertiesTable
+            floorPlans={floorPlans}
+            bedsMin={dev.beds_min}
+            bedsMax={dev.beds_max}
+          />
+        </div>
+      </section>
+
+      {/* ─── 7. Location ──────────────────────────────────────── */}
+      {dev.lat && dev.lng && (
         <section className="bg-cream py-16 border-t border-line">
           <div className="container-padded">
-            <h2 className="font-display font-light text-navy text-section-lg mb-8">Lifestyle &amp; amenities</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <ul className="flex flex-col gap-4">
-                {amenities.map((a) => (
-                  <li key={a} className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-full border border-orange flex items-center justify-center flex-shrink-0">
-                      <CheckIcon size={12} className="text-orange" />
-                    </span>
-                    <span className="font-sans text-body-md text-ink">{a}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="relative h-64 overflow-hidden">
-                {heroImageUrl ? (
-                  <Image
-                    src={heroImageUrl}
-                    alt={`${dev.name} lifestyle`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-navy/10 flex items-center justify-center">
-                    <p className="font-mono text-label-sm uppercase tracking-widest text-ink/30">Amenity render</p>
-                  </div>
+            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-3">Location</p>
+            <h2 className="font-display font-light text-navy text-section-lg mb-8">Location</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="h-80 overflow-hidden border border-line">
+                <iframe
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${dev.lng - 0.01},${dev.lat - 0.01},${dev.lng + 0.01},${dev.lat + 0.01}&layer=mapnik&marker=${dev.lat},${dev.lng}`}
+                  className="w-full h-full border-0"
+                  loading="lazy"
+                  title={`Map showing ${dev.suburb ?? "location"}`}
+                />
+              </div>
+              <div className="flex flex-col justify-center gap-4">
+                <div>
+                  <p className="font-mono text-label-sm uppercase tracking-widest text-ink/40 mb-1">Address</p>
+                  <p className="font-sans text-body-lg text-ink font-medium">
+                    {[dev.suburb, dev.state].filter(Boolean).join(", ")}
+                  </p>
+                </div>
+                {dev.suburb && (
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([dev.suburb, dev.state, "Australia"].filter(Boolean).join(", "))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 font-mono text-label-sm uppercase tracking-widest text-orange hover:text-orange/70 transition-colors"
+                  >
+                    View on Google Maps →
+                  </a>
                 )}
               </div>
             </div>
@@ -324,12 +311,38 @@ export default async function DossierPage({ params }: Props) {
         </section>
       )}
 
-      {/* ─── Similar Developments ─────────────────────────────── */}
+      {/* ─── 8. Request Information ───────────────────────────── */}
+      <section id="enquire" className="bg-white py-16 border-t border-line">
+        <div className="container-padded">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-3">Get in touch</p>
+          <h2 className="font-display font-light text-navy text-section-lg mb-8">Request Information</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <EnquiryForm developmentId={dev.id} developmentName={dev.name} />
+            {/* Right: hero image */}
+            <div className="relative min-h-[400px] overflow-hidden hidden lg:block">
+              {heroImageUrl ? (
+                <Image
+                  src={heroImageUrl}
+                  alt={dev.name}
+                  fill
+                  className="object-cover"
+                  sizes="50vw"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-navy to-navy-mid" />
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 9. Similar Listings ──────────────────────────────── */}
       {similar.length > 0 && (
         <section className="bg-cream-alt py-16 border-t border-line">
           <div className="container-padded">
-            <h2 className="font-display font-light text-navy text-section-lg mb-8">Similar listings</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-3">Explore more</p>
+            <h2 className="font-display font-light text-navy text-section-lg mb-8">Similar Listings</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {similar.map((d) => (
                 <PropertyCard key={d.id} development={d} layout="tall" />
               ))}
