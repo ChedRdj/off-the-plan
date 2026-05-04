@@ -340,28 +340,49 @@ export default async function DossierPage({ params }: Props) {
       </section>
 
       {/* ─── 4. Resources ─────────────────────────────────────────────── */}
-      {dev.brochure_url && (
-        <section className="bg-white py-12 border-t border-line">
-          <div className="container-padded">
-            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-3">Downloads</p>
-            <h2 className="font-display font-light text-navy text-section-lg mb-6">Resources</h2>
-            <div className="flex flex-wrap gap-4">
+      <section className="bg-cream py-10 border-t border-line">
+        <div className="container-padded">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-5">Resources</p>
+          <div className="flex flex-wrap gap-3">
+            {/* Deposit Solutions */}
+            <a
+              href="/resources/deposit-solutions"
+              className="inline-flex items-center px-6 py-2.5 bg-orange text-white font-mono text-[11px] uppercase tracking-widest hover:bg-orange/90 transition-colors"
+            >
+              Deposit Solutions
+            </a>
+            {/* Calculators */}
+            <a
+              href="/resources/calculators"
+              className="inline-flex items-center px-6 py-2.5 bg-navy text-white font-mono text-[11px] uppercase tracking-widest hover:bg-navy/80 transition-colors"
+            >
+              Calculators
+            </a>
+            {/* News */}
+            <a
+              href="/journal"
+              className="inline-flex items-center px-6 py-2.5 border border-navy text-navy font-mono text-[11px] uppercase tracking-widest hover:bg-navy hover:text-white transition-colors"
+            >
+              News
+            </a>
+            {/* Brochure download — only if available */}
+            {dev.brochure_url && (
               <a
                 href={dev.brochure_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 download
-                className="inline-flex items-center gap-2 border border-line px-6 py-3 font-mono text-[11px] uppercase tracking-widest text-ink hover:border-orange hover:text-orange transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-2.5 border border-line text-ink font-mono text-[11px] uppercase tracking-widest hover:border-orange hover:text-orange transition-colors"
               >
-                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Download Brochure
               </a>
-            </div>
+            )}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
       {/* ─── 5. Features & Amenities ──────────────────────────────────── */}
       {amenities.length > 0 && (
