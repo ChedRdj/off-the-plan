@@ -22,14 +22,187 @@ function toMonthly(amount: string, freq: Freq): number {
   return toAnnual(amount, freq) / 12;
 }
 
-const fmt = (n: number) =>
-  "$" + Math.round(Math.max(0, n)).toLocaleString("en-AU");
-
 const fmtDec = (n: number) =>
   "$" + Math.max(0, n).toLocaleString("en-AU", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+
+function fmtK(n: number): string {
+  if (n >= 1000000) return `$${(n / 1000000).toFixed(1)}M`;
+  if (n >= 1000) return `$${Math.round(n / 1000)}K`;
+  return `$${Math.round(n)}`;
+}
+
+// ── Loan Balance Chart ────────────────────────────────────────────────────────
+
+function LoanBalanceChart({
+  maxLoan, monthlyPayment, annualRate, termYears,
+}: {
+  maxLoan: number;
+  monthlyPayment: number;
+  annualRate: number;
+  termYears: number;
+}) {
+  const empty = maxLoan <= 0 || monthlyPayment <= 0 || termYears <= 0;
+
+  // Build amortization year-by-year
+  const points: { year: number; balance: number; totalRemaining: number }[] = [];
+  if (!empty) {
+    let balance = maxLoan;
+    const r = annualRate / 12 / 100;
+    for (let year = 0; year <= termYears; year++) {
+      const remainingMonths = (termYears - year) * 12;
+      points.push({
+        year,
+        balance: Math.max(0, balance),
+        totalRemaining: Math.max(0, monthlyPayment * remainingMonths),
+      });
+      for (let m = 0; m < 12 && balance > 0; m++) {
+        const interest = balance * r;
+        balance = Math.max(0, balance - (monthlyPayment - interest));
+      }
+    }
+  }
+
+  // SVG layout
+  const W = 320;
+  const H = 190;
+  const pL = 48, pR = 8, pT = 8, pB = 30;
+  const cW = W - pL - pR;
+  const cH = H - pT - pB;
+
+  const maxVal = empty ? 100 : (points[0]?.totalRemaining ?? maxLoan);
+
+  const toX = (year: number) => pL + (year / termYears) * cW;
+  const toY = (val: number) => pT + cH - Math.min(1, val / maxVal) * cH;
+
+  // Y-axis ticks
+  const yTicks = [0, 0.25, 0.5, 0.75, 1];
+  // X-axis ticks
+  const xStep = termYears <= 10 ? 2 : termYears <= 20 ? 5 : 5;
+  const xTicks: number[] = [];
+  for (let y = 0; y <= termYears; y += xStep) xTicks.push(y);
+  if (xTicks[xTicks.length - 1] !== termYears) xTicks.push(termYears);
+
+  // Path builders
+  function areaPath(key: "balance" | "totalRemaining") {
+    if (!points.length) return "";
+    const pts = points.map(p =>
+      `${toX(p.year).toFixed(1)},${toY(p[key]).toFixed(1)}`
+    );
+    return (
+      `M ${pts[0]} ` +
+      pts.slice(1).map(p => `L ${p}`).join(" ") +
+      ` L ${toX(termYears).toFixed(1)},${(pT + cH).toFixed(1)}` +
+      ` L ${pL},${(pT + cH).toFixed(1)} Z`
+    );
+  }
+
+  return (
+    <div>
+      {/* Legend */}
+      <div className="flex items-center gap-4 mb-2">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-orange flex-shrink-0" />
+          <span className="font-sans text-[11px] text-navy">Loan Balance</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-navy flex-shrink-0" />
+          <span className="font-sans text-[11px] text-navy">Total Payment</span>
+        </div>
+      </div>
+
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        width="100%"
+        style={{ overflow: "visible" }}
+        aria-label="Loan balance chart"
+      >
+        {/* Horizontal grid lines */}
+        {yTicks.map((f) => (
+          <line
+            key={f}
+            x1={pL} y1={toY(maxVal * f)}
+            x2={pL + cW} y2={toY(maxVal * f)}
+            stroke="#e0e4ea" strokeWidth="0.8"
+          />
+        ))}
+
+        {/* Total payment area (navy, behind) */}
+        {!empty && (
+          <path d={areaPath("totalRemaining")} fill="#1e3a5f" opacity="0.45" />
+        )}
+
+        {/* Loan balance area (orange, front) */}
+        {!empty && (
+          <path d={areaPath("balance")} fill="#e87722" opacity="0.85" />
+        )}
+
+        {/* Empty state dot */}
+        {empty && (
+          <circle
+            cx={pL + cW / 2} cy={pT + cH / 2}
+            r="2" fill="#ccc"
+          />
+        )}
+
+        {/* Axes */}
+        <line x1={pL} y1={pT} x2={pL} y2={pT + cH} stroke="#c0c8d4" strokeWidth="1" />
+        <line x1={pL} y1={pT + cH} x2={pL + cW} y2={pT + cH} stroke="#c0c8d4" strokeWidth="1" />
+
+        {/* Y-axis labels */}
+        {yTicks.map((f) => (
+          <text
+            key={f}
+            x={pL - 4} y={toY(maxVal * f) + 3}
+            textAnchor="end"
+            fontSize="7.5"
+            fill="#7a8799"
+            fontFamily="sans-serif"
+          >
+            {empty ? (f === 0 ? "$0" : "") : fmtK(maxVal * f)}
+          </text>
+        ))}
+
+        {/* X-axis labels */}
+        {xTicks.map((year) => (
+          <text
+            key={year}
+            x={toX(year)} y={pT + cH + 11}
+            textAnchor="middle"
+            fontSize="7.5"
+            fill="#7a8799"
+            fontFamily="sans-serif"
+          >
+            {year}
+          </text>
+        ))}
+
+        {/* Axis titles */}
+        <text
+          x={10} y={pT + cH / 2}
+          textAnchor="middle"
+          fontSize="7.5"
+          fill="#7a8799"
+          fontFamily="sans-serif"
+          transform={`rotate(-90, 10, ${pT + cH / 2})`}
+        >
+          Amount Owing
+        </text>
+        <text
+          x={pL + cW / 2} y={H}
+          textAnchor="middle"
+          fontSize="7.5"
+          fill="#7a8799"
+          fontFamily="sans-serif"
+        >
+          Years
+        </text>
+      </svg>
+    </div>
+  );
+}
 
 // ── Assumption Modal ──────────────────────────────────────────────────────────
 
@@ -82,19 +255,10 @@ function AssumptionModal({ onClose }: { onClose: () => void }) {
         )}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-[#e0e0e0] px-5 py-3.5">
           <h3 className="font-sans font-semibold text-orange text-[1rem]">Description</h3>
-          <button
-            onClick={handleClose}
-            aria-label="Close"
-            className="text-ink/35 hover:text-ink/70 transition-colors text-[1.4rem] leading-none mt-[-2px]"
-          >
-            ×
-          </button>
+          <button onClick={handleClose} aria-label="Close" className="text-ink/35 hover:text-ink/70 transition-colors text-[1.4rem] leading-none mt-[-2px]">×</button>
         </div>
-
-        {/* Content */}
         <div className="px-5 py-5 space-y-5 overflow-y-auto" style={{ maxHeight: "calc(85vh - 56px)" }}>
           <p className="font-sans text-[13px] text-ink/80 leading-relaxed">
             This calculator is designed to give you an estimate of how much money you can borrow from
@@ -104,7 +268,6 @@ function AssumptionModal({ onClose }: { onClose: () => void }) {
             commitments. You&apos;ll only know how much you can borrow for certain when you apply and
             receive conditional approval for a maximum borrowing amount on a loan.
           </p>
-
           <div>
             <p className="font-sans font-semibold text-orange text-[1rem] mb-3">Assumptions</p>
             <ul className="space-y-2">
@@ -116,13 +279,8 @@ function AssumptionModal({ onClose }: { onClose: () => void }) {
               ))}
             </ul>
           </div>
-
-          {/* Footer */}
           <div className="flex justify-end pt-2">
-            <button
-              onClick={handleClose}
-              className="bg-orange text-white font-sans text-[13px] px-8 py-2 hover:bg-orange/90 transition-colors"
-            >
+            <button onClick={handleClose} className="bg-orange text-white font-sans text-[13px] px-8 py-2 hover:bg-orange/90 transition-colors">
               Close
             </button>
           </div>
@@ -231,23 +389,17 @@ function AmountFreqRow({
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// ── Defaults & Main component ─────────────────────────────────────────────────
 
 const DEFAULTS = {
   joint: "no" as "no" | "yes",
   dependants: 0,
-  salary1: "",
-  salary1Freq: "annually" as Freq,
-  salary2: "",
-  salary2Freq: "annually" as Freq,
-  otherIncome: "",
-  otherIncomeFreq: "monthly" as Freq,
-  living: "",
-  livingFreq: "monthly" as Freq,
-  carLoan: "",
-  carLoanFreq: "monthly" as Freq,
-  otherPayments: "",
-  otherPaymentsFreq: "monthly" as Freq,
+  salary1: "", salary1Freq: "annually" as Freq,
+  salary2: "", salary2Freq: "annually" as Freq,
+  otherIncome: "", otherIncomeFreq: "monthly" as Freq,
+  living: "", livingFreq: "monthly" as Freq,
+  carLoan: "", carLoanFreq: "monthly" as Freq,
+  otherPayments: "", otherPaymentsFreq: "monthly" as Freq,
   creditCards: "",
   interestRate: "6.00",
   loanTerm: "30",
@@ -278,7 +430,9 @@ export default function BorrowingPowerCalculator() {
   const [showAssumption, setShowAssumption] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  const [result, setResult] = useState({ maxLoan: 0, monthly: 0, fortnightly: 0, weekly: 0 });
+  const [result, setResult] = useState({
+    maxLoan: 0, monthly: 0, fortnightly: 0, weekly: 0,
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -320,23 +474,15 @@ export default function BorrowingPowerCalculator() {
       interestRate, loanTerm]);
 
   function handleReset() {
-    setJoint(DEFAULTS.joint);
-    setDependants(DEFAULTS.dependants);
-    setSalary1(DEFAULTS.salary1);
-    setSalary1Freq(DEFAULTS.salary1Freq);
-    setSalary2(DEFAULTS.salary2);
-    setSalary2Freq(DEFAULTS.salary2Freq);
-    setOtherIncome(DEFAULTS.otherIncome);
-    setOtherIncomeFreq(DEFAULTS.otherIncomeFreq);
-    setLiving(DEFAULTS.living);
-    setLivingFreq(DEFAULTS.livingFreq);
-    setCarLoan(DEFAULTS.carLoan);
-    setCarLoanFreq(DEFAULTS.carLoanFreq);
-    setOtherPayments(DEFAULTS.otherPayments);
-    setOtherPaymentsFreq(DEFAULTS.otherPaymentsFreq);
+    setJoint(DEFAULTS.joint); setDependants(DEFAULTS.dependants);
+    setSalary1(DEFAULTS.salary1); setSalary1Freq(DEFAULTS.salary1Freq);
+    setSalary2(DEFAULTS.salary2); setSalary2Freq(DEFAULTS.salary2Freq);
+    setOtherIncome(DEFAULTS.otherIncome); setOtherIncomeFreq(DEFAULTS.otherIncomeFreq);
+    setLiving(DEFAULTS.living); setLivingFreq(DEFAULTS.livingFreq);
+    setCarLoan(DEFAULTS.carLoan); setCarLoanFreq(DEFAULTS.carLoanFreq);
+    setOtherPayments(DEFAULTS.otherPayments); setOtherPaymentsFreq(DEFAULTS.otherPaymentsFreq);
     setCreditCards(DEFAULTS.creditCards);
-    setInterestRate(DEFAULTS.interestRate);
-    setLoanTerm(DEFAULTS.loanTerm);
+    setInterestRate(DEFAULTS.interestRate); setLoanTerm(DEFAULTS.loanTerm);
   }
 
   const inputCls =
@@ -350,7 +496,8 @@ export default function BorrowingPowerCalculator() {
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {/* ── Left: Income + Loan Details ── */}
+
+        {/* ── Left: Income + Loan Details + Results ── */}
         <div>
           <p className="text-orange font-sans font-semibold text-[15px] mb-3">Enter your income details</p>
           <div className="space-y-0">
@@ -392,30 +539,17 @@ export default function BorrowingPowerCalculator() {
               </select>
             </div>
           </div>
-        </div>
 
-        {/* ── Right: Expenses + Results ── */}
-        <div>
-          <p className="text-orange font-sans font-semibold text-[15px] mb-3">Enter your expense details</p>
-          <div className="space-y-0">
-            <AmountFreqRow label="Living expenses" amount={living} freq={livingFreq} onAmount={setLiving} onFreq={setLivingFreq} />
-            <AmountFreqRow label="Car loan repayment" amount={carLoan} freq={carLoanFreq} onAmount={setCarLoan} onFreq={setCarLoanFreq} />
-            <AmountFreqRow label="Other payments" amount={otherPayments} freq={otherPaymentsFreq} onAmount={setOtherPayments} onFreq={setOtherPaymentsFreq} />
-            <div className={rowCls}>
-              <span className="font-sans text-[13px] text-navy">Total credit card limits</span>
-              <input type="number" value={creditCards} onChange={e => setCreditCards(e.target.value)} placeholder="0" className={inputCls} />
-            </div>
-          </div>
-
-          <p className="text-orange font-sans font-semibold text-[15px] border-b border-orange pb-1 mt-6 mb-3">View your results</p>
-
-          <div className="mb-4">
+          {/* Results */}
+          <p className="text-orange font-sans font-semibold text-[15px] mt-6 mb-2">View your results</p>
+          <div className="border-b border-[#e8e8e8] pb-3 mb-3">
             <p className="font-sans text-[13px] text-navy mb-0.5">You can borrow up to</p>
-            <p className="font-sans font-semibold text-orange text-[2rem] leading-none">
-              {fmt(result.maxLoan)}
+            <p className="font-sans font-semibold text-orange text-[1.9rem] leading-none">
+              {result.maxLoan > 0
+                ? "$" + Math.round(result.maxLoan).toLocaleString("en-AU")
+                : "$0"}
             </p>
           </div>
-
           <div className="space-y-2">
             {[
               { label: "Monthly Repayment", value: fmtDec(result.monthly) },
@@ -428,6 +562,29 @@ export default function BorrowingPowerCalculator() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* ── Right: Expenses + Chart ── */}
+        <div>
+          <p className="text-orange font-sans font-semibold text-[15px] mb-3">Enter your expense details</p>
+          <div className="space-y-0">
+            <AmountFreqRow label="Living expenses" amount={living} freq={livingFreq} onAmount={setLiving} onFreq={setLivingFreq} />
+            <AmountFreqRow label="Car loan repayment" amount={carLoan} freq={carLoanFreq} onAmount={setCarLoan} onFreq={setCarLoanFreq} />
+            <AmountFreqRow label="Other payments" amount={otherPayments} freq={otherPaymentsFreq} onAmount={setOtherPayments} onFreq={setOtherPaymentsFreq} />
+            <div className={rowCls}>
+              <span className="font-sans text-[13px] text-navy">Total credit card limits</span>
+              <input type="number" value={creditCards} onChange={e => setCreditCards(e.target.value)} placeholder="0" className={inputCls} />
+            </div>
+          </div>
+
+          {/* Loan Balance Chart */}
+          <p className="text-orange font-sans font-semibold text-[15px] mt-6 mb-3">Loan Balance Chart</p>
+          <LoanBalanceChart
+            maxLoan={result.maxLoan}
+            monthlyPayment={result.monthly}
+            annualRate={parseFloat(interestRate) || 0}
+            termYears={parseInt(loanTerm) || 30}
+          />
         </div>
       </div>
 
@@ -466,7 +623,6 @@ export default function BorrowingPowerCalculator() {
         </button>
       </div>
 
-      {/* ── Assumption Modal ── */}
       {mounted && showAssumption && createPortal(
         <AssumptionModal onClose={() => setShowAssumption(false)} />,
         document.body,
