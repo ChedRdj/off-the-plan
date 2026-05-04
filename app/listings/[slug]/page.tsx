@@ -8,6 +8,7 @@ import { HeroCarousel } from "@/components/hero-carousel";
 import { PropertiesTable } from "@/components/properties-table";
 import { ReadMore } from "@/components/read-more";
 import { CheckIcon, MailIcon } from "@/components/icons";
+import { PhoneReveal } from "@/components/phone-reveal";
 import { supabase } from "@/lib/supabase/public";
 import type { Development, DevelopmentFloorPlan } from "@/types/development";
 
@@ -286,14 +287,18 @@ export default async function DossierPage({ params }: Props) {
                   )}
                   <div className="min-w-0">
                     <p className="font-sans font-semibold text-[14px] text-ink leading-tight mb-1">
-                      {dev.developer?.name ?? "Sales Team"}
+                      {dev.developer?.name ? `${dev.developer.name} Sales Team` : "Sales Team"}
                     </p>
-                    <a
-                      href="tel:1300000000"
-                      className="font-sans text-[13px] text-orange hover:text-orange/70 transition-colors"
-                    >
-                      Enquire for details
-                    </a>
+                    {dev.developer?.phone ? (
+                      <PhoneReveal phone={dev.developer.phone} />
+                    ) : (
+                      <a
+                        href="#enquire"
+                        className="font-sans text-[13px] text-orange hover:text-orange/70 transition-colors"
+                      >
+                        Enquire for details
+                      </a>
+                    )}
                   </div>
                 </div>
 

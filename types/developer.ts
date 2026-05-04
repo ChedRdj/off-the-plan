@@ -9,6 +9,7 @@ export interface Developer {
   website: string | null;
   abn: string | null;
   state: AustralianState | null;
+  phone?: string | null;
   is_published: boolean;
   created_at: string;
   development_count?: number;
