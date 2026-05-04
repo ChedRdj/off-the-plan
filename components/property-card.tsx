@@ -10,7 +10,7 @@ import type { Development } from "@/types/development";
 
 interface PropertyCardProps {
   development: Development;
-  layout?: "tall" | "wide";
+  layout?: "tall" | "wide" | "featured";
   className?: string;
   onSave?: (id: string) => void;
   isSaved?: boolean;
@@ -174,6 +174,71 @@ export function PropertyCard({
                 />
               </svg>
             </button>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  if (layout === "featured") {
+    return (
+      <Link
+        href={`/listings/${development.slug}`}
+        className={cn("group relative overflow-hidden block", className)}
+      >
+        <div className="relative h-72 bg-navy overflow-hidden">
+          {heroImageUrl ? (
+            <Image
+              src={heroImageUrl}
+              alt={development.name}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-navy to-navy-mid" />
+          )}
+
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent" />
+
+          {/* Save button */}
+          <button
+            onClick={handleSave}
+            aria-label={saved ? "Remove from saved" : "Save listing"}
+            disabled={loading}
+            className="absolute top-3 right-3 p-1.5 bg-white/20 hover:bg-white/40 transition-colors disabled:opacity-50"
+          >
+            <HeartIcon filled={saved} />
+          </button>
+
+          {/* Content overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-5">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-white/50 mb-1">
+              {development.suburb}, {development.state}
+            </p>
+            <h3 className="font-display text-card-xl font-light text-white group-hover:text-orange/90 transition-colors leading-snug mb-3">
+              {development.name}
+            </h3>
+            <div className="flex flex-wrap items-center gap-3">
+              {development.status && (
+                <Pill variant={development.status === "Selling now" ? "orange" : "ghost"}>
+                  {development.status}
+                </Pill>
+              )}
+              {development.beds_min && (
+                <span className="font-mono text-[10px] uppercase tracking-widest text-white/60">
+                  {development.beds_min === development.beds_max
+                    ? `${development.beds_min} Bed`
+                    : `${development.beds_min}–${development.beds_max} Bed`}
+                </span>
+              )}
+              {development.price_display && (
+                <span className="font-mono text-[10px] uppercase tracking-widest text-white/60">
+                  {development.price_display}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </Link>
