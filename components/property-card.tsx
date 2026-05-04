@@ -219,11 +219,11 @@ export function PropertyCard({
           </button>
 
           {/* Content overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-6">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-white/50 mb-1.5">
+          <div className="absolute bottom-0 left-0 right-0 p-7">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-white/60 mb-2">
               {development.suburb}, {development.state}
             </p>
-            <h3 className="font-display font-light text-white group-hover:text-orange transition-colors leading-snug mb-3 text-[1.35rem]">
+            <h3 className="font-display font-light text-white group-hover:text-orange transition-colors leading-snug mb-4 text-[1.6rem]">
               {development.name}
             </h3>
             <div className="flex flex-wrap items-center gap-3">

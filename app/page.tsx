@@ -150,7 +150,7 @@ export default async function HomePage() {
                 <PropertyCard
                   development={dev}
                   layout="featured"
-                  imageHeight="h-[420px]"
+                  imageHeight="h-[500px]"
                 />
               </AnimateIn>
             ))}
