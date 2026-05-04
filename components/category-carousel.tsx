@@ -11,18 +11,18 @@ export interface Category {
   image: string;
 }
 
-function ChevronLeft() {
+function ArrowLeft() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
-function ChevronRight() {
+function ArrowRight() {
   return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="M5 2l5 5-5 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <path d="M7 4l5 5-5 5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -34,40 +34,46 @@ export function CategoryCarousel({ categories }: { categories: Category[] }) {
     const track = trackRef.current;
     if (!track) return;
     const item = track.firstElementChild as HTMLElement | null;
-    const gap = 16; // gap-4
+    const gap = 16;
     const step = item ? item.offsetWidth + gap : 300;
     track.scrollBy({ left: dir === "next" ? step : -step, behavior: "smooth" });
   };
 
   return (
     <div>
-      {/* Header row with arrow buttons */}
+      {/* Header row */}
       <div className="flex items-center justify-between mb-8">
-        <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40">
+        <p className="font-mono text-[13px] uppercase tracking-widest text-ink">
           Search by Category
         </p>
-        <div className="flex items-center gap-2">
+
+        {/* Luxury circular arrow buttons */}
+        <div className="flex items-center gap-3">
           <button
             onClick={() => scroll("prev")}
             aria-label="Previous"
             className={cn(
-              "w-10 h-10 border border-ink/20 flex items-center justify-center",
-              "text-ink/40 hover:border-ink/70 hover:text-ink",
-              "transition-all duration-300",
+              "w-12 h-12 rounded-full border border-ink/25 flex items-center justify-center",
+              "text-ink/60 bg-transparent",
+              "hover:bg-orange hover:border-orange hover:text-white",
+              "transition-all duration-300 ease-out",
+              "disabled:opacity-20 disabled:cursor-not-allowed",
             )}
           >
-            <ChevronLeft />
+            <ArrowLeft />
           </button>
           <button
             onClick={() => scroll("next")}
             aria-label="Next"
             className={cn(
-              "w-10 h-10 border border-ink/20 flex items-center justify-center",
-              "text-ink/40 hover:border-ink/70 hover:text-ink",
-              "transition-all duration-300",
+              "w-12 h-12 rounded-full border border-ink/25 flex items-center justify-center",
+              "text-ink/60 bg-transparent",
+              "hover:bg-orange hover:border-orange hover:text-white",
+              "transition-all duration-300 ease-out",
+              "disabled:opacity-20 disabled:cursor-not-allowed",
             )}
           >
-            <ChevronRight />
+            <ArrowRight />
           </button>
         </div>
       </div>
@@ -92,10 +98,7 @@ export function CategoryCarousel({ categories }: { categories: Category[] }) {
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 />
-                {/* Dark gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/30 to-navy/10 group-hover:from-navy/60 group-hover:via-navy/15 transition-all duration-500" />
-
-                {/* Label + decorative line */}
                 <div className="absolute bottom-0 left-0 right-0 p-5 flex items-end justify-between">
                   <span className="font-mono text-[11px] uppercase tracking-widest text-white drop-shadow">
                     {cat.label}

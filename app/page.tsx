@@ -194,15 +194,15 @@ export default async function HomePage() {
         <div className="container-padded">
           <AnimateIn>
             <div className="flex items-center justify-between mb-8">
-              <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40">
+              <p className="font-mono text-[13px] uppercase tracking-widest text-ink">
                 Latest Listings
               </p>
               <Link
                 href="/search"
-                className="font-mono text-[11px] uppercase tracking-widest text-ink/40 hover:text-orange transition-colors flex items-center gap-1.5"
+                className="font-mono text-[13px] uppercase tracking-widest text-ink/60 hover:text-orange transition-colors flex items-center gap-2"
               >
                 View more listings
-                <ChevronRightIcon size={14} />
+                <ChevronRightIcon size={16} />
               </Link>
             </div>
           </AnimateIn>
