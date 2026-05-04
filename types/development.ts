@@ -6,6 +6,7 @@ export type DevelopmentTag =
   | "Trending"
   | "Editor's pick"
   | "Final release";
+export type DevelopmentTier = "1st Tier" | "2nd Tier";
 export type AustralianState = "VIC" | "NSW" | "QLD" | "WA" | "SA";
 
 export interface Development {
@@ -22,7 +23,7 @@ export interface Development {
   type: DevelopmentType | null;
   developer_id: string | null;
   tag: DevelopmentTag | null;
-  tier: string | null;
+  tier: DevelopmentTier | null;
   status: DevelopmentStatus | null;
   summary: string | null;
   lifestyle: string[] | null;
