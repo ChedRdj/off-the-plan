@@ -173,10 +173,10 @@ export default async function HomePage() {
           <div className="mt-10 flex justify-center">
             <Link
               href="/search"
-              className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest px-8 py-3.5 border border-white/20 text-white/50 hover:border-orange hover:text-orange transition-all duration-300"
+              className="inline-flex items-center gap-2 font-mono text-[13px] font-medium uppercase tracking-widest px-10 py-4 border-2 border-white/30 text-white/70 hover:border-orange hover:text-orange transition-all duration-300"
             >
-              View All Developments
-              <ChevronRightIcon size={14} />
+              View More Properties
+              <ChevronRightIcon size={15} />
             </Link>
           </div>
         </div>
@@ -210,6 +210,17 @@ export default async function HomePage() {
                 <PropertyCard development={dev} layout="tall" />
               </AnimateIn>
             ))}
+          </div>
+
+          {/* View More Listings button */}
+          <div className="mt-10 flex justify-center">
+            <Link
+              href="/search"
+              className="inline-flex items-center gap-2 font-mono text-[13px] font-medium uppercase tracking-widest px-10 py-4 border-2 border-ink/20 text-ink/60 hover:border-orange hover:text-orange transition-all duration-300"
+            >
+              View More Listings
+              <ChevronRightIcon size={15} />
+            </Link>
           </div>
         </div>
       </section>
