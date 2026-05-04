@@ -3,13 +3,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { PropertyCard } from "@/components/property-card";
-import { EnquiryForm } from "@/components/enquiry-form";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { PropertiesTable } from "@/components/properties-table";
 import { ReadMore } from "@/components/read-more";
 import { CheckIcon, MailIcon } from "@/components/icons";
 import { PhoneReveal } from "@/components/phone-reveal";
 import { ShareButton } from "@/components/share-button";
+import { EnquiryButton } from "@/components/enquiry-button";
 import { supabase } from "@/lib/supabase/public";
 import type { Development, DevelopmentFloorPlan } from "@/types/development";
 
@@ -178,7 +178,7 @@ export default async function DossierPage({ params }: Props) {
           {/* Right: Watch thumbnail + Enquire button */}
           <div className="flex-shrink-0 flex flex-col items-stretch gap-2 w-[120px]">
             {heroImageUrl && (
-              <a href="#enquire" className="relative block w-full h-[76px] overflow-hidden group">
+              <div className="relative block w-full h-[76px] overflow-hidden">
                 <Image
                   src={heroImageUrl}
                   alt={dev.name}
@@ -186,8 +186,7 @@ export default async function DossierPage({ params }: Props) {
                   className="object-cover"
                   sizes="120px"
                 />
-                {/* play overlay */}
-                <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-end group-hover:bg-black/40 transition-colors">
+                <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-end">
                   <div className="flex items-center gap-1 bg-black/50 w-full justify-center py-1.5">
                     <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" className="text-white" aria-hidden="true">
                       <path d="M5 4l12 6-12 6V4z" />
@@ -195,15 +194,18 @@ export default async function DossierPage({ params }: Props) {
                     <span className="font-mono text-white text-[9px] uppercase tracking-widest">Watch</span>
                   </div>
                 </div>
-              </a>
+              </div>
             )}
-            <a
-              href="#enquire"
+            <EnquiryButton
+              developmentId={dev.id}
+              developmentName={dev.name}
+              developerName={dev.developer?.name}
+              developerLogoUrl={dev.developer?.logo_url}
               className="flex items-center justify-center gap-1.5 bg-orange text-white font-mono text-[10px] uppercase tracking-widest px-3 py-3 hover:bg-orange/90 transition-colors w-full"
             >
               <MailIcon size={12} />
               Enquire
-            </a>
+            </EnquiryButton>
           </div>
         </div>
       </div>
@@ -303,13 +305,16 @@ export default async function DossierPage({ params }: Props) {
                   </div>
                 </div>
 
-                <a
-                  href="#enquire"
+                <EnquiryButton
+                  developmentId={dev.id}
+                  developmentName={dev.name}
+                  developerName={dev.developer?.name}
+                  developerLogoUrl={dev.developer?.logo_url}
                   className="flex items-center justify-center gap-2 w-full bg-navy text-white font-mono text-[10px] uppercase tracking-widest py-2.5 hover:bg-navy/80 transition-colors"
                 >
                   <MailIcon size={12} />
                   Message
-                </a>
+                </EnquiryButton>
               </div>
 
               {/* ── Share + Enquire footer row ── */}
@@ -320,13 +325,16 @@ export default async function DossierPage({ params }: Props) {
                   suburb={dev.suburb}
                   state={dev.state}
                 />
-                <a
-                  href="#enquire"
+                <EnquiryButton
+                  developmentId={dev.id}
+                  developmentName={dev.name}
+                  developerName={dev.developer?.name}
+                  developerLogoUrl={dev.developer?.logo_url}
                   className="flex items-center justify-center gap-2 py-3 font-mono text-[10px] uppercase tracking-widest bg-orange text-white hover:bg-orange/90 transition-colors"
                 >
                   <MailIcon size={12} />
                   Enquire
-                </a>
+                </EnquiryButton>
               </div>
 
             </div>
@@ -455,13 +463,16 @@ export default async function DossierPage({ params }: Props) {
               Speak with a specialist and get the latest pricing.
             </p>
           </div>
-          <a
-            href="#enquire"
+          <EnquiryButton
+            developmentId={dev.id}
+            developmentName={dev.name}
+            developerName={dev.developer?.name}
+            developerLogoUrl={dev.developer?.logo_url}
             className="flex-shrink-0 flex items-center gap-2 bg-orange text-white font-mono text-[11px] uppercase tracking-widest px-8 py-4 hover:bg-orange/90 transition-colors"
           >
             <MailIcon size={14} />
             Enquire Now
-          </a>
+          </EnquiryButton>
         </div>
       </section>
 
@@ -499,25 +510,7 @@ export default async function DossierPage({ params }: Props) {
         </section>
       )}
 
-      {/* ─── 10. Request Information ──────────────────────────────────── */}
-      <section id="enquire" className="bg-white py-16 border-t border-line">
-        <div className="container-padded">
-          <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-3">Get in touch</p>
-          <h2 className="font-display font-light text-navy text-section-lg mb-8">Request Information</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <EnquiryForm developmentId={dev.id} developmentName={dev.name} />
-            <div className="relative min-h-[420px] overflow-hidden hidden lg:block">
-              {heroImageUrl ? (
-                <Image src={heroImageUrl} alt={dev.name} fill className="object-cover" sizes="50vw" />
-              ) : (
-                <div className="absolute inset-0 bg-gradient-to-br from-navy to-navy/60" />
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── 11. Similar Listings ─────────────────────────────────────── */}
+      {/* ─── 10. Similar Listings ─────────────────────────────────────── */}
       {similar.length > 0 && (
         <section className="bg-cream-alt py-16 border-t border-line">
           <div className="container-padded">
