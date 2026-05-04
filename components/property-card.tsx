@@ -12,6 +12,7 @@ interface PropertyCardProps {
   development: Development;
   layout?: "tall" | "wide" | "featured";
   className?: string;
+  imageHeight?: string;
   onSave?: (id: string) => void;
   isSaved?: boolean;
 }
@@ -39,6 +40,7 @@ export function PropertyCard({
   development,
   layout = "tall",
   className,
+  imageHeight,
   onSave,
   isSaved: initialSaved = false,
 }: PropertyCardProps) {
@@ -184,57 +186,61 @@ export function PropertyCard({
     return (
       <Link
         href={`/listings/${development.slug}`}
-        className={cn("group relative overflow-hidden block", className)}
+        className={cn(
+          "group relative block transition-all duration-500 ease-out hover:z-10 hover:scale-[1.025] hover:-translate-y-2",
+          className
+        )}
+        style={{ willChange: "transform" }}
       >
-        <div className="relative h-[440px] bg-navy overflow-hidden">
+        <div className={cn("relative bg-navy overflow-hidden", imageHeight ?? "h-[440px]")}>
           {heroImageUrl ? (
             <Image
               src={heroImageUrl}
               alt={development.name}
               fill
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-navy to-navy-mid" />
           )}
 
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/20 to-transparent" />
+          {/* Gradient overlay — lightens on hover to reveal more of the photo */}
+          <div className="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/30 to-transparent transition-opacity duration-500 group-hover:opacity-75" />
 
           {/* Save button */}
           <button
             onClick={handleSave}
             aria-label={saved ? "Remove from saved" : "Save listing"}
             disabled={loading}
-            className="absolute top-3 right-3 p-1.5 bg-white/20 hover:bg-white/40 transition-colors disabled:opacity-50"
+            className="absolute top-4 right-4 p-2 bg-black/30 hover:bg-black/60 transition-colors disabled:opacity-50 backdrop-blur-sm"
           >
             <HeartIcon filled={saved} />
           </button>
 
           {/* Content overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-5">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-white/50 mb-1">
+          <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-1 group-hover:translate-y-0 transition-transform duration-500">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-white/50 mb-1.5">
               {development.suburb}, {development.state}
             </p>
-            <h3 className="font-display text-card-xl font-light text-white group-hover:text-orange/90 transition-colors leading-snug mb-3">
+            <h3 className="font-display font-light text-white group-hover:text-orange transition-colors leading-snug mb-3 text-[1.35rem]">
               {development.name}
             </h3>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-75">
               {development.status && (
                 <Pill variant={development.status === "Selling now" ? "orange" : "ghost"}>
                   {development.status}
                 </Pill>
               )}
               {development.beds_min && (
-                <span className="font-mono text-[10px] uppercase tracking-widest text-white/60">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-white/70">
                   {development.beds_min === development.beds_max
                     ? `${development.beds_min} Bed`
                     : `${development.beds_min}–${development.beds_max} Bed`}
                 </span>
               )}
               {development.price_display && (
-                <span className="font-mono text-[10px] uppercase tracking-widest text-white/60">
+                <span className="font-mono text-[10px] uppercase tracking-widest text-white/70">
                   {development.price_display}
                 </span>
               )}
@@ -249,16 +255,19 @@ export function PropertyCard({
   return (
     <Link
       href={`/listings/${development.slug}`}
-      className={cn("group relative flex flex-col overflow-hidden bg-cream-alt border border-line", className)}
+      className={cn(
+        "group relative flex flex-col overflow-hidden bg-cream-alt border border-line transition-all duration-500 ease-out hover:-translate-y-2 hover:shadow-2xl hover:z-10",
+        className
+      )}
     >
       {/* Image */}
-      <div className="relative h-64 bg-navy/10 overflow-hidden">
+      <div className="relative h-64 bg-navy/10 overflow-hidden flex-shrink-0">
         {heroImageUrl ? (
           <Image
             src={heroImageUrl}
             alt={development.name}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         ) : (

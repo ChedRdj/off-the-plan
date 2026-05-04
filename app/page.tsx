@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PropertyCard } from "@/components/property-card";
 import { JournalCard } from "@/components/journal-card";
+import { AnimateIn } from "@/components/animate-in";
 import { ChevronRightIcon } from "@/components/icons";
 import { supabase } from "@/lib/supabase/public";
 import type { Development } from "@/types/development";
@@ -127,12 +128,44 @@ export default async function HomePage() {
       {/* ─── Section 1: Featured Developments (Tier 1) ─────────────────────── */}
       <section className="bg-navy py-16 md:py-20">
         <div className="container-padded">
-          <p className="font-mono text-[11px] uppercase tracking-widest text-white/40 mb-8">
-            Featured Developments
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tier1.map((dev) => (
-              <PropertyCard key={dev.id} development={dev} layout="featured" />
+          <AnimateIn>
+            <p className="font-mono text-[11px] uppercase tracking-widest text-white/40 mb-8">
+              Featured Developments
+            </p>
+          </AnimateIn>
+
+          {/* Row 1: hero card (2/3) + side card (1/3) */}
+          <AnimateIn className="mb-3">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              {tier1[0] && (
+                <div className="lg:col-span-2">
+                  <PropertyCard
+                    development={tier1[0]}
+                    layout="featured"
+                    imageHeight="h-[540px]"
+                  />
+                </div>
+              )}
+              {tier1[1] && (
+                <PropertyCard
+                  development={tier1[1]}
+                  layout="featured"
+                  imageHeight="h-[540px]"
+                />
+              )}
+            </div>
+          </AnimateIn>
+
+          {/* Row 2: 4 equal cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {tier1.slice(2).map((dev, i) => (
+              <AnimateIn key={dev.id} delay={i * 90}>
+                <PropertyCard
+                  development={dev}
+                  layout="featured"
+                  imageHeight="h-[300px]"
+                />
+              </AnimateIn>
             ))}
           </div>
         </div>
@@ -167,21 +200,25 @@ export default async function HomePage() {
       {/* ─── Section 3: Latest Listings (Tier 2) ────────────────────────────── */}
       <section className="bg-white py-16 md:py-20">
         <div className="container-padded">
-          <div className="flex items-center justify-between mb-8">
-            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40">
-              Latest Listings
-            </p>
-            <Link
-              href="/search"
-              className="font-mono text-[11px] uppercase tracking-widest text-ink/40 hover:text-orange transition-colors flex items-center gap-1.5"
-            >
-              View more listings
-              <ChevronRightIcon size={14} />
-            </Link>
-          </div>
+          <AnimateIn>
+            <div className="flex items-center justify-between mb-8">
+              <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40">
+                Latest Listings
+              </p>
+              <Link
+                href="/search"
+                className="font-mono text-[11px] uppercase tracking-widest text-ink/40 hover:text-orange transition-colors flex items-center gap-1.5"
+              >
+                View more listings
+                <ChevronRightIcon size={14} />
+              </Link>
+            </div>
+          </AnimateIn>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {tier2.map((dev) => (
-              <PropertyCard key={dev.id} development={dev} layout="tall" />
+            {tier2.map((dev, i) => (
+              <AnimateIn key={dev.id} delay={i * 70}>
+                <PropertyCard development={dev} layout="tall" />
+              </AnimateIn>
             ))}
           </div>
         </div>
