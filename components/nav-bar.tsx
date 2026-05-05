@@ -11,6 +11,7 @@ const navLinks = [
   { label: "Journal", href: "/journal" },
   { label: "Developers", href: "/developers" },
   { label: "Resources", href: "/resources/calculators" },
+  { label: "Features and Pricing", href: "/features-and-pricing" },
   { label: "Contact", href: "/contact" },
 ];
 
