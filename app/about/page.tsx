@@ -93,7 +93,7 @@ export default function AboutPage() {
       {/* ── Who We Are ──────────────────────────────────────────────────────── */}
       <section className="container-padded py-20 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
         <div>
-          <p className="font-mono text-label-sm uppercase tracking-widest text-ink/40 mb-5">Who We Are</p>
+          <p className="font-mono uppercase tracking-widest text-navy mb-5" style={{ fontSize: "20px" }}>Who We Are</p>
           <p className="font-sans text-body-md text-ink/80 leading-relaxed mb-4">
             Off The Plan™ is an Australian property platform for new apartments, new homes, listings
             and house &amp; land packages available off-the-plan®. We connect buyers with current and
