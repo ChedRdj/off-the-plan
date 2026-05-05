@@ -54,13 +54,13 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-4" aria-label="Main navigation">
+        <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "font-mono text-[10px] uppercase tracking-widest transition-opacity hover:opacity-60",
+                "font-mono text-[13px] uppercase tracking-widest transition-opacity hover:opacity-60",
                 isDark ? "text-ink-light" : "text-ink"
               )}
             >
@@ -70,7 +70,7 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
         </nav>
 
         {/* Desktop CTAs */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-4">
           <Link
             href="/list-a-listing"
             className={cn(
