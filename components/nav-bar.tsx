@@ -54,13 +54,13 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
+        <nav className="hidden md:flex items-center gap-4" aria-label="Main navigation">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
-                "font-mono text-label-lg uppercase tracking-widest transition-opacity hover:opacity-60",
+                "font-mono text-[10px] uppercase tracking-widest transition-opacity hover:opacity-60",
                 isDark ? "text-ink-light" : "text-ink"
               )}
             >
@@ -70,11 +70,11 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
         </nav>
 
         {/* Desktop CTAs */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-2">
           <Link
             href="/list-a-listing"
             className={cn(
-              "font-mono text-label-lg uppercase tracking-widest px-4 py-2 border transition-colors",
+              "font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border transition-colors",
               isDark
                 ? "border-ink-light/40 text-ink-light hover:bg-ink-light/10"
                 : "border-ink/20 text-ink hover:bg-ink/5"
@@ -83,31 +83,31 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
             List with us
           </Link>
           {user ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               {user.isAdmin && (
                 <Link
                   href="/admin"
-                  className={cn("font-mono text-label-lg uppercase tracking-widest transition-opacity hover:opacity-60", isDark ? "text-orange" : "text-orange")}
+                  className={cn("font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border transition-colors", isDark ? "border-orange/40 text-orange hover:bg-orange/10" : "border-orange/40 text-orange hover:bg-orange/10")}
                 >
                   Admin
                 </Link>
               )}
               <Link
                 href="/saved"
-                className={cn("font-mono text-label-lg uppercase tracking-widest transition-opacity hover:opacity-60", isDark ? "text-ink-light" : "text-ink")}
+                className={cn("font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border transition-colors", isDark ? "border-ink-light/30 text-ink-light hover:bg-ink-light/10" : "border-ink/20 text-ink hover:bg-ink/5")}
               >
                 Saved
               </Link>
               <Link
                 href="/account"
-                className={cn("font-mono text-label-lg uppercase tracking-widest transition-opacity hover:opacity-60", isDark ? "text-ink-light" : "text-ink")}
+                className={cn("font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border transition-colors", isDark ? "border-ink-light/30 text-ink-light hover:bg-ink-light/10" : "border-ink/20 text-ink hover:bg-ink/5")}
               >
                 Account
               </Link>
               <form action="/api/auth/logout" method="POST">
                 <button
                   type="submit"
-                  className={cn("font-mono text-label-lg uppercase tracking-widest transition-opacity hover:opacity-60", isDark ? "text-ink-light" : "text-ink")}
+                  className={cn("font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border transition-colors", isDark ? "border-ink-light/30 text-ink-light hover:bg-ink-light/10" : "border-ink/20 text-ink hover:bg-ink/5")}
                 >
                   Sign out
                 </button>
@@ -117,8 +117,8 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
             <Link
               href="/login"
               className={cn(
-                "font-mono text-label-lg uppercase tracking-widest transition-opacity hover:opacity-60",
-                isDark ? "text-ink-light" : "text-ink"
+                "font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border transition-colors",
+                isDark ? "border-ink-light/30 text-ink-light hover:bg-ink-light/10" : "border-ink/20 text-ink hover:bg-ink/5"
               )}
             >
               Sign in
