@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
@@ -39,9 +39,9 @@ const DEFAULTS = {
 
 // ─── Calculation ──────────────────────────────────────────────────────────────
 
-function calcLoan(principal: number, params: LoanParams): LoanResult {
+function calcLoan(principal: number, params: LoanParams, sharedTerm: string): LoanResult {
   const r = (parseFloat(params.rate) || 0) / 12 / 100;
-  const n = (parseInt(params.term) || 30) * 12;
+  const n = (parseInt(sharedTerm) || 30) * 12;
   const monthly = r > 0 ? principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1) : 0;
   const totalInterest = Math.max(0, monthly * n - principal);
   const upfront = parseFloat(params.upfrontFee) || 0;
@@ -53,24 +53,23 @@ function calcLoan(principal: number, params: LoanParams): LoanResult {
 // ─── Savings Chart ────────────────────────────────────────────────────────────
 
 function SavingsChart({
-  P, loan1, loan2,
+  P, loan1, loan2, sharedTerm,
 }: {
   P: number;
   loan1: LoanParams;
   loan2: LoanParams;
+  sharedTerm: string;
 }) {
-  const term1 = parseInt(loan1.term) || 30;
-  const term2 = parseInt(loan2.term) || 30;
-  const maxTerm = Math.max(term1, term2);
+  const maxTerm = parseInt(sharedTerm) || 30;
+  const n1 = maxTerm * 12;
+  const n2 = maxTerm * 12;
 
   const r1 = (parseFloat(loan1.rate) || 0) / 12 / 100;
-  const n1 = term1 * 12;
   const m1 = r1 > 0 ? P * (r1 * Math.pow(1 + r1, n1)) / (Math.pow(1 + r1, n1) - 1) : 0;
   const f1 = parseFloat(loan1.monthlyFee) || 0;
   const u1 = parseFloat(loan1.upfrontFee) || 0;
 
   const r2 = (parseFloat(loan2.rate) || 0) / 12 / 100;
-  const n2 = term2 * 12;
   const m2 = r2 > 0 ? P * (r2 * Math.pow(1 + r2, n2)) / (Math.pow(1 + r2, n2) - 1) : 0;
   const f2 = parseFloat(loan2.monthlyFee) || 0;
   const u2 = parseFloat(loan2.upfrontFee) || 0;
@@ -309,16 +308,6 @@ function LoanColumn({
             onChange={e => onChange({ ...params, rate: e.target.value })}
             placeholder="6.50" className={inputCls} />
         </div>
-        <div className={rowCls}>
-          <span className="font-sans text-[13px] text-navy">Loan term (years)</span>
-          <select value={params.term}
-            onChange={e => onChange({ ...params, term: e.target.value })}
-            className="bg-[#f0f0f0] border-0 font-sans text-[13px] px-3 py-1.5 text-right w-[120px] outline-none cursor-pointer">
-            {[5, 10, 15, 20, 25, 30].map(y => (
-              <option key={y} value={y}>{y} years</option>
-            ))}
-          </select>
-        </div>
       </div>
     </div>
   );
@@ -328,6 +317,7 @@ function LoanColumn({
 
 export default function LoanComparisonCalculator() {
   const [loanAmount, setLoanAmount] = useState(DEFAULTS.loanAmount);
+  const [loanTerm, setLoanTerm] = useState("30");
   const [loan1, setLoan1] = useState<LoanParams>({ ...DEFAULTS.loan1 });
   const [loan2, setLoan2] = useState<LoanParams>({ ...DEFAULTS.loan2 });
   const [result1, setResult1] = useState<LoanResult | null>(null);
@@ -337,12 +327,13 @@ export default function LoanComparisonCalculator() {
   useEffect(() => {
     const P = parseFloat(loanAmount.replace(/,/g, "")) || 0;
     if (P <= 0) { setResult1(null); setResult2(null); return; }
-    setResult1(calcLoan(P, loan1));
-    setResult2(calcLoan(P, loan2));
-  }, [loanAmount, loan1, loan2]);
+    setResult1(calcLoan(P, loan1, loanTerm));
+    setResult2(calcLoan(P, loan2, loanTerm));
+  }, [loanAmount, loanTerm, loan1, loan2]);
 
   function handleReset() {
     setLoanAmount(DEFAULTS.loanAmount);
+    setLoanTerm("30");
     setLoan1({ ...DEFAULTS.loan1 });
     setLoan2({ ...DEFAULTS.loan2 });
   }
@@ -351,6 +342,8 @@ export default function LoanComparisonCalculator() {
   const saving = result1 && result2 ? result1.totalCost - result2.totalCost : null;
   const cheaperLoan = saving !== null ? (saving > 0 ? "Loan 2" : saving < 0 ? "Loan 1" : null) : null;
   const savingAbs = saving !== null ? Math.abs(saving) : 0;
+
+  const selectCls = "bg-[#f0f0f0] border-0 font-sans text-[13px] px-3 py-1.5 text-right w-[120px] outline-none cursor-pointer";
 
   return (
     <div className="max-w-4xl">
@@ -369,6 +362,14 @@ export default function LoanComparisonCalculator() {
             <input type="number" value={loanAmount}
               onChange={e => setLoanAmount(e.target.value)}
               className={inputCls} placeholder="500000" />
+          </div>
+          <div className={rowCls}>
+            <span className="font-sans text-[13px] text-navy">Loan term</span>
+            <select value={loanTerm} onChange={e => setLoanTerm(e.target.value)} className={selectCls}>
+              {[5, 10, 15, 20, 25, 30].map(y => (
+                <option key={y} value={y}>{y} years</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
@@ -432,46 +433,57 @@ export default function LoanComparisonCalculator() {
             <p className="text-orange font-sans font-semibold text-[15px] border-b border-orange pb-1 mb-3">
               Loan Balance Chart
             </p>
-            {P > 0 && <SavingsChart P={P} loan1={loan1} loan2={loan2} />}
+            {P > 0 && <SavingsChart P={P} loan1={loan1} loan2={loan2} sharedTerm={loanTerm} />}
           </div>
         </div>
       )}
 
       {/* Action buttons */}
       <div className="flex gap-2 flex-wrap border-t border-[#e8e8e8] pt-5">
-        <button
-          onClick={handleReset}
-          className="flex items-center gap-1.5 bg-orange text-white font-sans text-[12px] px-5 py-2 hover:bg-orange/90 transition-colors"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-            <path d="M3 3v5h5"/>
-          </svg>
-          Reset
-        </button>
-        <button
-          onClick={() => window.print()}
-          className="flex items-center gap-1.5 bg-orange text-white font-sans text-[12px] px-5 py-2 hover:bg-orange/90 transition-colors"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="6 9 6 2 18 2 18 9"/>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-            <rect x="6" y="14" width="12" height="8"/>
-          </svg>
-          Print
-        </button>
-        <button
-          onClick={() => setShowAssumption(true)}
-          className="flex items-center gap-1.5 bg-orange text-white font-sans text-[12px] px-5 py-2 hover:bg-orange/90 transition-colors"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
-            <line x1="8" y1="18" x2="21" y2="18"/>
-            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
-            <line x1="3" y1="18" x2="3.01" y2="18"/>
-          </svg>
-          Assumption
-        </button>
+        {([
+          {
+            label: "Reset",
+            action: handleReset,
+            icon: (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+            ),
+          },
+          {
+            label: "Print",
+            action: () => window.print(),
+            icon: (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"/>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+              </svg>
+            ),
+          },
+          {
+            label: "Assumption",
+            action: () => setShowAssumption(true),
+            icon: (
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+                <line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+            ),
+          },
+        ] as { label: string; action: () => void; icon: React.ReactNode }[]).map(btn => (
+          <button
+            key={btn.label}
+            onClick={btn.action}
+            className="flex items-center gap-2 bg-orange text-white font-sans font-semibold text-[13px] px-5 py-2 hover:bg-orange/90 active:scale-95 transition-all"
+          >
+            {btn.icon}
+            {btn.label}
+          </button>
+        ))}
       </div>
 
       {showAssumption && <AssumptionModal onClose={() => setShowAssumption(false)} />}
