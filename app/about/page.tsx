@@ -123,15 +123,14 @@ export default function AboutPage() {
         <p className="font-mono text-label-sm uppercase tracking-widest text-ink/40 pt-1">Our Story</p>
         <div className="flex flex-col gap-4">
           <p className="font-sans text-body-md text-ink/80 leading-relaxed">
-            Off The Plan™ is an Australian listed and growing property portal dedicated exclusively to
-            brand new and off-the-plan properties from across Australia, making exploration of the new
-            property landscape more accessible than ever.
+            offtheplan.com.au™ is an independent property portal designed exclusively to showcase new
+            Australian properties and developments. As Australia's leading dedicated off-the-plan
+            marketplace, our platform unites every category of new property.
           </p>
           <p className="font-sans text-body-md text-ink/80 leading-relaxed">
-            Our platform embraces every category of off-the-plan new property — from new apartments
-            and house &amp; land packages to townhouses, land estates, commercial and New Home Designs.
-            Trusted by buyers, developers, agents, mortgage professionals, conveyancers and settlement
-            professionals, we provide a comprehensive platform to showcase off-the-plan property.
+            From apartments and townhouses to new home designs, house-and-land packages, masterplanned
+            estates, and commercial projects. We give buyers, developers, and real estate professionals
+            one easy, transparent place to connect, discover, and engage with opportunity.
           </p>
         </div>
       </section>
