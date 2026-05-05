@@ -1,59 +1,92 @@
+"use client";
+
 import Link from "next/link";
-import { redirect } from "next/navigation";
-// import { createClient } from "@/lib/supabase/server";
-// Uncomment above and the auth check below when Supabase is connected
+import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  ListChecks,
+  Building2,
+  BarChart2,
+  Tag,
+  Newspaper,
+  Globe,
+  Megaphone,
+  LogOut,
+} from "lucide-react";
 
 const navItems = [
-  { label: "Dashboard", href: "/admin" },
-  { label: "Listings", href: "/admin/listings" },
-  { label: "Journal", href: "/admin/journal" },
-  { label: "Enquiries", href: "/admin/enquiries" },
-  { label: "Members", href: "/admin/members" },
-  { label: "Leads", href: "/admin/leads" },
+  { label: "Dashboard",      href: "/admin",                icon: LayoutDashboard },
+  { label: "Listing",        href: "/admin/listings",       icon: ListChecks },
+  { label: "All Agencies",   href: "/admin/agencies",       icon: Building2 },
+  { label: "Reports",        href: "/admin/reports",        icon: BarChart2 },
+  { label: "Pricing",        href: "/admin/pricing",        icon: Tag },
+  { label: "News and Events",href: "/admin/news-events",    icon: Newspaper },
+  { label: "Homepage Setup", href: "/admin/homepage-setup", icon: Globe },
+  { label: "Ads Management", href: "/admin/ads",            icon: Megaphone },
 ];
 
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  // Uncomment when Supabase is connected:
-  // const supabase = createClient();
-  // const { data: { user } } = await supabase.auth.getUser();
-  // if (!user) redirect("/login");
-  // const { data: profile } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
-  // if (!profile?.is_admin) redirect("/");
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-cream flex pt-16">
+    <div className="min-h-screen flex" style={{ background: "#f5f5f5" }}>
       {/* Sidebar */}
-      <aside className="w-56 bg-navy flex-shrink-0 flex flex-col">
-        <div className="p-6 border-b border-line-dark">
-          <Link href="/" className="font-display text-xl font-light text-white">
-            Off The Plan
-          </Link>
-          <p className="font-sans text-sm text-ink-light/50 mt-1">Admin Panel</p>
-        </div>
-        <nav className="flex flex-col p-4 gap-1 flex-1" aria-label="Admin navigation">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="font-sans text-base font-medium px-4 py-3 text-ink-light/70 hover:text-ink-light hover:bg-white/10 transition-colors rounded"
+      <aside className="w-56 flex-shrink-0 flex flex-col" style={{ background: "#1a2340" }}>
+        {/* Logo */}
+        <div className="px-5 py-6 border-b border-white/10">
+          <Link href="/" className="flex items-center gap-2">
+            <div
+              className="w-9 h-9 flex items-center justify-center text-white font-bold text-sm rounded"
+              style={{ background: "#e85d26" }}
             >
-              {item.label}
-            </Link>
-          ))}
+              OTP
+            </div>
+            <span className="text-white font-semibold text-sm leading-tight">
+              OFF THE<br />PLAN
+            </span>
+          </Link>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex flex-col py-2 flex-1" aria-label="Admin navigation">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active =
+              item.href === "/admin"
+                ? pathname === "/admin"
+                : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-5 py-3 text-sm transition-colors ${
+                  active
+                    ? "text-white bg-white/10 border-l-2 border-orange-500"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Icon size={16} />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
-        <div className="p-4 border-t border-line-dark">
-          <Link href="/" className="font-mono text-label-sm uppercase tracking-widest text-ink-light/30 hover:text-ink-light transition-colors">
-            ← Back to site
+
+        {/* Logout */}
+        <div className="border-t border-white/10 p-4">
+          <Link
+            href="/auth/logout"
+            className="flex items-center gap-3 px-1 py-2 text-sm text-white/50 hover:text-white transition-colors"
+          >
+            <LogOut size={16} />
+            Logout
           </Link>
         </div>
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 overflow-auto">
-        <header className="bg-white border-b border-line px-8 py-4">
-          <p className="font-sans text-sm font-medium text-ink/50 uppercase tracking-widest">Off The Plan — Admin</p>
-        </header>
-        <main className="p-8 text-base">{children}</main>
+      <div className="flex-1 overflow-auto flex flex-col">
+        <main className="flex-1 p-6">{children}</main>
       </div>
     </div>
   );
