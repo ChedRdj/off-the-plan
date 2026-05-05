@@ -172,18 +172,18 @@ export default function FeaturesAndPricingPage() {
         </div>
       </div>
 
-      {/* ── 3. Features section (navy) ── */}
-      <div className="bg-navy py-16">
+      {/* ── 3. Features section (white) ── */}
+      <div className="bg-white py-16">
         <div className="container-padded">
           <div className="max-w-3xl">
-            <h2 className="font-mono text-[13px] uppercase tracking-[0.25em] text-white font-semibold mb-8">
+            <h2 className="font-mono text-[13px] uppercase tracking-[0.25em] text-navy font-semibold mb-8">
               Start Listing with Off The Plan
             </h2>
             <ul className="space-y-4 mb-12">
               {FEATURES.map((feature) => (
                 <li key={feature} className="flex items-start gap-3">
                   <CheckIcon />
-                  <span className="font-sans text-[14px] text-white/80 leading-relaxed">
+                  <span className="font-sans text-[14px] text-ink/80 leading-relaxed">
                     {feature}
                   </span>
                 </li>
@@ -216,7 +216,7 @@ export default function FeaturesAndPricingPage() {
       </div>
 
       {/* ── 4. Pricing section ── */}
-      <div className="bg-[#f5f4f1] py-16">
+      <div className="bg-navy py-16">
         <div className="container-padded">
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-12 items-start">
@@ -268,12 +268,12 @@ export default function FeaturesAndPricingPage() {
 
             {/* Right — pricing cards */}
             <div>
-              <h2 className="font-mono text-[13px] uppercase tracking-[0.25em] text-navy font-semibold mb-8">
+              <h2 className="font-mono text-[13px] uppercase tracking-[0.25em] text-white font-semibold mb-8">
                 Start Listing with Off The Plan
                 <sup className="text-[10px]">®</sup>
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border border-line">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-0 border border-white/20">
                 {PLANS.map((plan) => (
                   <div
                     key={plan.id}
@@ -406,12 +406,12 @@ export default function FeaturesAndPricingPage() {
       </div>
 
       {/* ── 6. Bottom CTA ── */}
-      <div className="bg-[#eeecea] border-t border-line py-16">
+      <div className="bg-navy py-16">
         <div className="container-padded text-center">
-          <h2 className="font-mono text-[13px] uppercase tracking-[0.28em] text-navy font-semibold mb-4">
+          <h2 className="font-mono text-[13px] uppercase tracking-[0.28em] text-white font-semibold mb-4">
             Ready to list your project?
           </h2>
-          <p className="font-sans text-[14px] text-ink/60 mb-8 max-w-md mx-auto leading-relaxed">
+          <p className="font-sans text-[14px] text-white/60 mb-8 max-w-md mx-auto leading-relaxed">
             Join hundreds of developers and builders already showcasing their
             properties on Off The Plan.
           </p>
@@ -424,7 +424,7 @@ export default function FeaturesAndPricingPage() {
             </Link>
             <Link
               href="/contact"
-              className="font-mono text-[10px] uppercase tracking-widest border border-navy/30 text-navy px-10 py-3 hover:border-orange hover:text-orange transition-colors"
+              className="font-mono text-[10px] uppercase tracking-widest border border-white/30 text-white px-10 py-3 hover:border-orange hover:text-orange transition-colors"
             >
               Contact Us
             </Link>
