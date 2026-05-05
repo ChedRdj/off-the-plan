@@ -404,33 +404,43 @@ export default async function DossierPage({ params }: Props) {
       )}
 
       {/* ─── 6. Gallery ───────────────────────────────────────────────── */}
-      <section className="bg-white py-16 border-t border-line">
-        <div className="container-padded">
-          <div className="flex items-baseline gap-3 mb-6">
-            <p className="font-mono text-[11px] uppercase tracking-widest text-navy font-semibold">Gallery</p>
-            {allImages.length > 0 && (
-              <span className="font-mono text-[10px] text-ink/30">
-                {allImages.length} {allImages.length === 1 ? "image" : "images"}
-              </span>
-            )}
-          </div>
-          {allImages.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {allImages.map((img, i) => (
-                <div key={img.id ?? i} className="relative h-52 overflow-hidden bg-navy/5">
-                  <Image
-                    src={img.url}
-                    alt={img.caption ?? `${dev.name} ${i + 1}`}
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 50vw, 33vw"
-                  />
-                </div>
-              ))}
+      {(() => {
+        const galleryImages = allImages.length > 0
+          ? allImages.map((img) => ({ url: img.url, alt: img.caption ?? dev.name, id: img.id }))
+          : [
+              { url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&h=600&fit=crop&auto=format&q=80", alt: dev.name, id: "m1" },
+              { url: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=900&h=600&fit=crop&auto=format&q=80", alt: dev.name, id: "m2" },
+              { url: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=900&h=600&fit=crop&auto=format&q=80", alt: dev.name, id: "m3" },
+              { url: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=900&h=600&fit=crop&auto=format&q=80", alt: dev.name, id: "m4" },
+              { url: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=900&h=600&fit=crop&auto=format&q=80", alt: dev.name, id: "m5" },
+              { url: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=900&h=600&fit=crop&auto=format&q=80", alt: dev.name, id: "m6" },
+            ];
+        return (
+          <section className="bg-white py-16 border-t border-line">
+            <div className="container-padded">
+              <div className="flex items-baseline gap-3 mb-6">
+                <p className="font-mono text-[11px] uppercase tracking-widest text-navy font-semibold">Gallery</p>
+                <span className="font-mono text-[10px] text-ink/30">
+                  {galleryImages.length} {galleryImages.length === 1 ? "image" : "images"}
+                </span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {galleryImages.map((img, i) => (
+                  <div key={img.id ?? i} className="relative h-52 overflow-hidden bg-navy/5">
+                    <Image
+                      src={img.url}
+                      alt={`${img.alt} ${i + 1}`}
+                      fill
+                      className="object-cover hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 768px) 50vw, 33vw"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
-        </div>
-      </section>
+          </section>
+        );
+      })()}
 
       {/* ─── 7. Properties Available ──────────────────────────────────── */}
       <section className="bg-cream py-16 border-t border-line">
