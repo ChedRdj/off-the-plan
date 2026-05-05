@@ -19,6 +19,11 @@ const categoryColors: Record<string, string> = {
   Guide:     "text-ink/60",
 };
 
+function stripHtml(html: string | null): string {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160);
+}
+
 interface NewsPageProps {
   searchParams: { category?: string };
 }
@@ -39,23 +44,24 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
   const { data } = await query;
   const articles = (data ?? []) as unknown as JournalArticle[];
 
-  return (
-    <div className="min-h-screen bg-cream pt-16">
+  const featured = articles.slice(0, 3);
+  const secondary = articles.slice(3, 6);
+  const list = articles.slice(6);
 
-      {/* Hero */}
-      <section className="bg-navy py-20">
+  return (
+    <div className="min-h-screen bg-[#f5f4f1] pt-16">
+
+      {/* ── Hero ── */}
+      <section className="bg-[#eeecea] border-b border-line py-10">
         <div className="container-padded">
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-ink-light/30 mb-4">
-            Off The Plan
-          </p>
-          <h1 className="font-display font-light text-ink-light text-[clamp(36px,8vw,64px)] leading-none tracking-tight">
-            News &amp; Events
+          <h1 className="font-mono text-[2rem] uppercase tracking-[0.18em] text-navy font-medium">
+            News
           </h1>
         </div>
       </section>
 
-      {/* Category tabs */}
-      <div className="border-b border-line bg-cream sticky top-16 z-20">
+      {/* ── Category tabs ── */}
+      <div className="border-b border-line bg-[#f5f4f1] sticky top-16 z-20">
         <div className="container-padded flex gap-0 overflow-x-auto">
           {categories.map((cat) => {
             const isActive = (!activeCategory && cat === "All") || cat === activeCategory;
@@ -77,76 +83,170 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
         </div>
       </div>
 
-      {/* Articles grid */}
-      <div className="container-padded py-14">
-        {articles.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {articles.map((article) => (
-              <Link
-                key={article.id}
-                href={`/journal/${article.slug}`}
-                className="group flex flex-col bg-white border border-line hover:border-navy/20 transition-colors"
-              >
-                {/* Image */}
-                <div className="relative h-52 overflow-hidden bg-navy/10 flex-shrink-0">
-                  {article.hero_image_url ? (
-                    <Image
-                      src={article.hero_image_url}
-                      alt={article.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-navy to-navy/60" />
-                  )}
-                </div>
+      <div className="container-padded py-12">
 
-                {/* Content */}
-                <div className="flex flex-col flex-1 p-6">
-                  {/* Meta */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className={`font-mono text-[10px] uppercase tracking-widest font-semibold ${categoryColors[article.category] ?? "text-ink/60"}`}>
-                      {article.category}
-                    </span>
-                    {article.read_time_minutes && (
-                      <>
-                        <span className="text-ink/20">·</span>
-                        <span className="font-mono text-[10px] text-ink/40">
-                          {article.read_time_minutes} min read
-                        </span>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="font-display font-light text-navy text-[1.2rem] leading-snug group-hover:text-orange transition-colors mb-3 flex-1">
-                    {article.title}
-                  </h3>
-
-                  {/* Date */}
-                  {article.published_at && (
-                    <p className="font-mono text-[10px] uppercase tracking-widest text-ink/30 mb-5">
-                      {formatDate(article.published_at)}
-                    </p>
-                  )}
-
-                  {/* Read More */}
-                  <span className="font-mono text-[10px] uppercase tracking-widest px-5 py-2 border border-ink/20 text-ink/60 group-hover:border-orange group-hover:text-orange transition-colors self-start">
-                    Read More
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
+        {articles.length === 0 ? (
           <p className="font-sans text-body-md text-ink/40 text-center py-16">
             No articles in this category yet.
           </p>
+        ) : (
+          <>
+            {/* ── Section label ── */}
+            <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-navy font-semibold mb-8">
+              Latest Property News
+            </p>
+
+            {/* ── Featured top 3 ── */}
+            {featured.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                {featured.map((article) => (
+                  <div key={article.id} className="flex flex-col bg-white border border-line">
+                    {/* Image */}
+                    <div className="relative h-48 overflow-hidden bg-navy/10 flex-shrink-0">
+                      {article.hero_image_url ? (
+                        <Image
+                          src={article.hero_image_url}
+                          alt={article.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-navy to-navy/60" />
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex flex-col flex-1 p-5">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`font-mono text-[10px] uppercase tracking-widest font-semibold ${categoryColors[article.category] ?? "text-ink/60"}`}>
+                          {article.category}
+                        </span>
+                        {article.read_time_minutes && (
+                          <>
+                            <span className="text-ink/20">·</span>
+                            <span className="font-mono text-[10px] text-ink/40">
+                              {article.read_time_minutes} min read
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      <h3 className="font-sans font-semibold text-navy text-[0.95rem] leading-snug mb-2">
+                        {article.title}
+                      </h3>
+
+                      {article.published_at && (
+                        <p className="font-mono text-[9px] uppercase tracking-widest text-ink/30 mb-3">
+                          {formatDate(article.published_at)}
+                        </p>
+                      )}
+
+                      {article.body_html && (
+                        <p className="font-sans text-[13px] text-ink/60 leading-relaxed mb-4 line-clamp-3">
+                          {stripHtml(article.body_html)}
+                        </p>
+                      )}
+
+                      <div className="mt-auto">
+                        <Link
+                          href={`/journal/${article.slug}`}
+                          className="inline-block font-mono text-[10px] uppercase tracking-widest px-5 py-2 bg-navy text-white hover:bg-orange transition-colors"
+                        >
+                          Read More
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ── Secondary row of 3 ── */}
+            {secondary.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+                {secondary.map((article) => (
+                  <div key={article.id} className="flex flex-col bg-white border border-line">
+                    <div className="relative h-40 overflow-hidden bg-navy/10 flex-shrink-0">
+                      {article.hero_image_url ? (
+                        <Image
+                          src={article.hero_image_url}
+                          alt={article.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-navy to-navy/60" />
+                      )}
+                    </div>
+                    <div className="flex flex-col flex-1 p-5">
+                      {article.published_at && (
+                        <p className="font-mono text-[9px] uppercase tracking-widest text-ink/30 mb-1">
+                          {formatDate(article.published_at)}
+                        </p>
+                      )}
+                      <h3 className="font-sans font-semibold text-navy text-[0.9rem] leading-snug mb-4 flex-1">
+                        {article.title}
+                      </h3>
+                      <Link
+                        href={`/journal/${article.slug}`}
+                        className="inline-block font-mono text-[10px] uppercase tracking-widest px-5 py-2 bg-navy text-white hover:bg-orange transition-colors self-start"
+                      >
+                        Read More
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ── List format for remaining articles ── */}
+            {list.length > 0 && (
+              <div className="flex flex-col divide-y divide-line border-t border-line mb-10">
+                {list.map((article) => (
+                  <div key={article.id} className="flex gap-5 py-5 bg-white px-4">
+                    {/* Thumbnail */}
+                    <div className="relative w-28 h-20 flex-shrink-0 overflow-hidden bg-navy/10">
+                      {article.hero_image_url ? (
+                        <Image
+                          src={article.hero_image_url}
+                          alt={article.title}
+                          fill
+                          className="object-cover"
+                          sizes="112px"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gradient-to-br from-navy to-navy/60" />
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex flex-col justify-center flex-1 min-w-0">
+                      {article.published_at && (
+                        <p className="font-mono text-[9px] uppercase tracking-widest text-ink/30 mb-1">
+                          {formatDate(article.published_at)}
+                        </p>
+                      )}
+                      <h3 className="font-sans font-semibold text-navy text-[0.9rem] leading-snug mb-3">
+                        {article.title}
+                      </h3>
+                      <Link
+                        href={`/journal/${article.slug}`}
+                        className="inline-block font-mono text-[10px] uppercase tracking-widest px-5 py-1.5 bg-navy text-white hover:bg-orange transition-colors self-start"
+                      >
+                        Read More
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Partner banner */}
+      {/* ── Partner banner ── */}
       <div className="container-padded pb-14 px-16 md:px-24">
         <Image
           src="/off-the-plan-banner-landscape.png"
