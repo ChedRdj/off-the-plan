@@ -340,134 +340,129 @@ function SectionAccordion({
 
 // ─── Summary Tab ─────────────────────────────────────────────────────────────
 
+// Helper: convert annual total to all four summary frequencies
+function toFreqs(annual: number) {
+  return {
+    weekly: annual / 52,
+    fortnightly: annual / 26,
+    monthly: annual / 12,
+    annual,
+  };
+}
+
+const fmtSummary = (n: number) =>
+  "$" + Math.round(Math.abs(n)).toLocaleString("en-AU");
+
 function SummaryView({ data }: { data: BudgetData }) {
   const incomeSection = SECTIONS.find(s => s.isIncome)!;
   const expenseSections = SECTIONS.filter(s => !s.isIncome);
 
-  const totalIncome = incomeSection.fields.reduce((sum, f) => sum + toAnnual(data[f.key]), 0);
-  const expSectionTotals = expenseSections.map(s => ({
-    ...s,
-    total: s.fields.reduce((sum, f) => sum + toAnnual(data[f.key]), 0),
+  // Combine Insurance + Superannuation into one row
+  const SUMMARY_EXPENSE_ROWS: { label: string; keys: string[] }[] = [
+    { label: "Home Expenses",              keys: SECTIONS.find(s => s.key === "homeExpenses")!.fields.map(f => f.key) },
+    { label: "Living Expenses",            keys: SECTIONS.find(s => s.key === "livingExpenses")!.fields.map(f => f.key) },
+    { label: "Vehicle & Transport",        keys: SECTIONS.find(s => s.key === "transport")!.fields.map(f => f.key) },
+    { label: "Mortgage & Debt Repayments", keys: SECTIONS.find(s => s.key === "mortgageDebt")!.fields.map(f => f.key) },
+    { label: "Leisure and Entertainment",  keys: SECTIONS.find(s => s.key === "leisure")!.fields.map(f => f.key) },
+    {
+      label: "Insurance and Superannuation",
+      keys: [
+        ...SECTIONS.find(s => s.key === "insurance")!.fields.map(f => f.key),
+        ...SECTIONS.find(s => s.key === "superannuation")!.fields.map(f => f.key),
+      ],
+    },
+  ];
+
+  const incomeAnnual = incomeSection.fields.reduce((sum, f) => sum + toAnnual(data[f.key]), 0);
+
+  const expenseRows = SUMMARY_EXPENSE_ROWS.map(row => ({
+    label: row.label,
+    annual: row.keys.reduce((sum, k) => sum + toAnnual(data[k]), 0),
   }));
-  const totalExpenses = expSectionTotals.reduce((sum, s) => sum + s.total, 0);
-  const surplus = totalIncome - totalExpenses;
-  const isSurplus = surplus >= 0;
+
+  const totalExpenseAnnual = expenseRows.reduce((sum, r) => sum + r.annual, 0);
+  const surplusAnnual = incomeAnnual - totalExpenseAnnual;
+  const isSurplus = surplusAnnual >= 0;
+
+  const FREQ_COLS: { key: keyof ReturnType<typeof toFreqs>; label: string }[] = [
+    { key: "weekly",       label: "Weekly" },
+    { key: "fortnightly",  label: "Fortnightly" },
+    { key: "monthly",      label: "Monthly" },
+    { key: "annual",       label: "Annual" },
+  ];
+
+  const incomeFreqs   = toFreqs(incomeAnnual);
+  const expenseFreqs  = toFreqs(totalExpenseAnnual);
+  const surplusFreqs  = toFreqs(Math.abs(surplusAnnual));
 
   return (
-    <div>
-      {/* Financial position banner */}
-      <div className={cn(
-        "border-l-4 p-5 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4",
-        isSurplus ? "border-orange bg-orange/5" : "border-red-400 bg-red-50"
-      )}>
-        <div>
-          <p className="font-sans text-[10px] uppercase tracking-wider text-ink/50 mb-0.5">
-            Monthly {isSurplus ? "surplus" : "deficit"}
-          </p>
-          <p className={cn("font-sans font-bold leading-none", isSurplus ? "text-orange" : "text-red-500")}>
-            <span className="text-[2.2rem]">{isSurplus ? "+" : "−"}{fmt(Math.abs(surplus / 12))}</span>
-            <span className="text-[13px] font-normal ml-1.5">/mo</span>
-          </p>
-          <p className="font-sans text-[11px] text-ink/40 mt-1">
-            {fmt(Math.abs(surplus))}/yr · {isSurplus ? "income exceeds expenses" : "expenses exceed income"}
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-          {[
-            { label: "Monthly income", value: fmt(totalIncome / 12) },
-            { label: "Monthly expenses", value: fmt(totalExpenses / 12) },
-          ].map(item => (
-            <div key={item.label} className="bg-white/70 px-4 py-3 text-center">
-              <p className="font-sans text-[10px] text-ink/40 uppercase tracking-wide mb-0.5">{item.label}</p>
-              <p className="font-sans text-[15px] font-semibold text-navy">{item.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[480px] border-collapse">
+        <thead>
+          <tr>
+            <th className="text-left font-sans font-normal text-[13px] text-navy py-2 pr-4 w-auto" />
+            {FREQ_COLS.map(col => (
+              <th key={col.key} className="text-right font-sans font-semibold text-[13px] text-orange py-2 px-3 w-[100px]">
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {/* Total Income row */}
+          <tr className="border-b border-dashed border-[#ddd]">
+            <td className="font-sans text-[13px] text-navy py-2.5 pr-4">Total Income</td>
+            {FREQ_COLS.map(col => (
+              <td key={col.key} className="text-right font-sans text-[13px] text-ink py-2.5 px-3">
+                {fmtSummary(incomeFreqs[col.key])}
+              </td>
+            ))}
+          </tr>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left: Income vs Expenses comparison */}
-        <div>
-          <p className="text-orange font-sans font-semibold text-[14px] border-b border-orange pb-1 mb-4">Income vs. Expenses</p>
-
-          {[
-            { label: "Total annual income", value: totalIncome, color: "bg-orange", pct: 100 },
-            { label: "Total annual expenses", value: totalExpenses, color: "bg-navy", pct: totalIncome > 0 ? Math.min(100, (totalExpenses / totalIncome) * 100) : 0 },
-          ].map(row => (
-            <div key={row.label} className="mb-5">
-              <div className="flex justify-between font-sans text-[12px] mb-1.5">
-                <span className="text-navy">{row.label}</span>
-                <span className="font-medium text-ink">{fmt(row.value)}</span>
-              </div>
-              <div className="h-2 bg-[#ebebeb] overflow-hidden">
-                <div
-                  className={cn("h-full transition-all duration-500", row.color)}
-                  style={{ width: `${row.pct}%` }}
-                />
-              </div>
-            </div>
+          {/* Expense rows */}
+          {expenseRows.map(row => (
+            <tr key={row.label} className="border-b border-dashed border-[#ddd]">
+              <td className="font-sans text-[13px] text-navy py-2.5 pr-4">{row.label}</td>
+              {FREQ_COLS.map(col => {
+                const freqs = toFreqs(row.annual);
+                return (
+                  <td key={col.key} className="text-right font-sans text-[13px] text-ink py-2.5 px-3">
+                    {fmtSummary(freqs[col.key])}
+                  </td>
+                );
+              })}
+            </tr>
           ))}
 
-          <div className="border-t border-[#e8e8e8] pt-4 mt-2 flex justify-between font-sans text-[13px]">
-            <span className="text-navy font-semibold">Annual {isSurplus ? "surplus" : "deficit"}</span>
-            <span className={cn("font-semibold", isSurplus ? "text-orange" : "text-red-500")}>
-              {isSurplus ? "+" : "−"}{fmt(Math.abs(surplus))}
-            </span>
-          </div>
+          {/* Total Expense row */}
+          <tr className="border-b border-[#bbb]">
+            <td className="font-sans text-[13px] text-navy font-semibold py-2.5 pr-4">Total Expense</td>
+            {FREQ_COLS.map(col => (
+              <td key={col.key} className="text-right font-sans text-[13px] text-ink font-semibold py-2.5 px-3">
+                {fmtSummary(expenseFreqs[col.key])}
+              </td>
+            ))}
+          </tr>
 
-          {/* Income breakdown */}
-          <p className="text-orange font-sans font-semibold text-[14px] border-b border-orange pb-1 mb-3 mt-8">Income Breakdown</p>
-          <div className="space-y-1.5">
-            {incomeSection.fields.map(f => {
-              const annual = toAnnual(data[f.key]);
-              if (!annual) return null;
-              return (
-                <div key={f.key} className="flex justify-between text-[12px] font-sans border-b border-[#f0f0f0] pb-1.5">
-                  <span className="text-navy">{f.label}</span>
-                  <span className="text-ink font-medium">{fmt(annual)}</span>
-                </div>
-              );
-            })}
-            {totalIncome > 0 && (
-              <div className="flex justify-between text-[12px] font-sans pt-0.5">
-                <span className="text-orange font-semibold">Total</span>
-                <span className="text-orange font-semibold">{fmt(totalIncome)}</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Right: Expense breakdown by category */}
-        <div>
-          <p className="text-orange font-sans font-semibold text-[14px] border-b border-orange pb-1 mb-4">Expense Breakdown</p>
-          {expSectionTotals.map(section => {
-            const pct = totalExpenses > 0 ? (section.total / totalExpenses) * 100 : 0;
-            return (
-              <div key={section.key} className="mb-4">
-                <div className="flex justify-between font-sans text-[12px] mb-1.5">
-                  <span className="text-navy">{section.label}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-ink/50 text-[11px]">{Math.round(pct)}%</span>
-                    <span className="text-ink font-medium">{fmt(section.total)}</span>
-                  </div>
-                </div>
-                <div className="h-1.5 bg-[#ebebeb] overflow-hidden">
-                  <div
-                    className="h-full bg-navy/50 transition-all duration-500"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-          {totalExpenses > 0 && (
-            <div className="border-t border-[#e8e8e8] pt-3 mt-2 flex justify-between font-sans text-[13px]">
-              <span className="text-navy font-semibold">Total annual expenses</span>
-              <span className="font-semibold text-navy">{fmt(totalExpenses)}</span>
-            </div>
-          )}
-        </div>
-      </div>
+          {/* Surplus / Deficit row */}
+          <tr>
+            <td className={cn(
+              "font-sans text-[13px] font-bold py-3 pr-4 uppercase tracking-wide",
+              isSurplus ? "text-orange" : "text-red-500"
+            )}>
+              {isSurplus ? "Surplus" : "Deficit"}
+            </td>
+            {FREQ_COLS.map(col => (
+              <td key={col.key} className={cn(
+                "text-right font-sans text-[13px] font-semibold py-3 px-3",
+                isSurplus ? "text-orange" : "text-red-500"
+              )}>
+                {isSurplus ? "" : "−"}{fmtSummary(surplusFreqs[col.key])}
+              </td>
+            ))}
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -483,14 +478,6 @@ export default function BudgetPlanner() {
   function update(key: string, field: "amount" | "freq", value: string) {
     setData(prev => ({ ...prev, [key]: { ...prev[key], [field]: value } }));
   }
-
-  const ACTION_BUTTONS = [
-    { label: "Open All", action: () => setOpenSections(makeOpen(true)), variant: "navy" },
-    { label: "Close All", action: () => setOpenSections(makeOpen(false)), variant: "navy" },
-    { label: "Clear All", action: () => setData(makeData()), variant: "navy" },
-    { label: "Print", action: () => window.print(), variant: "navy" },
-    { label: "About", action: () => setShowAbout(true), variant: "orange" },
-  ] as const;
 
   return (
     <div className="max-w-5xl">
@@ -535,9 +522,15 @@ export default function BudgetPlanner() {
             ))}
           </div>
 
-          {/* Action bar */}
+          {/* Details action bar */}
           <div className="flex gap-2 mt-5 flex-wrap">
-            {ACTION_BUTTONS.map(btn => (
+            {([
+              { label: "Open All",  action: () => setOpenSections(makeOpen(true)),  variant: "navy"   },
+              { label: "Close All", action: () => setOpenSections(makeOpen(false)), variant: "navy"   },
+              { label: "Clear All", action: () => setData(makeData()),              variant: "navy"   },
+              { label: "Print",     action: () => window.print(),                  variant: "orange" },
+              { label: "About",     action: () => setShowAbout(true),              variant: "orange" },
+            ] as { label: string; action: () => void; variant: "navy" | "orange" }[]).map(btn => (
               <button
                 key={btn.label}
                 onClick={btn.action}
@@ -554,7 +547,40 @@ export default function BudgetPlanner() {
           </div>
         </>
       ) : (
-        <SummaryView data={data} />
+        <>
+          <SummaryView data={data} />
+
+          {/* Summary action bar */}
+          <div className="flex gap-2 mt-6">
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-1.5 bg-orange text-white font-sans text-[12px] px-5 py-2 hover:bg-orange/90 transition-colors"
+            >
+              {/* printer icon */}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 6 2 18 2 18 9"/>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+              </svg>
+              Print
+            </button>
+            <button
+              onClick={() => setShowAbout(true)}
+              className="flex items-center gap-1.5 bg-orange text-white font-sans text-[12px] px-5 py-2 hover:bg-orange/90 transition-colors"
+            >
+              {/* list icon */}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"/>
+                <line x1="8" y1="12" x2="21" y2="12"/>
+                <line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/>
+                <line x1="3" y1="12" x2="3.01" y2="12"/>
+                <line x1="3" y1="18" x2="3.01" y2="18"/>
+              </svg>
+              About
+            </button>
+          </div>
+        </>
       )}
 
       {showAbout && <AboutModal onClose={() => setShowAbout(false)} />}
