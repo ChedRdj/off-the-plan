@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { PropertyCard } from "@/components/property-card";
+import { RequestInfoForm } from "@/components/request-info-form";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { PropertiesTable } from "@/components/properties-table";
 import { ReadMore } from "@/components/read-more";
@@ -60,14 +60,6 @@ export default async function DossierPage({ params }: Props) {
   const otherImgs = (dev.images ?? []).filter((img) => img !== heroImg);
   const allImages = heroImg ? [heroImg, ...otherImgs] : [...(dev.images ?? [])];
 
-  const { data: similarData } = await supabase
-    .from("developments")
-    .select("*, developer:developers(*), images:development_images(*)")
-    .eq("is_published", true)
-    .eq("state", rawDev.state ?? "")
-    .neq("id", rawDev.id)
-    .limit(2);
-  const similar = (similarData ?? []) as unknown as Development[];
 
   const amenities = dev.lifestyle ?? [];
 
@@ -510,20 +502,27 @@ export default async function DossierPage({ params }: Props) {
         </section>
       )}
 
-      {/* ─── 10. Similar Listings ─────────────────────────────────────── */}
-      {similar.length > 0 && (
-        <section className="bg-cream-alt py-16 border-t border-line">
-          <div className="container-padded">
-            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-3">Explore more</p>
-            <h2 className="font-display font-light text-navy text-section-lg mb-8">Similar Listings</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {similar.map((d) => (
-                <PropertyCard key={d.id} development={d} layout="tall" />
-              ))}
-            </div>
+      {/* ─── 10. Request Information ──────────────────────────────────── */}
+      <section className="bg-[#f0efec] py-16 border-t border-line">
+        <div className="container-padded">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-8">
+            Request Information
+          </p>
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-10 items-start">
+            <RequestInfoForm developmentName={dev.name} developmentId={dev.id} />
+            {heroImageUrl && (
+              <div className="relative h-[340px] overflow-hidden">
+                <Image src={heroImageUrl} alt={dev.name} fill className="object-cover" sizes="420px" />
+                <div className="absolute bottom-0 left-0 right-0 bg-navy/70 px-4 py-3">
+                  <p className="font-sans text-white text-[13px] font-medium">
+                    {dev.name}{dev.suburb ? `, ${dev.suburb}` : ""}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
     </>
   );
 }
