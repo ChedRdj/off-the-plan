@@ -275,8 +275,8 @@ export default async function HomePage() {
       )}
 
       {/* ─── Partner Banner ─────────────────────────────────────────────────── */}
-      <section className="bg-cream py-10">
-        <div className="container-padded">
+      <section className="bg-cream py-6">
+        <div className="container-padded px-16 md:px-24">
           <Image
             src="/off-the-plan-banner-landscape.png"
             alt="Off The Plan Partner Network"
