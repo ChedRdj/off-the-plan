@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -143,29 +144,15 @@ export default function CalculatorsPage() {
       {/* ── Featured Partner — landscape banner ── */}
       <div className="bg-[#f5f4f1] py-14 border-t border-line">
         <div className="container-padded">
-
-          {/* Landscape banner */}
-          <div className="w-full bg-navy flex items-center overflow-hidden border border-navy/20">
-            <div className="bg-orange w-2 self-stretch flex-shrink-0" aria-hidden="true" />
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 px-8 py-6 flex-1">
-              <div className="flex-1">
-                <p className="font-mono text-[9px] uppercase tracking-[0.25em] text-white/50 mb-1">Featured Partner</p>
-                <p className="font-display font-light text-white text-[1.2rem] leading-tight">
-                  Off The Plan <em className="not-italic italic text-orange">Partner Network</em>
-                </p>
-                <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/45 mt-2 leading-relaxed">
-                  Deposit Bonds · Finance Brokers · Conveyancers · Property Managers · Buyers Agents
-                </p>
-              </div>
-              <Link
-                href="/contact"
-                className="flex-shrink-0 font-mono text-[10px] uppercase tracking-widest border border-white/30 text-white px-6 py-2.5 hover:border-orange hover:text-orange transition-colors whitespace-nowrap"
-              >
-                Enquire Now
-              </Link>
-            </div>
+          <div className="relative w-full overflow-hidden">
+            <Image
+              src="/off-the-plan-banner-landscape.png"
+              alt="Off The Plan Partner Network"
+              width={1200}
+              height={200}
+              className="w-full h-auto object-contain"
+            />
           </div>
-
         </div>
       </div>
 
