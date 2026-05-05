@@ -1,5 +1,5 @@
 import Link from "next/link";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import type { Metadata } from "next";
 import { PropertyCard } from "@/components/property-card";
 import { supabase } from "@/lib/supabase/public";
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "Browse off-the-plan apartments, townhouses, and houses across Australia.",
 };
 
-const DevelopmentsMap = dynamic(
+const DevelopmentsMap = nextDynamic(
   () => import("@/components/developments-map").then((m) => m.DevelopmentsMap),
   { ssr: false, loading: () => <div className="flex-1 bg-navy/5" /> }
 );
