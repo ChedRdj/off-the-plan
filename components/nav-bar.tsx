@@ -80,7 +80,7 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
                 : "border-ink/20 text-ink hover:bg-ink/5"
             )}
           >
-            List a listing
+            List with us
           </Link>
           {user ? (
             <div className="flex items-center gap-4">
@@ -190,7 +190,7 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
             onClick={() => setMenuOpen(false)}
             className="font-mono text-label-lg uppercase tracking-widest text-center py-3 bg-orange text-white"
           >
-            List a listing
+            List with us
           </Link>
           {user ? (
             <>
