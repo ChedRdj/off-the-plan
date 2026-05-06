@@ -1137,7 +1137,7 @@ export function ListingForm({
               <label className={lbl}>Listing Duration</label>
               <select value={listingDuration} onChange={(e) => setListingDuration(e.target.value)} className={inp + " cursor-pointer"}>
                 <option value="">— Select —</option>
-                {LISTING_DURATIONS.map((d) => <option key={d} value={d}>{d}</option>)}
+                {(isPortal ? ["6 Months", "12 Months"] : LISTING_DURATIONS).map((d) => <option key={d} value={d}>{d}</option>)}
               </select>
             </div>
           </div>
@@ -1146,10 +1146,20 @@ export function ListingForm({
           <div className={`${g3} mt-4`}>
             <div>
               <label className={lbl}>Project By (Developer)</label>
-              <select value={developerId} onChange={(e) => setDeveloperId(e.target.value)} className={inp + " cursor-pointer"}>
-                <option value="">— No developer —</option>
-                {developers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-              </select>
+              {isPortal ? (
+                <input
+                  type="text"
+                  value={developers.find((d) => d.id === developerId)?.name ?? ""}
+                  readOnly
+                  className={inp + " bg-cream/60 cursor-default text-ink/60"}
+                  placeholder="Assigned by administrator"
+                />
+              ) : (
+                <select value={developerId} onChange={(e) => setDeveloperId(e.target.value)} className={inp + " cursor-pointer"}>
+                  <option value="">— No developer —</option>
+                  {developers.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </select>
+              )}
             </div>
             <div>
               <label className={lbl}>Developer Website URL</label>
@@ -1161,29 +1171,33 @@ export function ListingForm({
             </div>
           </div>
 
-          {/* Row 3: assign to member */}
-          <div className="mt-4">
-            <label className={lbl}>Assign to Member <span className="normal-case font-sans text-ink/40 text-xs">(Developer or Agent account)</span></label>
-            <select value={ownerUserId} onChange={(e) => setOwnerUserId(e.target.value)} className={inp + " cursor-pointer"}>
-              <option value="">— Unassigned —</option>
-              {members.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.full_name ?? "Unnamed"} — {m.interest_type}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Row 3: assign to member — admin only */}
+          {!isPortal && (
+            <div className="mt-4">
+              <label className={lbl}>Assign to Member <span className="normal-case font-sans text-ink/40 text-xs">(Developer or Agent account)</span></label>
+              <select value={ownerUserId} onChange={(e) => setOwnerUserId(e.target.value)} className={inp + " cursor-pointer"}>
+                <option value="">— Unassigned —</option>
+                {members.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.full_name ?? "Unnamed"} — {m.interest_type}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Project logo */}
           <div className="mt-5">
             <ImageUpload label="Project Logo" value={logoUrl} onChange={setLogoUrl} bucket="development-images" />
           </div>
 
-          {/* URL slug */}
-          <div className="mt-4">
-            <label className={lbl}>URL Slug *</label>
-            <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} required className={inp + " font-mono text-label-lg"} />
-          </div>
+          {/* URL slug — admin only */}
+          {!isPortal && (
+            <div className="mt-4">
+              <label className={lbl}>URL Slug *</label>
+              <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} required className={inp + " font-mono text-label-lg"} />
+            </div>
+          )}
 
           {/* ── Address ── */}
           <SectionDivider label="Address" />
@@ -1326,39 +1340,43 @@ export function ListingForm({
             <span className="section-label">Display price on search results</span>
           </label>
 
-          {/* ── Visibility ── */}
-          <SectionDivider label="Visibility &amp; Location" />
-          <div className={`${g2} mb-4`}>
-            <div>
-              <label className={lbl}>Status</label>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className={inp + " cursor-pointer"}>
-                {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-          </div>
-          <div className="flex flex-col gap-3 mb-4">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="w-4 h-4 accent-orange" />
-              <span className="section-label">Published (visible on site)</span>
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="w-4 h-4 accent-orange" />
-              <span className="section-label">Featured on homepage</span>
-            </label>
-          </div>
-          <div className={g2}>
-            <div>
-              <label className={lbl}>Latitude</label>
-              <input type="number" step="any" value={lat} onChange={(e) => setLat(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. -33.8688" className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Longitude</label>
-              <input type="number" step="any" value={lng} onChange={(e) => setLng(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. 151.2093" className={inp} />
-            </div>
-          </div>
-          <p className="font-sans text-xs text-ink/40 mt-2">
-            Tip: right-click any location in Google Maps → copy the coordinates shown at the top.
-          </p>
+          {/* ── Visibility ── admin only */}
+          {!isPortal && (
+            <>
+              <SectionDivider label="Visibility &amp; Location" />
+              <div className={`${g2} mb-4`}>
+                <div>
+                  <label className={lbl}>Status</label>
+                  <select value={status} onChange={(e) => setStatus(e.target.value)} className={inp + " cursor-pointer"}>
+                    {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 mb-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="w-4 h-4 accent-orange" />
+                  <span className="section-label">Published (visible on site)</span>
+                </label>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="w-4 h-4 accent-orange" />
+                  <span className="section-label">Featured on homepage</span>
+                </label>
+              </div>
+              <div className={g2}>
+                <div>
+                  <label className={lbl}>Latitude</label>
+                  <input type="number" step="any" value={lat} onChange={(e) => setLat(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. -33.8688" className={inp} />
+                </div>
+                <div>
+                  <label className={lbl}>Longitude</label>
+                  <input type="number" step="any" value={lng} onChange={(e) => setLng(e.target.value === "" ? "" : Number(e.target.value))} placeholder="e.g. 151.2093" className={inp} />
+                </div>
+              </div>
+              <p className="font-sans text-xs text-ink/40 mt-2">
+                Tip: right-click any location in Google Maps → copy the coordinates shown at the top.
+              </p>
+            </>
+          )}
         </AccordionSection>
 
         {/* ── 3. Configuration Summary ─────────────────────────────────────── */}
