@@ -33,17 +33,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside className="w-56 flex-shrink-0 flex flex-col" style={{ background: "#1a2340" }}>
         {/* Logo */}
-        <div className="px-5 py-6 border-b border-white/10">
-          <Link href="/" className="flex items-center gap-2">
-            <div
-              className="w-9 h-9 flex items-center justify-center text-white font-bold text-sm rounded"
-              style={{ background: "#e85d26" }}
-            >
-              OTP
-            </div>
-            <span className="text-white font-semibold text-sm leading-tight">
-              OFF THE<br />PLAN
-            </span>
+        <div className="px-5 py-5 border-b border-white/10">
+          <Link href="/">
+            <img
+              src="/logo.png"
+              alt="Off The Plan"
+              className="h-8 w-auto"
+              style={{ filter: "brightness(0) invert(1)" }}
+            />
           </Link>
         </div>
 
