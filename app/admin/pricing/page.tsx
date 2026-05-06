@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { CheckCircle } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import UpgradeCards from "@/components/admin/upgrade-cards";
 
 const plans = [
   {
@@ -40,7 +41,7 @@ const upgrades = [
       "$50 + GST per month",
     ],
     cta: "ADD A PROMO FLAG",
-    href: "mailto:hello@offtheplan.com.au?subject=Promo Flag Request",
+    isPromoFlag: true,
   },
   {
     name: "Featured Project Tier 2",
@@ -52,7 +53,7 @@ const upgrades = [
       "Up to 8 available each month",
     ],
     cta: "REQUEST AN UPGRADE",
-    href: "mailto:hello@offtheplan.com.au?subject=Featured Project Tier 2 Request",
+    isPromoFlag: false,
   },
   {
     name: "Featured Project Tier 1",
@@ -64,7 +65,7 @@ const upgrades = [
       "Up to 6 available each month",
     ],
     cta: "REQUEST AN UPGRADE",
-    href: "mailto:hello@offtheplan.com.au?subject=Featured Project Tier 1 Request",
+    isPromoFlag: false,
   },
   {
     name: "Home Page Main Banner",
@@ -76,11 +77,11 @@ const upgrades = [
       "$1000 + GST",
     ],
     cta: "REQUEST AN UPGRADE",
-    href: "mailto:hello@offtheplan.com.au?subject=Home Page Main Banner Request",
+    isPromoFlag: false,
   },
 ];
 
-function ListingImageGrid({ images }: { images: string[] }) {
+function _ListingImageGrid({ images }: { images: string[] }) {
   const slots = Array.from({ length: 6 }, (_, i) => images[i] ?? null);
   return (
     <div className="grid grid-cols-3 gap-1">
@@ -98,13 +99,13 @@ function ListingImageGrid({ images }: { images: string[] }) {
 }
 
 export default async function PricingPage() {
-  // Fetch up to 6 development images — featured first, then fill from all published
+  // Fetch developments — featured first for images, all for project dropdown
   const { data: devs } = await supabaseAdmin
     .from("developments")
-    .select("name, hero_image_url, feature_image_url, is_featured, images:development_images(url, is_hero)")
+    .select("id, name, hero_image_url, feature_image_url, is_featured, images:development_images(url, is_hero)")
     .eq("is_published", true)
     .order("is_featured", { ascending: false })
-    .limit(12);
+    .limit(50);
 
   const listingImages: string[] = (devs ?? [])
     .map((d) => {
@@ -114,6 +115,8 @@ export default async function PricingPage() {
     })
     .filter(Boolean)
     .slice(0, 6);
+
+  const projects = (devs ?? []).map((d) => ({ id: d.id, name: d.name }));
 
   return (
     <div>
@@ -205,53 +208,11 @@ export default async function PricingPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {upgrades.map((u) => (
-          <div key={u.name} className="rounded-lg overflow-hidden flex flex-col border border-gray-200 bg-white">
-            {/* Header */}
-            <div
-              className="px-4 py-3 text-center text-xs font-bold uppercase tracking-widest text-white"
-              style={{ background: "#1a2340" }}
-            >
-              {u.name}
-            </div>
-
-            {/* Price */}
-            <div className="px-4 pt-4 pb-3 text-center">
-              <span className="font-bold" style={{ fontSize: 28, color: "#1a2340" }}>
-                ${u.price.toLocaleString()}
-              </span>
-              <span className="text-gray-400 text-sm"> /month</span>
-            </div>
-
-            {/* 6-image grid from featured listings */}
-            <div className="mx-4 mb-4">
-              <ListingImageGrid images={listingImages} />
-            </div>
-
-            {/* Features */}
-            <div className="px-4 pb-3 flex flex-col gap-2 flex-1">
-              {u.features.map((f, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <CheckCircle size={12} className="flex-shrink-0 mt-0.5" style={{ color: "#e85d26" }} />
-                  <p className="text-xs text-gray-600 leading-snug">{f}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA */}
-            <div className="px-4 pb-4 mt-auto">
-              <a
-                href={u.href}
-                className="block text-center py-2.5 text-xs font-bold uppercase tracking-widest text-white transition-opacity hover:opacity-80"
-                style={{ background: "#1a2340" }}
-              >
-                {u.cta}
-              </a>
-            </div>
-          </div>
-        ))}
-      </div>
+      <UpgradeCards
+        upgrades={upgrades}
+        listingImages={listingImages}
+        projects={projects}
+      />
     </div>
   );
 }
