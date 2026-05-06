@@ -1699,18 +1699,20 @@ export function ListingForm({
         </AccordionSection>
 
         {/* ── 10. SEO ──────────────────────────────────────────────────────── */}
-        <AccordionSection title="SEO">
-          <div className="flex flex-col gap-4">
-            <div>
-              <label className="font-sans text-sm text-ink/70 block mb-1.5">Page Title:</label>
-              <input type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} placeholder="e.g. Luxury Apartments in Melbourne CBD | ProjectName" className={inp} />
+        {!isPortal && (
+          <AccordionSection title="SEO">
+            <div className="flex flex-col gap-4">
+              <div>
+                <label className="font-sans text-sm text-ink/70 block mb-1.5">Page Title:</label>
+                <input type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} placeholder="e.g. Luxury Apartments in Melbourne CBD | ProjectName" className={inp} />
+              </div>
+              <div>
+                <label className="font-sans text-sm text-ink/70 block mb-1.5">Meta Description:</label>
+                <textarea rows={8} value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} placeholder="150–160 character description for search engines…" className={inp + " resize-none"} />
+              </div>
             </div>
-            <div>
-              <label className="font-sans text-sm text-ink/70 block mb-1.5">Meta Description:</label>
-              <textarea rows={8} value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} placeholder="150–160 character description for search engines…" className={inp + " resize-none"} />
-            </div>
-          </div>
-        </AccordionSection>
+          </AccordionSection>
+        )}
 
         {/* ── Form actions ─────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between pt-4">
