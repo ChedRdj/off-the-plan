@@ -1033,8 +1033,12 @@ export function ListingForm({
     router.refresh();
   }
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+
   async function handleDelete() {
-    if (!confirm(`Are you sure you want to delete "${existing?.name ?? "this listing"}"? This cannot be undone.`)) return;
+    setShowDeleteModal(false);
+    setDeleteConfirmText("");
     setDeleting(true);
     const res = await fetch("/api/admin/listings", {
       method: "DELETE",
@@ -1702,11 +1706,11 @@ export function ListingForm({
           <div className="flex gap-3">
             <Link
               href="/admin/listings"
-              className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 border border-orange text-orange hover:bg-orange hover:text-white transition-colors inline-flex items-center gap-1.5"
+              className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 border border-ink text-ink hover:bg-ink hover:text-white transition-colors inline-flex items-center gap-1.5"
             >
               ← Back
             </Link>
-            <button type="submit" disabled={saving || deleting} className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 border border-orange text-orange hover:bg-orange hover:text-white transition-colors disabled:opacity-50">
+            <button type="submit" disabled={saving || deleting} className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 border border-ink text-ink hover:bg-ink hover:text-white transition-colors disabled:opacity-50">
               {saving ? "Saving…" : "Save"}
             </button>
             {!isNew && existing?.slug && (
@@ -1714,7 +1718,7 @@ export function ListingForm({
                 href={`/listings/${existing.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 border border-orange text-orange hover:bg-orange hover:text-white transition-colors"
+                className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 border border-ink text-ink hover:bg-ink hover:text-white transition-colors"
               >
                 Preview
               </Link>
@@ -1723,15 +1727,55 @@ export function ListingForm({
           {!isNew && (
             <button
               type="button"
-              onClick={handleDelete}
+              onClick={() => { setDeleteConfirmText(""); setShowDeleteModal(true); }}
               disabled={deleting || saving}
-              className="font-mono text-label-sm uppercase tracking-widest px-4 py-2 border border-red-300 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors disabled:opacity-50"
+              className="font-mono text-label-sm uppercase tracking-widest px-4 py-2 border border-ink text-ink hover:bg-ink hover:text-white transition-colors disabled:opacity-50"
             >
               {deleting ? "Deleting…" : "Delete listing"}
             </button>
           )}
         </div>
       </form>
+
+      {/* ── Delete confirmation modal ─────────────────────────────────────── */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50">
+          <div className="bg-white w-full max-w-md mx-4 p-6 flex flex-col gap-4">
+            <h2 className="font-mono text-[13px] uppercase tracking-widest text-ink font-bold">Delete listing</h2>
+            <p className="font-sans text-sm text-ink/70">
+              This will permanently delete <strong>{existing?.name ?? "this listing"}</strong> and cannot be undone.
+            </p>
+            <p className="font-sans text-sm text-ink/70">
+              Type <strong>delete</strong> below to confirm.
+            </p>
+            <input
+              type="text"
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="delete"
+              className="border border-line px-3 py-2 font-mono text-sm outline-none focus:border-ink"
+              autoFocus
+            />
+            <div className="flex gap-3 justify-end pt-1">
+              <button
+                type="button"
+                onClick={() => { setShowDeleteModal(false); setDeleteConfirmText(""); }}
+                className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 border border-ink text-ink hover:bg-ink hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleteConfirmText !== "delete"}
+                className="font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 bg-ink text-white hover:bg-ink/80 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                Delete permanently
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
