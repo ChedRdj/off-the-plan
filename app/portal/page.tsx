@@ -50,9 +50,6 @@ export default async function PortalDashboard() {
     ?? "there";
   const firstName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
-  const hour = new Date().getHours();
-  const timeLabel = hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
-  const emoji = hour < 12 ? "☀️" : hour < 18 ? "🌤️" : "🌙";
   const motivational = MOTIVATIONAL[new Date().getDay() % MOTIVATIONAL.length];
   const today = new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
@@ -77,7 +74,7 @@ export default async function PortalDashboard() {
         <div className="absolute -bottom-8 right-32 w-32 h-32 rounded-full opacity-5" style={{ background: "#fff" }} />
         <div className="relative z-10">
           <p className="text-white/60 text-sm font-medium mb-1">{today}</p>
-          <h1 className="text-white font-bold text-2xl mb-1">{emoji} {timeLabel}, {firstName}!</h1>
+          <h1 className="text-white font-bold text-2xl mb-1">Good Day, {firstName}!</h1>
           <p className="text-white/50 text-sm flex items-center gap-1.5">
             <Sparkles size={13} className="text-orange-400" />
             {motivational}
