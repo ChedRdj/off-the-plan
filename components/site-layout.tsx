@@ -14,8 +14,9 @@ interface SiteLayoutProps {
 export default function SiteLayout({ user, children }: SiteLayoutProps) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
+  const isPortal = pathname?.startsWith("/portal");
 
-  if (isAdmin) {
+  if (isAdmin || isPortal) {
     return <>{children}</>;
   }
 
