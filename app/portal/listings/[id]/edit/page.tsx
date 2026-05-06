@@ -84,6 +84,7 @@ export default async function PortalListingEditPage({ params }: Props) {
       gallery={gallery}
       floorPlans={floorPlans}
       agents={agents}
+      isPortal
     />
   );
 }

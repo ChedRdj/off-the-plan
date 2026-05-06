@@ -134,6 +134,7 @@ interface Props {
   gallery: GalleryImage[];
   floorPlans: FloorPlan[];
   agents: Omit<Agent, "isNew" | "saving" | "deleting">[];
+  isPortal?: boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -143,6 +144,11 @@ const AU_STATES = ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"];
 const TYPES = [
   "Apartment", "House & Land", "Townhouse", "Villa",
   "Land", "Commercial", "Mixed Use",
+];
+
+const PORTAL_TYPES = [
+  "New Apartments", "Townhouses", "Land and Estates",
+  "Commercial", "House & Land", "New Home Design",
 ];
 
 const STATUSES = [
@@ -748,6 +754,7 @@ export function ListingForm({
   gallery: initialGallery,
   floorPlans: initialFloorPlans,
   agents,
+  isPortal = false,
 }: Props) {
   const router = useRouter();
   const isNew = id === "new";
@@ -1095,21 +1102,25 @@ export function ListingForm({
               <label className={lbl}>Listing Type</label>
               <select value={type} onChange={(e) => setType(e.target.value)} className={inp + " cursor-pointer"}>
                 <option value="">— Select type —</option>
-                {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                {(isPortal ? PORTAL_TYPES : TYPES).map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
-            <div>
-              <label className={lbl}>Tag</label>
-              <input type="text" value={tag} onChange={(e) => setTag(e.target.value)} placeholder="e.g. New Release" className={inp} />
-            </div>
-            <div>
-              <label className={lbl}>Tier</label>
-              <select value={tier} onChange={(e) => setTier(e.target.value)} className={inp + " cursor-pointer"}>
-                <option value="">— No tier —</option>
-                <option value="1st Tier">1st Tier</option>
-                <option value="2nd Tier">2nd Tier</option>
-              </select>
-            </div>
+            {!isPortal && (
+              <div>
+                <label className={lbl}>Tag</label>
+                <input type="text" value={tag} onChange={(e) => setTag(e.target.value)} placeholder="e.g. New Release" className={inp} />
+              </div>
+            )}
+            {!isPortal && (
+              <div>
+                <label className={lbl}>Tier</label>
+                <select value={tier} onChange={(e) => setTier(e.target.value)} className={inp + " cursor-pointer"}>
+                  <option value="">— No tier —</option>
+                  <option value="1st Tier">1st Tier</option>
+                  <option value="2nd Tier">2nd Tier</option>
+                </select>
+              </div>
+            )}
           </div>
         </AccordionSection>
 
