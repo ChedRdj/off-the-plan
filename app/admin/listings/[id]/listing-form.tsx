@@ -670,13 +670,17 @@ function GalleryManager({
   gallery,
   onAdd,
   onRemove,
+  onReorder,
 }: {
   gallery: GalleryImage[];
   onAdd: (url: string) => void;
   onRemove: (id: string) => void;
+  onReorder: (reordered: GalleryImage[]) => void;
 }) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dragIndex = useRef<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   async function uploadImage(file: File) {
     setUploading(true);
@@ -687,6 +691,41 @@ function GalleryManager({
     const json = await res.json();
     if (res.ok) onAdd(json.url);
     setUploading(false);
+  }
+
+  function handleDragStart(i: number) {
+    dragIndex.current = i;
+  }
+
+  function handleDragOver(e: React.DragEvent, i: number) {
+    e.preventDefault();
+    setDragOverIndex(i);
+  }
+
+  async function handleDrop(e: React.DragEvent, dropIndex: number) {
+    e.preventDefault();
+    const from = dragIndex.current;
+    if (from === null || from === dropIndex) {
+      setDragOverIndex(null);
+      return;
+    }
+    const reordered = [...gallery];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(dropIndex, 0, moved);
+    const withOrder = reordered.map((img, idx) => ({ ...img, sort_order: idx }));
+    onReorder(withOrder);
+    dragIndex.current = null;
+    setDragOverIndex(null);
+    await fetch("/api/admin/gallery", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ updates: withOrder.map(({ id, sort_order }) => ({ id, sort_order })) }),
+    });
+  }
+
+  function handleDragEnd() {
+    dragIndex.current = null;
+    setDragOverIndex(null);
   }
 
   return (
@@ -711,25 +750,53 @@ function GalleryManager({
           )}
         </div>
 
-        {/* Right: numbered list */}
+        {/* Right: draggable numbered list */}
         {gallery.length > 0 && (
           <div className="flex-1">
-            <p className="font-sans text-sm text-orange hover:underline cursor-default mb-3">
+            <p className="font-sans text-sm text-orange mb-3">
               Click and drag images to change their order
             </p>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1">
               {gallery.map((img, i) => {
                 const filename = img.url.split("/").pop() ?? img.url;
+                const isDragOver = dragOverIndex === i;
                 return (
-                  <div key={img.id} className="flex items-center gap-3">
-                    <span className="font-sans text-sm text-ink/50 w-4 flex-shrink-0">{i + 1}.</span>
+                  <div
+                    key={img.id}
+                    draggable
+                    onDragStart={() => handleDragStart(i)}
+                    onDragOver={(e) => handleDragOver(e, i)}
+                    onDrop={(e) => handleDrop(e, i)}
+                    onDragEnd={handleDragEnd}
+                    className={`flex items-center gap-3 px-2 py-1.5 rounded cursor-grab active:cursor-grabbing transition-colors select-none ${
+                      isDragOver ? "bg-orange/10 border border-orange/40" : "hover:bg-cream/60 border border-transparent"
+                    }`}
+                  >
+                    <span className="font-sans text-sm text-ink/40 w-5 flex-shrink-0 text-right">{i + 1}.</span>
+                    {/* Drag handle */}
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" className="text-ink/30 flex-shrink-0">
+                      <circle cx="4" cy="2" r="1.2"/><circle cx="8" cy="2" r="1.2"/>
+                      <circle cx="4" cy="6" r="1.2"/><circle cx="8" cy="6" r="1.2"/>
+                      <circle cx="4" cy="10" r="1.2"/><circle cx="8" cy="10" r="1.2"/>
+                    </svg>
                     <div className="relative w-10 h-10 overflow-hidden bg-navy/5 flex-shrink-0">
                       <Image src={img.url} alt="" fill className="object-cover" sizes="40px" />
                     </div>
-                    <a href={img.url} target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-orange hover:underline truncate flex-1 max-w-xs">
+                    <a
+                      href={img.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="font-sans text-sm text-orange hover:underline truncate flex-1 max-w-xs"
+                    >
                       {filename}
                     </a>
-                    <button type="button" onClick={() => onRemove(img.id)} className="text-red-400 hover:text-red-600 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => onRemove(img.id)}
+                      className="text-red-400 hover:text-red-600 flex-shrink-0"
+                      title="Remove image"
+                    >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M9 6V4h6v2" />
                       </svg>
@@ -894,6 +961,10 @@ export function ListingForm({
       const json = await res.json();
       setGallery((prev) => [...prev, { id: json.id, url, sort_order: gallery.length }]);
     }
+  }
+
+  function reorderGallery(reordered: GalleryImage[]) {
+    setGallery(reordered);
   }
 
   async function removeGalleryImage(imageId: string) {
@@ -1524,7 +1595,7 @@ export function ListingForm({
               <p className="font-sans text-sm text-ink/40 italic">Save the listing first to add gallery images.</p>
             </div>
           ) : (
-            <GalleryManager gallery={gallery} onAdd={addGalleryImage} onRemove={removeGalleryImage} />
+            <GalleryManager gallery={gallery} onAdd={addGalleryImage} onRemove={removeGalleryImage} onReorder={reorderGallery} />
           )}
 
           {/* Video Link */}

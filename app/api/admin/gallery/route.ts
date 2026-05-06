@@ -21,6 +21,22 @@ export async function POST(req: Request) {
   }
 }
 
+export async function PATCH(req: Request) {
+  try {
+    const { updates } = await req.json() as { updates: { id: string; sort_order: number }[] };
+    if (!Array.isArray(updates)) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    await Promise.all(
+      updates.map(({ id, sort_order }) =>
+        supabaseAdmin.from("development_images").update({ sort_order }).eq("id", id)
+      )
+    );
+    revalidatePath("/listings", "layout");
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "Unexpected error." }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: Request) {
   try {
     const { id } = await req.json();
