@@ -33,13 +33,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside className="w-56 flex-shrink-0 flex flex-col" style={{ background: "#1a2340" }}>
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-white/10">
+        <div className="px-4 py-4 border-b border-white/10">
           <Link href="/">
-            <div className="bg-white rounded px-3 py-2 inline-block">
+            <div className="bg-white rounded px-4 py-3 w-full flex items-center justify-center">
               <img
                 src="/logo.png"
                 alt="Off The Plan"
-                className="h-7 w-auto"
+                className="w-full h-auto"
               />
             </div>
           </Link>
