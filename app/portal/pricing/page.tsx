@@ -1,74 +1,201 @@
-import Link from "next/link";
+import Image from "next/image";
+import { CheckCircle } from "lucide-react";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+import UpgradeCards from "@/components/admin/upgrade-cards";
 
 const plans = [
   {
-    name: "Starter",
-    price: "Contact Us",
-    features: ["1 active listing", "Basic analytics", "Enquiry management", "Email support"],
-    highlight: false,
+    name: "Developer and Agency Listing",
+    price: 299,
+    highlighted: false,
+    features: [
+      "Low fixed rate per listing per month",
+      "Ideal For: New Apartments, Townhouses, Land and Estates, Commercial",
+      "Easy to use dashboard — upload and edit your projects, includes basic analytics and lead capture",
+      "6 or 12 month term, with 21 day cancellation policy",
+      "List today, simply register, upload your project and begin your subscription with a credit card. [or] contact us for other payment options",
+    ],
   },
   {
-    name: "Professional",
-    price: "Contact Us",
-    features: ["Up to 5 active listings", "Full analytics dashboard", "Featured listing (1)", "Priority support", "CSV lead exports"],
-    highlight: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Contact Us",
-    features: ["Unlimited listings", "Full analytics dashboard", "Multiple featured listings", "Dedicated account manager", "Custom reporting"],
-    highlight: false,
+    name: "Builders Package",
+    price: 399,
+    highlighted: true,
+    features: [
+      "Low fixed rate per listing per month",
+      "Ideal For: House and Land, New Home Designs",
+      "Easy to use dashboard — upload and edit your projects, includes basic analytics and lead capture",
+      "6 or 12 month term, with 21 day cancellation policy",
+      "List today, simply register, upload your project and begin your subscription with a credit card. [or] contact us for other payment options",
+    ],
   },
 ];
 
-export default function PortalPricing() {
+const upgrades = [
+  {
+    name: "Promo Flag",
+    price: 50,
+    features: [
+      "Available for all properties",
+      "Promotional flag on the listing",
+      "Add a short snappy message",
+      "$50 + GST per month",
+    ],
+    cta: "ADD A PROMO FLAG",
+    isPromoFlag: true,
+  },
+  {
+    name: "Featured Project Tier 2",
+    price: 200,
+    features: [
+      "Available for all properties",
+      "Property featured under the home page banner (2nd row)",
+      "$200 + GST per month",
+      "Up to 8 available each month",
+    ],
+    cta: "REQUEST AN UPGRADE",
+    isPromoFlag: false,
+  },
+  {
+    name: "Featured Project Tier 1",
+    price: 400,
+    features: [
+      "Available to New Apartments and Townhouses",
+      "Property featured under the home page banner",
+      "$400 + GST per month",
+      "Up to 6 available each month",
+    ],
+    cta: "REQUEST AN UPGRADE",
+    isPromoFlag: false,
+  },
+  {
+    name: "Home Page Main Banner",
+    price: 1000,
+    features: [
+      "Available to: New Apartments and Townhouses",
+      "Up to 3 available per month, 33% share of voice",
+      "Feature HERO project on home page",
+      "$1000 + GST",
+    ],
+    cta: "REQUEST AN UPGRADE",
+    isPromoFlag: false,
+  },
+];
+
+export default async function PortalPricing() {
+  const { data: devs } = await supabaseAdmin
+    .from("developments")
+    .select("id, name, hero_image_url, feature_image_url, is_featured, images:development_images(url, is_hero)")
+    .eq("is_published", true)
+    .order("is_featured", { ascending: false })
+    .limit(50);
+
+  const listingImages: string[] = (devs ?? [])
+    .map((d) => {
+      const imgs = (d.images ?? []) as { url: string; is_hero: boolean }[];
+      const hero = imgs.find((i) => i.is_hero)?.url ?? imgs[0]?.url;
+      return hero ?? d.hero_image_url ?? d.feature_image_url ?? "";
+    })
+    .filter(Boolean)
+    .slice(0, 6);
+
+  const projects = (devs ?? []).map((d) => ({ id: d.id, name: d.name }));
+
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-serif text-2xl text-ink">Pricing</h1>
-        <p className="font-sans text-sm text-ink/50 mt-1">Choose the plan that suits your portfolio.</p>
+    <div>
+      {/* Page title */}
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold uppercase tracking-widest" style={{ color: "#1a2340" }}>
+          Plans and Pricing
+        </h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {plans.map((plan) => (
-          <div
-            key={plan.name}
-            className={`bg-white p-6 flex flex-col gap-5 ${plan.highlight ? "ring-2 ring-orange" : "border border-line"}`}
-          >
-            {plan.highlight && (
-              <span className="font-mono text-[9px] uppercase tracking-widest text-white bg-orange px-2 py-0.5 w-fit">
-                Most Popular
-              </span>
-            )}
-            <div>
-              <p className="font-mono text-[11px] uppercase tracking-widest text-ink/50">{plan.name}</p>
-              <p className="font-serif text-2xl text-ink mt-1">{plan.price}</p>
+      {/* ── Main plans ── */}
+      <div className="rounded-xl overflow-hidden mb-10" style={{ background: "#1a2340" }}>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+          {/* Left — phone mockup */}
+          <div className="flex items-center justify-center p-10">
+            <div className="relative">
+              <div className="text-center mb-6">
+                <p className="text-white/60 text-xs uppercase tracking-widest mb-1">Start Listing with</p>
+                <h2 className="text-white font-bold text-xl uppercase tracking-widest">Off The Plan</h2>
+              </div>
+              <Image
+                src="/Phone-Mock-05.png"
+                alt="Off The Plan App"
+                width={220}
+                height={440}
+                className="mx-auto drop-shadow-2xl"
+              />
             </div>
-            <ul className="flex flex-col gap-2 flex-1">
-              {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-2 font-sans text-sm text-ink/70">
-                  <span className="text-orange mt-0.5 flex-shrink-0">✓</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/contact"
-              className={`font-mono text-[10px] uppercase tracking-widest px-4 py-2.5 text-center transition-colors ${
-                plan.highlight
-                  ? "bg-orange text-white hover:bg-orange/90"
-                  : "border border-ink text-ink hover:bg-ink hover:text-white"
-              }`}
-            >
-              Get in Touch
-            </Link>
           </div>
-        ))}
+
+          {/* Right — plan cards */}
+          <div className="p-6 flex flex-col gap-4 justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {plans.map((plan) => (
+                <div key={plan.name} className="rounded-lg overflow-hidden flex flex-col bg-white">
+                  <div
+                    className="px-4 py-3 text-center text-xs font-bold uppercase tracking-widest"
+                    style={{
+                      background: plan.highlighted ? "#e85d26" : "#e8e8e8",
+                      color: plan.highlighted ? "#fff" : "#1a2340",
+                    }}
+                  >
+                    {plan.name}
+                  </div>
+                  <div className="px-4 pt-4 pb-2 text-center border-b border-gray-100">
+                    <span className="font-bold" style={{ fontSize: 36, color: "#1a2340" }}>
+                      ${plan.price}
+                    </span>
+                    <span className="text-gray-400 text-sm"> /month</span>
+                  </div>
+                  <div className="px-4 py-4 flex flex-col gap-2 flex-1">
+                    {plan.features.map((f, i) => (
+                      <div key={i} className="flex items-start gap-2">
+                        <CheckCircle size={13} className="flex-shrink-0 mt-0.5" style={{ color: "#e85d26" }} />
+                        <p className="text-xs text-gray-600 leading-snug">{f}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="px-4 pb-4">
+                    <a
+                      href="/portal/listings/new"
+                      className="block text-center py-2.5 text-xs font-bold uppercase tracking-widest transition-opacity hover:opacity-80"
+                      style={{
+                        background: plan.highlighted ? "#e85d26" : "#e8e8e8",
+                        color: plan.highlighted ? "#fff" : "#1a2340",
+                      }}
+                    >
+                      List Today
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-white/40 text-[11px] leading-relaxed text-center">
+              1. Terms available: 6 months and 12 months. 2. Automatic debit each month for the selected term or until cancellation. 2. 21 day cancellation policy.
+            </p>
+          </div>
+        </div>
       </div>
 
-      <p className="font-sans text-xs text-ink/40 text-center">
-        All pricing is tailored. Contact the Off The Plan team to discuss your requirements.
-      </p>
+      {/* ── Featured Upgrades ── */}
+      <div className="text-center mb-6">
+        <h2 className="text-lg font-bold uppercase tracking-widest mb-2" style={{ color: "#1a2340" }}>
+          Featured Upgrades
+        </h2>
+        <p className="text-sm text-gray-500 max-w-xl mx-auto">
+          These upgrades are billed manually in addition to the standard monthly subscriptions.
+          Please see below our current listing upgrade options.
+        </p>
+      </div>
+
+      <UpgradeCards
+        upgrades={upgrades}
+        listingImages={listingImages}
+        projects={projects}
+        promoFlagHref="/portal/listings"
+      />
     </div>
   );
 }

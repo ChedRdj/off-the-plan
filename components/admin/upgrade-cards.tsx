@@ -22,9 +22,10 @@ interface UpgradeCardsProps {
   upgrades: Upgrade[];
   listingImages: string[];
   projects: Project[];
+  promoFlagHref?: string;
 }
 
-export default function UpgradeCards({ upgrades, listingImages, projects }: UpgradeCardsProps) {
+export default function UpgradeCards({ upgrades, listingImages, projects, promoFlagHref = "/admin/listings" }: UpgradeCardsProps) {
   const [activeModal, setActiveModal] = useState<string | null>(null);
 
   const slots = Array.from({ length: 6 }, (_, i) => listingImages[i] ?? null);
@@ -77,7 +78,7 @@ export default function UpgradeCards({ upgrades, listingImages, projects }: Upgr
             <div className="px-4 pb-4 mt-auto">
               {u.isPromoFlag ? (
                 <a
-                  href="/admin/listings"
+                  href={promoFlagHref}
                   className="block text-center py-2.5 text-xs font-bold uppercase tracking-widest text-white transition-opacity hover:opacity-80"
                   style={{ background: "#1a2340" }}
                 >
