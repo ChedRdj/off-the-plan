@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import DashboardTable from "@/components/admin/dashboard-table";
 import ListingsTable from "@/components/admin/listings-table";
+import { LiveDate, LiveMotivational } from "@/components/dashboard-greeting-date";
 
 const MOTIVATIONAL = [
   "Let's make today count.",
@@ -54,15 +55,6 @@ export default async function AdminDashboard() {
     { label: "Total Share",     value: totalShares,       icon: Share2,         scrollTo: null },
   ];
 
-  const motivational = MOTIVATIONAL[new Date().getDay() % MOTIVATIONAL.length];
-
-  const today = new Date().toLocaleDateString("en-AU", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
   return (
     <div>
       {/* Greeting bar */}
@@ -83,13 +75,13 @@ export default async function AdminDashboard() {
         />
 
         <div className="relative z-10">
-          <p className="text-white/60 text-sm font-medium mb-1">{today}</p>
+          <p className="text-white/60 text-sm font-medium mb-1"><LiveDate /></p>
           <h1 className="text-white font-bold text-2xl mb-1">
             👋 Good Day, {firstName}!
           </h1>
           <p className="text-white/50 text-sm flex items-center gap-1.5">
             <Sparkles size={13} className="text-orange-400" />
-            {motivational}
+            <LiveMotivational quotes={MOTIVATIONAL} />
           </p>
         </div>
 

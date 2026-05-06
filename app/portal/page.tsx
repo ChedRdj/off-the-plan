@@ -4,6 +4,7 @@ import { Eye, Phone, Share2, MessageSquare, Building2, Star, Sparkles, TrendingU
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { LogoUploader } from "./logo-uploader";
+import { LiveDate, LiveMotivational } from "@/components/dashboard-greeting-date";
 
 const MOTIVATIONAL = [
   "Let's make today count.",
@@ -50,9 +51,6 @@ export default async function PortalDashboard() {
     ?? "there";
   const firstName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
-  const motivational = MOTIVATIONAL[new Date().getDay() % MOTIVATIONAL.length];
-  const today = new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-
   const stats = [
     { label: "Total Views",     value: totalViews,        icon: Eye },
     { label: "Total Enquiries", value: enquiryCount ?? 0, icon: MessageSquare },
@@ -73,11 +71,11 @@ export default async function PortalDashboard() {
         <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full opacity-10" style={{ background: "#e85d26" }} />
         <div className="absolute -bottom-8 right-32 w-32 h-32 rounded-full opacity-5" style={{ background: "#fff" }} />
         <div className="relative z-10">
-          <p className="text-white/60 text-sm font-medium mb-1">{today}</p>
+          <p className="text-white/60 text-sm font-medium mb-1"><LiveDate /></p>
           <h1 className="text-white font-bold text-2xl mb-1">👋 Good Day, {firstName}!</h1>
           <p className="text-white/50 text-sm flex items-center gap-1.5">
             <Sparkles size={13} className="text-orange-400" />
-            {motivational}
+            <LiveMotivational quotes={MOTIVATIONAL} />
           </p>
         </div>
         <div className="relative z-10 hidden md:flex items-center gap-3">
