@@ -284,6 +284,7 @@ interface ImageUploadFieldProps {
 
 function ImageUploadField({ label, hint, currentUrl, isUploading, onFile, onClear }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [hovered, setHovered] = useState(false);
 
   return (
     <div>
@@ -311,7 +312,15 @@ function ImageUploadField({ label, hint, currentUrl, isUploading, onFile, onClea
         <button
           onClick={() => inputRef.current?.click()}
           disabled={isUploading}
-          className="px-3 py-1.5 text-xs border border-gray-400 rounded text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50"
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          className="px-3 py-1.5 text-xs font-semibold rounded border transition-all duration-200 disabled:opacity-50"
+          style={{
+            background: hovered ? "#e85d26" : "transparent",
+            borderColor: hovered ? "#e85d26" : "#9ca3af",
+            color: hovered ? "#fff" : "#4b5563",
+            transform: hovered ? "scale(1.03)" : "scale(1)",
+          }}
         >
           {isUploading ? "Uploading…" : "Select File"}
         </button>
