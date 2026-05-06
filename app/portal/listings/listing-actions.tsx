@@ -40,7 +40,7 @@ export function PortalListingActions({ id, slug, isPublished, isFeatured, status
         View Listing
       </a>
       <Link
-        href={`/admin/listings/${id}`}
+        href={`/portal/listings/${id}/edit`}
         className="font-mono text-[9px] uppercase tracking-widest px-2.5 py-1.5 border border-orange text-orange hover:bg-orange hover:text-white transition-colors whitespace-nowrap"
       >
         Edit Listing
