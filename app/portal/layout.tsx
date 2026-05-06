@@ -1,0 +1,32 @@
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+import PortalSidebar from "./portal-sidebar";
+
+export const metadata = { title: "Member Portal — Off The Plan" };
+
+export default async function PortalLayout({ children }: { children: React.ReactNode }) {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const { data: profile } = await supabaseAdmin
+    .from("profiles")
+    .select("interest_type")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || !["Developer", "Agent"].includes(profile.interest_type ?? "")) {
+    redirect("/");
+  }
+
+  return (
+    <div className="min-h-screen flex" style={{ background: "#f5f5f5" }}>
+      <PortalSidebar />
+      <div className="flex-1 overflow-auto">
+        <main className="p-6">{children}</main>
+      </div>
+    </div>
+  );
+}
