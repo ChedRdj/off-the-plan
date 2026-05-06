@@ -160,30 +160,31 @@ export default function DashboardTable({
             <button
               key={opt.value}
               onClick={() => handleFilter(opt.value)}
-              className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+              className="px-3 py-1.5 text-xs font-medium rounded-full border transition-all"
+              style={
                 filter === opt.value
-                  ? "bg-orange-500 text-white border-orange-500"
-                  : "bg-white text-gray-600 border-gray-300 hover:border-orange-400"
-              }`}
+                  ? { background: "#1a2340", color: "#fff", borderColor: "#1a2340" }
+                  : { background: "#fff", color: "#555", borderColor: "#ddd" }
+              }
             >
               {opt.label}
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={handlePdf}
-            className="px-3 py-1 text-xs font-bold uppercase tracking-widest text-white transition-colors"
-            style={{ background: "#1a2340" }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded border transition-colors hover:opacity-80"
+            style={{ background: "#fff", border: "1px solid #e85d26", color: "#e85d26" }}
           >
-            PDF
+            ↓ PDF
           </button>
           <button
             onClick={handleExcel}
-            className="px-3 py-1 text-xs font-bold uppercase tracking-widest text-white transition-colors"
-            style={{ background: "#1a2340" }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded border transition-colors hover:opacity-80"
+            style={{ background: "#e85d26", border: "1px solid #e85d26", color: "#fff" }}
           >
-            EXCEL
+            ↓ Excel
           </button>
         </div>
       </div>

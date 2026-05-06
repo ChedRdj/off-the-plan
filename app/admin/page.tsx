@@ -1,10 +1,26 @@
 import Link from "next/link";
-import { Eye, Phone, Share2, MessageSquare } from "lucide-react";
+import { Eye, Phone, Share2, MessageSquare, TrendingUp, Sparkles } from "lucide-react";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import DashboardTable from "@/components/admin/dashboard-table";
 import ListingsTable from "@/components/admin/listings-table";
 
+const MOTIVATIONAL = [
+  "Let's make today count.",
+  "Your listings are live and working hard.",
+  "Ready to close some deals?",
+  "Great things are happening on the platform.",
+  "Another day, another opportunity.",
+];
+
 export default async function AdminDashboard() {
+  // Get logged-in user's name
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const firstName = user?.user_metadata?.full_name?.split(" ")[0]
+    ?? user?.email?.split("@")[0]
+    ?? "Admin";
+
   const [
     { count: activeListings },
     { count: featuredListings },
@@ -23,21 +39,70 @@ export default async function AdminDashboard() {
   ]);
 
   const topStats = [
-    { label: "Total Views",     value: "—",                    icon: Eye },
-    { label: "Total Enquiries", value: enquiryCount ?? 0,       icon: MessageSquare },
-    { label: "Phone Clicks",    value: "—",                    icon: Phone },
-    { label: "Total Share",     value: "—",                    icon: Share2 },
+    { label: "Total Views",     value: "—",              icon: Eye },
+    { label: "Total Enquiries", value: enquiryCount ?? 0, icon: MessageSquare },
+    { label: "Phone Clicks",    value: "—",              icon: Phone },
+    { label: "Total Share",     value: "—",              icon: Share2 },
   ];
 
   const hour = new Date().getHours();
-  const greeting =
+  const timeLabel =
     hour < 12 ? "Good Morning" : hour < 18 ? "Good Afternoon" : "Good Evening";
+  const emoji = hour < 12 ? "☀️" : hour < 18 ? "🌤️" : "🌙";
+  const motivational = MOTIVATIONAL[new Date().getDay() % MOTIVATIONAL.length];
+
+  const today = new Date().toLocaleDateString("en-AU", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <div>
       {/* Greeting bar */}
-      <div className="px-6 py-4 mb-6 rounded" style={{ background: "#1a2340" }}>
-        <h1 className="text-white font-semibold text-lg">{greeting}, Admin</h1>
+      <div
+        className="relative overflow-hidden rounded-xl mb-6 px-8 py-6 flex items-center justify-between"
+        style={{
+          background: "linear-gradient(135deg, #1a2340 0%, #2d3a5e 60%, #3b4f82 100%)",
+        }}
+      >
+        {/* Decorative circles */}
+        <div
+          className="absolute -top-10 -right-10 w-48 h-48 rounded-full opacity-10"
+          style={{ background: "#e85d26" }}
+        />
+        <div
+          className="absolute -bottom-8 right-32 w-32 h-32 rounded-full opacity-5"
+          style={{ background: "#fff" }}
+        />
+
+        <div className="relative z-10">
+          <p className="text-white/60 text-sm font-medium mb-1">{today}</p>
+          <h1 className="text-white font-bold text-2xl mb-1">
+            {emoji} {timeLabel}, {firstName}!
+          </h1>
+          <p className="text-white/50 text-sm flex items-center gap-1.5">
+            <Sparkles size={13} className="text-orange-400" />
+            {motivational}
+          </p>
+        </div>
+
+        <div className="relative z-10 hidden md:flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-white/40 text-xs uppercase tracking-widest mb-0.5">Platform Status</p>
+            <p className="text-white font-semibold text-sm flex items-center gap-1.5 justify-end">
+              <span className="w-2 h-2 rounded-full bg-green-400 inline-block" />
+              All Systems Live
+            </p>
+          </div>
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: "rgba(232,93,38,0.2)", border: "1px solid rgba(232,93,38,0.4)" }}
+          >
+            <TrendingUp size={18} className="text-orange-400" />
+          </div>
+        </div>
       </div>
 
       {/* Top stat cards */}

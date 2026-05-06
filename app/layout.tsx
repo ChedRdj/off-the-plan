@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
-import { NavBar } from "@/components/nav-bar";
-import { SideRail } from "@/components/side-rail";
-import { Footer } from "@/components/footer";
-import { CirclePopup } from "@/components/circle-popup";
+import SiteLayout from "@/components/site-layout";
 import { createClient } from "@/lib/supabase/server";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -73,11 +70,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         >
           Skip to main content
         </a>
-        <NavBar user={authUser} />
-        <SideRail />
-        <main id="main-content">{children}</main>
-        <Footer />
-        <CirclePopup />
+        <SiteLayout user={authUser}>
+          {children}
+        </SiteLayout>
         <Analytics />
       </body>
     </html>
