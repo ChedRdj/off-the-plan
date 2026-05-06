@@ -20,6 +20,10 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
   const field = (formData.get("field") as string) ?? "company_logo_url";
+  const allowedFields = ["company_logo_url", "developer_logo_url", "avatar_url"];
+  if (!allowedFields.includes(field)) {
+    return NextResponse.json({ error: "Invalid field" }, { status: 400 });
+  }
 
   if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
 
