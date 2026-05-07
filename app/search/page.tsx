@@ -118,15 +118,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     <div className="min-h-screen bg-cream pt-16">
 
       {/* ── Search header ── */}
-      <div className="sticky top-16 z-30 shadow-md" style={{ background: "#1a2340" }}>
+      <div className="shadow-md" style={{ background: "#1a2340" }}>
 
         {/* Top strip: subtitle + List/Map */}
-        <div className="container-padded flex items-center justify-between pt-4 pb-2">
+        <div className="container-padded flex items-center justify-between pt-3 pb-1.5">
           <div>
-            <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">
+            <p className="font-sans text-[9px] uppercase tracking-[0.2em] text-white/40 mb-0.5">
               The New Home for Off-The-Plan Property
             </p>
-            <h2 className="font-sans font-bold text-xl tracking-widest uppercase text-white">
+            <h2 className="font-sans font-bold text-base tracking-widest uppercase text-white">
               New Property Search
             </h2>
           </div>
@@ -134,7 +134,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="flex overflow-hidden border border-white/20 flex-shrink-0">
             <Link
               href={listUrl}
-              className={`px-6 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors ${
+              className={`px-5 py-1.5 font-mono text-[10px] uppercase tracking-widest transition-colors ${
                 view === "list" ? "bg-white text-[#1a2340]" : "text-white/60 hover:text-white"
               }`}
             >
@@ -142,7 +142,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </Link>
             <Link
               href={mapUrl}
-              className={`px-6 py-2 font-mono text-[11px] uppercase tracking-widest border-l border-white/20 transition-colors ${
+              className={`px-5 py-1.5 font-mono text-[10px] uppercase tracking-widest border-l border-white/20 transition-colors ${
                 view === "map" ? "bg-white text-[#1a2340]" : "text-white/60 hover:text-white"
               }`}
             >
@@ -152,12 +152,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
 
         {/* State quick-tabs */}
-        <div className="container-padded flex items-center gap-5 py-2 border-b border-white/10">
+        <div className="container-padded flex items-center gap-5 py-1.5 border-b border-white/10">
           {AU_STATES.map((st) => (
             <Link
               key={st.abbr}
               href={buildUrl({ state: selSt === st.abbr ? undefined : st.abbr })}
-              className={`font-mono text-[10px] uppercase tracking-[0.15em] transition-all pb-1 border-b-2 ${
+              className={`font-mono text-[10px] uppercase tracking-[0.15em] transition-all pb-0.5 border-b-2 ${
                 selSt === st.abbr
                   ? "text-orange border-orange"
                   : "text-white/50 border-transparent hover:text-white hover:border-white/30"
@@ -169,7 +169,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
 
         {/* Filter form */}
-        <div className="container-padded py-3">
+        <div className="container-padded py-2.5">
           <form method="GET" action="/search" className="flex items-stretch gap-0">
             {view === "map" && <input type="hidden" name="view" value="map" />}
 
@@ -178,7 +178,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               name="suburb"
               defaultValue={searchParams.suburb}
               placeholder="Suburb or postcode"
-              className="font-sans text-sm text-[#1a2340] placeholder:text-[#1a2340]/40 px-4 py-3 bg-white outline-none w-48 border-r border-[#dde1e9] flex-shrink-0"
+              className="font-sans text-sm text-[#1a2340] placeholder:text-[#1a2340]/40 px-4 py-2 bg-white outline-none w-44 border-r border-[#dde1e9] flex-shrink-0"
               aria-label="Suburb"
             />
 
@@ -219,7 +219,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <button
               type="submit"
               style={{ background: "#e85d26" }}
-              className="font-mono text-[11px] uppercase tracking-widest px-7 py-3 text-white hover:opacity-90 transition-opacity flex items-center gap-2 flex-shrink-0"
+              className="font-mono text-[11px] uppercase tracking-widest px-6 py-2 text-white hover:opacity-90 transition-opacity flex items-center gap-2 flex-shrink-0"
             >
               Search
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
