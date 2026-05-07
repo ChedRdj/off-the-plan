@@ -1,5 +1,5 @@
 export type DevelopmentStatus = "Selling now" | "Final release" | "Register interest";
-export type DevelopmentType = "Apartments" | "Townhouses" | "Houses" | "Penthouses";
+export type DevelopmentType = "Apartments" | "Townhouses" | "Houses" | "Penthouses" | "Commercial";
 export type DevelopmentTag =
   | "Featured"
   | "New launch"
