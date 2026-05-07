@@ -106,113 +106,120 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const selCat = searchParams.type        ?? "";
   const selPr  = searchParams.price_range ?? "";
 
-  const sel = "appearance-none bg-white border border-[#c8cdd8] font-mono text-[11px] uppercase tracking-widest text-[#1a2340] px-4 py-2.5 pr-8 outline-none cursor-pointer hover:border-orange/60 focus:border-orange transition-colors w-full";
+  const Chevron = () => (
+    <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 flex-shrink-0" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#1a2340" strokeWidth="2.5">
+      <polyline points="6 9 12 15 18 9"/>
+    </svg>
+  );
+
+  const sel = "appearance-none bg-white border-0 font-sans text-sm text-[#1a2340] px-4 py-0 pr-8 outline-none cursor-pointer w-full h-full bg-transparent";
 
   return (
     <div className="min-h-screen bg-cream pt-16">
 
-      {/* ── Search header bar ── */}
-      <div className="sticky top-16 z-30 bg-white border-b border-[#dde1e9] shadow-sm">
-        <div className="container-padded pt-5 pb-4">
+      {/* ── Search header ── */}
+      <div className="sticky top-16 z-30 shadow-md" style={{ background: "#1a2340" }}>
 
-          {/* List / Map toggle + heading row */}
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="font-sans text-xs text-ink/40 uppercase tracking-widest mb-0.5">
-                The New Home for Off-The-Plan Property
-              </p>
-              <h2 className="font-mono font-bold text-lg uppercase tracking-widest text-[#1a2340]">
-                New Property Search
-              </h2>
-            </div>
-            {/* List / Map toggle */}
-            <div className="flex border border-[#c8cdd8] overflow-hidden flex-shrink-0">
-              <Link
-                href={listUrl}
-                className={`px-5 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors ${
-                  view === "list" ? "bg-[#1a2340] text-white" : "bg-white text-ink/60 hover:text-orange"
-                }`}
-              >
-                List
-              </Link>
-              <Link
-                href={mapUrl}
-                className={`px-5 py-2 font-mono text-[11px] uppercase tracking-widest border-l border-[#c8cdd8] transition-colors ${
-                  view === "map" ? "bg-[#1a2340] text-white" : "bg-white text-ink/60 hover:text-orange"
-                }`}
-              >
-                Map
-              </Link>
-            </div>
+        {/* Top strip: subtitle + List/Map */}
+        <div className="container-padded flex items-center justify-between pt-4 pb-2">
+          <div>
+            <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">
+              The New Home for Off-The-Plan Property
+            </p>
+            <h2 className="font-sans font-bold text-xl tracking-widest uppercase text-white">
+              New Property Search
+            </h2>
           </div>
-
-          {/* State abbreviation quick-tabs */}
-          <div className="flex items-center gap-4 mb-3">
-            {AU_STATES.map((st) => (
-              <Link
-                key={st.abbr}
-                href={buildUrl({ state: selSt === st.abbr ? undefined : st.abbr })}
-                className={`font-mono text-[11px] uppercase tracking-widest pb-0.5 border-b-2 transition-colors ${
-                  selSt === st.abbr
-                    ? "border-orange text-orange"
-                    : "border-transparent text-ink/50 hover:text-orange hover:border-orange/40"
-                }`}
-              >
-                {st.abbr}
-              </Link>
-            ))}
+          {/* List / Map toggle */}
+          <div className="flex overflow-hidden border border-white/20 flex-shrink-0">
+            <Link
+              href={listUrl}
+              className={`px-6 py-2 font-mono text-[11px] uppercase tracking-widest transition-colors ${
+                view === "list" ? "bg-white text-[#1a2340]" : "text-white/60 hover:text-white"
+              }`}
+            >
+              List
+            </Link>
+            <Link
+              href={mapUrl}
+              className={`px-6 py-2 font-mono text-[11px] uppercase tracking-widest border-l border-white/20 transition-colors ${
+                view === "map" ? "bg-white text-[#1a2340]" : "text-white/60 hover:text-white"
+              }`}
+            >
+              Map
+            </Link>
           </div>
+        </div>
 
-          {/* Filter form */}
-          <form method="GET" action="/search" className="flex flex-wrap gap-2 items-center">
+        {/* State quick-tabs */}
+        <div className="container-padded flex items-center gap-5 py-2 border-b border-white/10">
+          {AU_STATES.map((st) => (
+            <Link
+              key={st.abbr}
+              href={buildUrl({ state: selSt === st.abbr ? undefined : st.abbr })}
+              className={`font-mono text-[10px] uppercase tracking-[0.15em] transition-all pb-1 border-b-2 ${
+                selSt === st.abbr
+                  ? "text-orange border-orange"
+                  : "text-white/50 border-transparent hover:text-white hover:border-white/30"
+              }`}
+            >
+              {st.abbr}
+            </Link>
+          ))}
+        </div>
+
+        {/* Filter form */}
+        <div className="container-padded py-3">
+          <form method="GET" action="/search" className="flex items-stretch gap-0">
             {view === "map" && <input type="hidden" name="view" value="map" />}
 
-            {/* Suburb input */}
+            {/* Suburb */}
             <input
               name="suburb"
               defaultValue={searchParams.suburb}
               placeholder="Suburb or postcode"
-              className="font-sans text-sm border border-[#c8cdd8] px-4 py-2.5 bg-white outline-none focus:border-orange/60 transition-colors w-44"
+              className="font-sans text-sm text-[#1a2340] placeholder:text-[#1a2340]/40 px-4 py-3 bg-white outline-none w-48 border-r border-[#dde1e9] flex-shrink-0"
               aria-label="Suburb"
             />
 
             {/* State */}
-            <div className="relative">
+            <div className="relative flex-1 bg-white border-r border-[#dde1e9] flex items-center">
               <select name="state" defaultValue={selSt} className={sel} aria-label="State">
                 <option value="">State</option>
                 {AU_STATES.map((st) => (
                   <option key={st.abbr} value={st.abbr}>{st.full}</option>
                 ))}
               </select>
-              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1a2340" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              <Chevron />
             </div>
 
             {/* Category */}
-            <div className="relative">
+            <div className="relative flex-1 bg-white border-r border-[#dde1e9] flex items-center">
               <select name="type" defaultValue={selCat} className={sel} aria-label="Category">
                 <option value="">Category</option>
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1a2340" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              <Chevron />
             </div>
 
             {/* Price Range */}
-            <div className="relative">
+            <div className="relative flex-1 bg-white border-r border-[#dde1e9] flex items-center">
               <select name="price_range" defaultValue={selPr} className={sel} aria-label="Price Range">
                 <option value="">Price Range</option>
                 {PRICE_RANGES.map((r) => (
                   <option key={r.value} value={r.value}>{r.label}</option>
                 ))}
               </select>
-              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1a2340" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              <Chevron />
             </div>
 
-            {/* Search button */}
+            {/* Search */}
             <button
               type="submit"
-              className="font-mono text-[11px] uppercase tracking-widest px-6 py-2.5 bg-orange text-white hover:bg-orange/90 transition-colors flex items-center gap-2"
+              style={{ background: "#e85d26" }}
+              className="font-mono text-[11px] uppercase tracking-widest px-7 py-3 text-white hover:opacity-90 transition-opacity flex items-center gap-2 flex-shrink-0"
             >
               Search
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -220,36 +227,36 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </svg>
             </button>
           </form>
-        </div>
 
-        {/* Active filter pills */}
-        {[selSt, selCat, selPr, searchParams.suburb].some(Boolean) && (
-          <div className="container-padded pb-3 flex flex-wrap gap-2">
-            {searchParams.suburb && (
-              <Link href={buildUrl({ suburb: undefined })} className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest px-2.5 py-1 border border-ink/20 text-ink hover:border-orange hover:text-orange transition-colors">
-                {searchParams.suburb} <span>×</span>
+          {/* Active filter pills */}
+          {[selSt, selCat, selPr, searchParams.suburb].some(Boolean) && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {searchParams.suburb && (
+                <Link href={buildUrl({ suburb: undefined })} className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest px-2.5 py-1 border border-white/20 text-white/60 hover:border-orange hover:text-orange transition-colors">
+                  {searchParams.suburb} <span>×</span>
+                </Link>
+              )}
+              {selSt && (
+                <Link href={buildUrl({ state: undefined })} className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest px-2.5 py-1 border border-white/20 text-white/60 hover:border-orange hover:text-orange transition-colors">
+                  {selSt} <span>×</span>
+                </Link>
+              )}
+              {selCat && (
+                <Link href={buildUrl({ type: undefined })} className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest px-2.5 py-1 border border-white/20 text-white/60 hover:border-orange hover:text-orange transition-colors">
+                  {selCat} <span>×</span>
+                </Link>
+              )}
+              {selPr && (
+                <Link href={buildUrl({ price_range: undefined })} className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest px-2.5 py-1 border border-white/20 text-white/60 hover:border-orange hover:text-orange transition-colors">
+                  {PRICE_RANGES.find((r) => r.value === selPr)?.label} <span>×</span>
+                </Link>
+              )}
+              <Link href={view === "map" ? "/search?view=map" : "/search"} className="font-mono text-[9px] uppercase tracking-widest text-white/30 hover:text-orange transition-colors">
+                Clear all
               </Link>
-            )}
-            {selSt && (
-              <Link href={buildUrl({ state: undefined })} className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest px-2.5 py-1 border border-ink/20 text-ink hover:border-orange hover:text-orange transition-colors">
-                {selSt} <span>×</span>
-              </Link>
-            )}
-            {selCat && (
-              <Link href={buildUrl({ type: undefined })} className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest px-2.5 py-1 border border-ink/20 text-ink hover:border-orange hover:text-orange transition-colors">
-                {selCat} <span>×</span>
-              </Link>
-            )}
-            {selPr && (
-              <Link href={buildUrl({ price_range: undefined })} className="inline-flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest px-2.5 py-1 border border-ink/20 text-ink hover:border-orange hover:text-orange transition-colors">
-                {PRICE_RANGES.find((r) => r.value === selPr)?.label} <span>×</span>
-              </Link>
-            )}
-            <Link href={view === "map" ? "/search?view=map" : "/search"} className="font-mono text-[9px] uppercase tracking-widest text-ink/40 hover:text-orange transition-colors">
-              Clear all
-            </Link>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Map view ── */}
