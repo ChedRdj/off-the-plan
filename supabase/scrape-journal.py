@@ -95,37 +95,39 @@ async def get_article_links(page, section_url: str) -> list[str]:
     print(f"\nLoading {section_url} ...")
     await page.goto(section_url, wait_until="networkidle", timeout=30000)
 
-    # Scroll to bottom to trigger lazy-loading / infinite scroll
-    for _ in range(5):
+    # Wait for JS templates to render
+    await page.wait_for_timeout(3000)
+
+    # Scroll repeatedly to trigger lazy-loading / infinite scroll
+    for _ in range(8):
         await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         await page.wait_for_timeout(1500)
 
     # Try clicking "Load more" buttons if they exist
-    while True:
-        load_more = page.locator("text=/load more/i, text=/show more/i, text=/view more/i")
+    for _ in range(10):
+        load_more = page.locator("button:has-text('Load'), button:has-text('More'), a:has-text('Load more')")
         if await load_more.count() > 0:
             try:
                 await load_more.first.click()
                 await page.wait_for_timeout(2000)
+                await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+                await page.wait_for_timeout(1000)
             except Exception:
                 break
         else:
             break
 
-    html = await page.content()
-    soup = BeautifulSoup(html, "html.parser")
-
+    # Use Playwright to get rendered hrefs directly (catches JS-rendered links)
     base_path = urllib.parse.urlparse(section_url).path  # e.g. /news
+    all_hrefs = await page.eval_on_selector_all(
+        "a[href]", "els => els.map(e => e.href)"
+    )
+
     links = set()
-    for a in soup.find_all("a", href=True):
-        href = a["href"]
-        # Make absolute
-        if href.startswith("/"):
-            href = BASE_URL + href
+    for href in all_hrefs:
         if not href.startswith(BASE_URL):
             continue
         path = urllib.parse.urlparse(href).path
-        # Must be a sub-path (e.g. /news/some-article, not just /news)
         if path.startswith(base_path + "/") and len(path) > len(base_path) + 1:
             links.add(href)
 
