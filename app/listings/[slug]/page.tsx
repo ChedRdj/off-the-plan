@@ -6,6 +6,7 @@ import { RequestInfoForm } from "@/components/request-info-form";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { PropertiesTable } from "@/components/properties-table";
 import { ReadMore } from "@/components/read-more";
+import { FormattedDescription } from "@/components/formatted-description";
 import { CheckIcon, MailIcon } from "@/components/icons";
 import { PhoneReveal } from "@/components/phone-reveal";
 import { ShareButton } from "@/components/share-button";
@@ -212,10 +213,9 @@ export default async function DossierPage({ params }: Props) {
         <div className="container-padded grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Left: description */}
           <div className="lg:col-span-2">
-            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-3">About</p>
-            <h2 className="font-display font-light text-navy text-section-lg mb-6">{dev.name}</h2>
+            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-6">About</p>
             {dev.summary ? (
-              <ReadMore text={dev.summary} limit={320} />
+              <FormattedDescription text={dev.summary} />
             ) : (
               <p className="font-sans text-body-lg text-ink/40 italic">No description available.</p>
             )}
