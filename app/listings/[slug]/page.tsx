@@ -497,11 +497,11 @@ export default async function DossierPage({ params }: Props) {
       </section>
 
       {/* ─── 9. Location — full-width map ─────────────────────────────── */}
-      {dev.lat && dev.lng && (
+      {dev.suburb && (
         <section className="bg-cream border-t border-line">
           <div className="container-padded pt-12 pb-6">
-            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-1">Location</p>
-            <div className="flex items-baseline justify-between">
+            <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-3">Location</p>
+            <div className="flex items-baseline justify-between gap-4">
               <h2 className="font-display font-light text-navy text-section-lg">
                 {[dev.suburb, dev.state].filter(Boolean).join(", ")}
               </h2>
@@ -509,22 +509,21 @@ export default async function DossierPage({ params }: Props) {
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([dev.suburb, dev.state, "Australia"].filter(Boolean).join(", "))}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono text-[10px] uppercase tracking-widest text-orange hover:text-orange/70 transition-colors"
+                className="font-mono text-[10px] uppercase tracking-widest text-orange hover:text-orange/70 transition-colors flex-shrink-0"
               >
                 View on Google Maps →
               </a>
             </div>
           </div>
-          {/* Map — slight horizontal padding, full bleed feel */}
-          <div className="px-4 md:px-8">
-            <div className="w-full h-[420px]">
-              <iframe
-                src={`https://www.openstreetmap.org/export/embed.html?bbox=${dev.lng - 0.012},${dev.lat - 0.012},${dev.lng + 0.012},${dev.lat + 0.012}&layer=mapnik&marker=${dev.lat},${dev.lng}`}
-                className="w-full h-full border-0 block"
-                loading="lazy"
-                title={`Map showing ${dev.suburb ?? "location"}`}
-              />
-            </div>
+          {/* Map embed — Google Maps, no API key required */}
+          <div className="w-full h-[420px]">
+            <iframe
+              src={`https://maps.google.com/maps?q=${encodeURIComponent([dev.suburb, dev.state, dev.postcode, "Australia"].filter(Boolean).join(" "))}&output=embed&z=15`}
+              className="w-full h-full border-0 block"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title={`Map showing ${dev.suburb}`}
+            />
           </div>
           <div className="container-padded pb-8" />
         </section>

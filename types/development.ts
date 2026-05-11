@@ -35,6 +35,7 @@ export interface Development {
   residence_count: number | null;
   lat: number | null;
   lng: number | null;
+  postcode?: string | null;
   hero_image_url?: string | null;
   brochure_url?: string | null;
   description_html?: string | null;
