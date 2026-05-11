@@ -80,9 +80,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   query = query.order("is_featured", { ascending: false });
 
-  const { data } = await query;
+  const { data, error } = await query;
+  if (error) {
+    console.error("[search] Supabase error:", error.message, error.code);
+    throw new Error(`Supabase query failed: ${error.message}`);
+  }
   const results = (data ?? []) as unknown as Development[];
-  const pageResults = results;
 
   const buildFilterUrl = (overrides: Record<string, string | undefined>) => {
     const p = new URLSearchParams();
@@ -144,7 +147,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         {/* Filter form */}
         <div className="container-padded py-2.5">
           <form method="GET" action="/search" className="flex items-stretch gap-0">
-            {view === "map" && <input type="hidden" name="view" value="map" />}
 
             {/* Suburb */}
             <input
@@ -224,7 +226,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   {PRICE_RANGES.find((r) => r.value === selPr)?.label} <span>×</span>
                 </Link>
               )}
-              <Link href={view === "map" ? "/search?view=map" : "/search"} className="font-mono text-[9px] uppercase tracking-widest text-white/30 hover:text-orange transition-colors">
+              <Link href="/search" className="font-mono text-[9px] uppercase tracking-widest text-white/30 hover:text-orange transition-colors">
                 Clear all
               </Link>
             </div>
@@ -232,34 +234,27 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </div>
 
-      {/* ── Map view ── */}
-      {view === "map" ? (
-        <div className="h-[calc(100vh-8rem)]" />
-      ) : (
-        /* ── List view ── */
-        <div className="container-padded py-10">
-          <p className="font-mono text-[11px] text-ink/40 mb-8 uppercase tracking-widest">
-            {results.length} listing{results.length !== 1 ? "s" : ""}
-          </p>
+      <div className="container-padded py-10">
+        <p className="font-mono text-[11px] text-ink/40 mb-8 uppercase tracking-widest">
+          {results.length} listing{results.length !== 1 ? "s" : ""}
+        </p>
 
-          {pageResults.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {pageResults.map((dev) => (
-                <PropertyCard key={dev.id} development={dev} layout="tall" />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20">
-              <p className="font-display text-section-lg font-light text-navy/30 mb-4">No results</p>
-              <p className="font-sans text-body-md text-ink/50 mb-6">
-                Try broadening your filters to see more listings.
-              </p>
-              <Link href="/search" className="btn-ghost inline-block">Clear filters</Link>
-            </div>
-          )}
-
-        </div>
-      )}
+        {results.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {results.map((dev) => (
+              <PropertyCard key={dev.id} development={dev} layout="tall" />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20">
+            <p className="font-display text-section-lg font-light text-navy/30 mb-4">No results</p>
+            <p className="font-sans text-body-md text-ink/50 mb-6">
+              Try broadening your filters to see more listings.
+            </p>
+            <Link href="/search" className="btn-ghost inline-block">Clear filters</Link>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
