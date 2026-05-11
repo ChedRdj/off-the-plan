@@ -79,4 +79,29 @@
   .btn-ghost-dark {
     @apply border border-ink-light/20 text-ink-light font-mono text-label-lg uppercase tracking-widest px-6 py-3 hover:bg-white/5 transition-colors;
   }
+
+  /* ── Listing description (scraped HTML from offtheplan.com.au) ── */
+  .listing-description .project-features__title {
+    @apply font-sans font-semibold text-[15px] text-orange leading-relaxed mb-3;
+  }
+  .listing-description ul {
+    @apply mb-4 space-y-1.5;
+  }
+  .listing-description ul li {
+    @apply font-sans text-[14px] text-ink/80 leading-relaxed pl-4 relative;
+  }
+  .listing-description ul li::before {
+    content: "▪";
+    @apply absolute left-0 text-ink/40;
+  }
+  .listing-description p {
+    @apply font-sans text-[14px] text-ink/70 leading-relaxed mb-3;
+  }
+  .listing-description div {
+    @apply mb-1;
+  }
+  .listing-description strong,
+  .listing-description b {
+    @apply font-semibold text-ink;
+  }
 }

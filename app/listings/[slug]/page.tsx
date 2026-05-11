@@ -214,7 +214,12 @@ export default async function DossierPage({ params }: Props) {
           {/* Left: description */}
           <div className="lg:col-span-2">
             <p className="font-mono text-[11px] uppercase tracking-widest text-ink/40 mb-6">About</p>
-            {dev.summary ? (
+            {dev.description_html ? (
+              <div
+                className="listing-description font-sans text-[14px] text-ink/80 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: dev.description_html }}
+              />
+            ) : dev.summary ? (
               <FormattedDescription text={dev.summary} />
             ) : (
               <p className="font-sans text-body-lg text-ink/40 italic">No description available.</p>

@@ -37,6 +37,7 @@ export interface Development {
   lng: number | null;
   hero_image_url?: string | null;
   brochure_url?: string | null;
+  description_html?: string | null;
   agent_name?: string | null;
   agent_phone?: string | null;
   agent_email?: string | null;
