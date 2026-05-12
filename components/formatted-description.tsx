@@ -105,67 +105,54 @@ function parseDescription(raw: string): Segment[] {
 export function FormattedDescription({ text }: FormattedDescriptionProps) {
   const [expanded, setExpanded] = useState(false);
   const segments = parseDescription(text);
+  const needsToggle = segments.length > 3;
 
-  // Decide the fold point: show incentive + bullets, hide paragraphs unless expanded
-  const paraCount = segments.filter((s) => s.type === "para").length;
-  const needsToggle = paraCount > 0;
+  const renderedContent = segments.map((seg, i) => {
+    switch (seg.type) {
+      case "incentive":
+        return (
+          <p key={i} className="font-sans text-[14px] text-orange font-medium leading-relaxed mb-4">
+            {seg.text}.
+          </p>
+        );
+      case "bullets":
+        return (
+          <ul key={i} className="mb-4 space-y-1.5">
+            {seg.items.map((item, j) => (
+              <li key={j} className="flex items-start gap-2">
+                <span className="mt-[7px] w-1 h-1 rounded-full bg-ink/40 flex-shrink-0" />
+                <span className="font-sans text-[14px] text-ink/80 leading-relaxed">{item}.</span>
+              </li>
+            ))}
+          </ul>
+        );
+      case "heading":
+        return (
+          <p key={i} className="font-sans font-semibold text-[14px] text-ink mt-6 mb-2">
+            {seg.text}
+          </p>
+        );
+      case "para":
+        return (
+          <p key={i} className="font-sans text-[14px] text-ink/70 leading-relaxed mb-4">
+            {seg.text}.
+          </p>
+        );
+    }
+  });
 
   return (
     <div>
-      {segments.map((seg, i) => {
-        if (seg.type === "para" && !expanded) return null;
-
-        switch (seg.type) {
-          case "incentive":
-            return (
-              <p
-                key={i}
-                className="font-sans text-[14px] text-orange font-medium leading-relaxed mb-4"
-              >
-                {seg.text}.
-              </p>
-            );
-
-          case "bullets":
-            return (
-              <ul key={i} className="mb-4 space-y-1.5">
-                {seg.items.map((item, j) => (
-                  <li key={j} className="flex items-start gap-2">
-                    <span className="mt-[7px] w-1 h-1 rounded-full bg-ink/40 flex-shrink-0" />
-                    <span className="font-sans text-[14px] text-ink/80 leading-relaxed">
-                      {item}.
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            );
-
-          case "heading":
-            return (
-              <p
-                key={i}
-                className="font-sans font-semibold text-[14px] text-ink mt-6 mb-2"
-              >
-                {seg.text}
-              </p>
-            );
-
-          case "para":
-            return (
-              <p
-                key={i}
-                className="font-sans text-[14px] text-ink/70 leading-relaxed mb-4"
-              >
-                {seg.text}.
-              </p>
-            );
-        }
-      })}
-
+      <div className="relative overflow-hidden" style={{ maxHeight: expanded ? "none" : 300 }}>
+        {renderedContent}
+        {!expanded && needsToggle && (
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-cream to-transparent pointer-events-none" />
+        )}
+      </div>
       {needsToggle && (
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="font-mono text-[10px] uppercase tracking-widest text-orange hover:text-orange/70 transition-colors mt-1"
+          className="font-mono text-[10px] uppercase tracking-widest text-orange hover:text-orange/70 transition-colors mt-3"
         >
           {expanded ? "Read Less ↑" : "Read More ↓"}
         </button>
