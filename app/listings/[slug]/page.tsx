@@ -12,6 +12,7 @@ import { CheckIcon, MailIcon } from "@/components/icons";
 import { PhoneReveal } from "@/components/phone-reveal";
 import { ShareButton } from "@/components/share-button";
 import { EnquiryButton } from "@/components/enquiry-button";
+import { VideoModal } from "@/components/video-modal";
 import { ViewTracker } from "@/components/view-tracker";
 import { supabase } from "@/lib/supabase/public";
 import type { Development, DevelopmentFloorPlan } from "@/types/development";
@@ -176,7 +177,13 @@ export default async function DossierPage({ params }: Props) {
 
           {/* Right: Watch thumbnail + Enquire button */}
           <div className="flex-shrink-0 flex flex-col items-stretch gap-2 w-[120px]">
-            {heroImageUrl && (
+            {dev.video_url ? (
+              <VideoModal
+                videoUrl={dev.video_url}
+                thumbnailUrl={heroImageUrl}
+                title={dev.name}
+              />
+            ) : heroImageUrl ? (
               <div className="relative block w-full h-[76px] overflow-hidden">
                 <Image
                   src={heroImageUrl}
@@ -194,7 +201,7 @@ export default async function DossierPage({ params }: Props) {
                   </div>
                 </div>
               </div>
-            )}
+            ) : null}
             <EnquiryButton
               developmentId={dev.id}
               developmentName={dev.name}

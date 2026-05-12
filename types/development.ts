@@ -38,6 +38,7 @@ export interface Development {
   postcode?: string | null;
   hero_image_url?: string | null;
   brochure_url?: string | null;
+  video_url?: string | null;
   description_html?: string | null;
   agent_name?: string | null;
   agent_phone?: string | null;
