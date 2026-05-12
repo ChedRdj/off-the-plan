@@ -51,7 +51,7 @@ export function VideoModal({ videoUrl, thumbnailUrl, title }: VideoModalProps) {
           onClick={() => setOpen(false)}
         >
           <div
-            className="relative w-full max-w-[70vw] aspect-video bg-black"
+            className="relative w-full max-w-[80vw] aspect-video bg-black"
             onClick={(e) => e.stopPropagation()}
           >
             <iframe
