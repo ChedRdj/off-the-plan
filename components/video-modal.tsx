@@ -47,11 +47,11 @@ export function VideoModal({ videoUrl, thumbnailUrl, title }: VideoModalProps) {
       {/* Modal overlay */}
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 md:p-8"
           onClick={() => setOpen(false)}
         >
           <div
-            className="relative w-full max-w-3xl aspect-video bg-black"
+            className="relative w-full max-w-[90vw] aspect-video bg-black"
             onClick={(e) => e.stopPropagation()}
           >
             <iframe
