@@ -313,12 +313,14 @@ export function PropertyCard({
         {development.developer && (
           <div className="flex-shrink-0 ml-2">
             {development.developer.logo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={development.developer.logo_url}
-                alt={development.developer.name}
-                className="h-[40px] w-auto max-w-[110px] object-contain ml-auto"
-              />
+              <div className="w-[110px] h-[44px] flex items-center justify-end">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={development.developer.logo_url}
+                  alt={development.developer.name}
+                  className="max-h-[44px] max-w-[110px] w-auto h-auto object-contain"
+                />
+              </div>
             ) : (
               /* Text logo lockup — thin rule + stacked all-caps name */
               <div className="flex flex-col items-end max-w-[96px]">
