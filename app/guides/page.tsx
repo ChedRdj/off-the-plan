@@ -146,13 +146,13 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
                 ))}
 
                 {/* Portrait ad slot — desktop only */}
-                <div className="hidden lg:flex flex-col bg-white border border-line overflow-hidden">
-                  <div className="relative flex-1 min-h-[280px]">
+                <div className="hidden lg:flex items-center justify-center">
+                  <div className="relative w-full max-w-[260px] aspect-[3/5] bg-white border border-line overflow-hidden">
                     <Image
                       src="/off-the-plan-banner-portrait.png"
                       alt="Off The Plan Partner Network"
                       fill
-                      className="object-cover object-top"
+                      className="object-contain"
                     />
                   </div>
                 </div>
