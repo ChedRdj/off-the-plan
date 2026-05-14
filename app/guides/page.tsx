@@ -15,9 +15,9 @@ export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const revalidate = 0;
 
-// Page 1 = 2 featured + 9 in 3-col grid = 11 cards (3 clean rows of 3)
+// Page 1 = 3 featured + 12 in 3-col grid = 15 cards (4 clean rows of 3)
 // Subsequent pages = 12 cards in 3-col grid (4 clean rows of 3)
-const PAGE_ONE_SIZE = 11;
+const PAGE_ONE_SIZE = 15;
 const PAGE_SIZE = 12;
 
 /** Strip HTML and remove the social-share boilerplate at the top of every scraped article. */
