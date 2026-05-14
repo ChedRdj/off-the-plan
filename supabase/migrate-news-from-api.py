@@ -118,6 +118,22 @@ def fetch_article_detail(client: httpx.Client, slug: str, page_type: str) -> dic
         return None
 
 
+def fetch_existing_categories(client: httpx.Client) -> dict[str, str]:
+    """Pre-fetch existing slug -> category map so we can merge categories on conflict."""
+    url = f"{SUPABASE_URL}/rest/v1/journal_articles?select=slug,category"
+    res = client.get(url, headers=REST_HEADERS, timeout=30)
+    if res.status_code != 200:
+        return {}
+    return {row["slug"]: row.get("category") or "" for row in res.json()}
+
+
+def merge_categories(existing: str, new_cat: str) -> str:
+    """Combine existing comma-separated categories with the new one (set-union, sorted)."""
+    parts = {p.strip() for p in (existing or "").split(",") if p.strip()}
+    parts.add(new_cat)
+    return ",".join(sorted(parts))
+
+
 def upsert_article(client: httpx.Client, record: dict[str, Any]) -> bool:
     url = f"{SUPABASE_URL}/rest/v1/journal_articles?on_conflict=slug"
     headers = {**REST_HEADERS, "Prefer": "resolution=merge-duplicates,return=minimal"}
@@ -161,6 +177,10 @@ def migrate_section(page_type: str, category: str) -> None:
 
         check_connection(supa_client)
 
+        # Snapshot existing categories so we can merge instead of overwrite.
+        existing_cats = fetch_existing_categories(supa_client)
+        print(f"Loaded {len(existing_cats)} existing articles for category merge")
+
         # Fetch first page to discover total page count
         first = fetch_listing_page(legacy_client, 1, page_type)
         envelope = first.get("news_and_events", {})
@@ -200,10 +220,11 @@ def migrate_section(page_type: str, category: str) -> None:
                         body_html = detail.get("content") or body_html
                     time.sleep(DELAY)
 
+                merged_cat = merge_categories(existing_cats.get(slug, ""), category)
                 record = {
                     "slug": slug,
                     "title": title,
-                    "category": category,
+                    "category": merged_cat,
                     "hero_image_url": hero_url,
                     "body_html": body_html,
                     "author": None,
@@ -211,6 +232,8 @@ def migrate_section(page_type: str, category: str) -> None:
                     "published_at": normalise_published_at(art.get("created_at")),
                     "is_published": True,
                 }
+                # Update local map so subsequent slugs see this update in-flight
+                existing_cats[slug] = merged_cat
 
                 if upsert_article(supa_client, record):
                     print(f"  OK  {title[:70]}")

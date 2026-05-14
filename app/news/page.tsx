@@ -68,7 +68,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
     .from("journal_articles")
     .select(fields, { count: "exact" })
     .eq("is_published", true)
-    .eq("category", "News")
+    .ilike("category", "%News%")
     .order("published_at", { ascending: false })
     .range(from, to);
 

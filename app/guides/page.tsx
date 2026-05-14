@@ -65,7 +65,7 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
     .from("journal_articles")
     .select(fields, { count: "exact" })
     .eq("is_published", true)
-    .eq("category", "Guide")
+    .ilike("category", "%Guide%")
     .order("published_at", { ascending: false })
     .range(from, to);
 
