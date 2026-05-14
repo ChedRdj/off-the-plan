@@ -77,8 +77,8 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
 
   // Page 1: top 2 featured large + ad slot, then rest in 3-col grid
   // Other pages: all in 3-col grid
-  const featured = page === 1 ? articles.slice(0, 2) : [];
-  const rest = page === 1 ? articles.slice(2) : articles;
+  const featured = page === 1 ? articles.slice(0, 3) : [];
+  const rest = page === 1 ? articles.slice(3) : articles;
 
   return (
     <div className="min-h-screen bg-[#f5f4f1] pt-16">
@@ -145,17 +145,6 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
                   </Link>
                 ))}
 
-                {/* Portrait ad slot — desktop only */}
-                <div className="hidden lg:flex items-center justify-center">
-                  <div className="relative w-full max-w-[260px] aspect-[3/5] bg-white border border-line overflow-hidden">
-                    <Image
-                      src="/off-the-plan-banner-portrait.png"
-                      alt="Off The Plan Partner Network"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                </div>
               </div>
             )}
 
