@@ -189,16 +189,15 @@ def migrate_section(page_type: str, category: str) -> None:
                 body_html = art.get("content")
                 hero_url = art.get("path")
 
-                # If body is missing, fall back to the detail endpoint —
-                # which also returns a higher-quality 1600x500 header image.
+                # If body is missing, fall back to the detail endpoint for content only.
+                # DO NOT override hero_url — the listing's list_image (600x500) is the
+                # clean photo card image. The detail endpoint's main_image is a 1600x500
+                # banner with the article title burned in, which we want to avoid.
                 if not body_html:
-                    print(f"  {slug} — fetching detail (content was null)")
+                    print(f"  {slug} — fetching detail body (listing content was null)")
                     detail = fetch_article_detail(legacy_client, slug, page_type)
                     if detail:
                         body_html = detail.get("content") or body_html
-                        main = detail.get("attachments") or {}
-                        if main.get("path"):
-                            hero_url = main["path"]
                     time.sleep(DELAY)
 
                 record = {

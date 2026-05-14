@@ -96,7 +96,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                     href={`/journal/${article.slug}`}
                     className="group flex flex-col bg-white border border-line hover:border-navy/30 transition-colors"
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden bg-ink/10 flex-shrink-0">
+                    <div className="relative aspect-[6/5] overflow-hidden bg-ink/10 flex-shrink-0">
                       {article.hero_image_url ? (
                         <Image
                           src={article.hero_image_url}
@@ -143,7 +143,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                     href={`/journal/${article.slug}`}
                     className="group flex flex-col bg-white border border-line hover:border-navy/30 transition-colors"
                   >
-                    <div className="relative aspect-[4/3] overflow-hidden bg-ink/10 flex-shrink-0">
+                    <div className="relative aspect-[6/5] overflow-hidden bg-ink/10 flex-shrink-0">
                       {article.hero_image_url ? (
                         <Image
                           src={article.hero_image_url}
