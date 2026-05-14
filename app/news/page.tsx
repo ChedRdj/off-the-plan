@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: "The latest property news and market updates from Off The Plan.",
 };
 
+// Always fetch fresh from Supabase — prevents stale cached page after content updates
+export const dynamic = "force-dynamic";
+
 const PAGE_SIZE = 10; // articles per page
 
 /** Strip HTML and remove the social-share boilerplate at the top of every scraped article. */

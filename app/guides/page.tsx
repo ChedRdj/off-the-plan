@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   description: "Property guides to help you buy, invest and navigate off-the-plan developments in Australia.",
 };
 
+// Always fetch fresh from Supabase — prevents stale cached page after content updates
+export const dynamic = "force-dynamic";
+
 const PAGE_SIZE = 9; // 3-col grid fits 9 neatly
 
 /** Strip HTML and remove the social-share boilerplate at the top of every scraped article. */
