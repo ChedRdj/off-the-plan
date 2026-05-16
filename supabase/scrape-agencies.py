@@ -343,14 +343,13 @@ def extract_from_api(calls: list[dict]) -> list[dict] | None:
 
 def normalise_api_agency(raw: dict) -> dict:
     """Map raw API fields (all_agency endpoint) to our schema."""
-    # Name: API returns first_name + last_name separately
     first = (raw.get("first_name") or "").strip()
     last = (raw.get("last_name") or "").strip()
     name = f"{first} {last}".strip() or raw.get("name") or raw.get("full_name") or None
 
-    email = raw.get("email") or raw.get("org_email") or None
+    email = raw.get("email") or None
     org_name = raw.get("org_name") or None
-    mobile = raw.get("mobile") or raw.get("org_phone") or raw.get("phone") or None
+    mobile = raw.get("mobile") or None
 
     # Total active listings: API has a 'listing' field (list or count)
     listing_raw = raw.get("listing")
@@ -361,7 +360,7 @@ def normalise_api_agency(raw: dict) -> dict:
     else:
         total = int(raw.get("total_active_listings") or raw.get("active_listings") or 0)
 
-    # Email verified: API uses is_email_verified (0/1 or bool)
+    # Email verified
     verified_raw = raw.get("is_email_verified") or raw.get("email_verified") or raw.get("verified") or False
     if isinstance(verified_raw, bool):
         email_verified = verified_raw
@@ -370,7 +369,7 @@ def normalise_api_agency(raw: dict) -> dict:
     else:
         email_verified = bool(verified_raw)
 
-    # Portal status: use is_agency flag — 1 = active portal user
+    # Portal status
     is_agency = raw.get("is_agency")
     status_raw = (raw.get("portal_status") or raw.get("status") or "").lower()
     if "inactive" in status_raw or status_raw == "0":
@@ -380,16 +379,39 @@ def normalise_api_agency(raw: dict) -> dict:
     else:
         portal_status = "active"
 
+    is_developer_raw = raw.get("is_developer") or False
+    is_developer = bool(is_developer_raw) if not isinstance(is_developer_raw, str) else is_developer_raw in ("1", "true")
+
     legacy_id = str(raw.get("id") or raw.get("user_id") or "")
+
+    def url_or_none(val) -> str | None:
+        v = (val or "").strip()
+        return v if v else None
 
     return {
         "name": name,
+        "first_name": first or None,
+        "last_name": last or None,
         "email": email,
         "org_name": org_name,
+        "org_email": url_or_none(raw.get("org_email")),
+        "org_phone": url_or_none(raw.get("org_phone")),
         "mobile": mobile,
+        "about": url_or_none(raw.get("about")),
+        "profile_pic": url_or_none(raw.get("profile_pic")),
+        "org_logo_url": url_or_none(raw.get("org_logo_url") or raw.get("org_logo")),
+        "dev_logo_url": url_or_none(raw.get("dev_logo_url") or raw.get("dev_logo")),
+        "facebook_url": url_or_none(raw.get("facebook_url")),
+        "twitter_url": url_or_none(raw.get("twitter_url")),
+        "instagram_url": url_or_none(raw.get("instagram_url")),
+        "linkedin_url": url_or_none(raw.get("linkedin_url")),
+        "pinterest_url": url_or_none(raw.get("pinterest_url")),
+        "youtube_url": url_or_none(raw.get("youtube_url")),
+        "website_url": url_or_none(raw.get("website_url")),
         "total_active_listings": total,
         "email_verified": email_verified,
         "portal_status": portal_status,
+        "is_developer": is_developer,
         "legacy_id": legacy_id or None,
     }
 

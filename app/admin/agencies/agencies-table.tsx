@@ -140,14 +140,13 @@ export default function AgenciesTable({ agencies }: { agencies: Agency[] }) {
                     </p>
                     {a.email && (
                       <p className="font-sans text-xs text-ink/70">
-                        <span className="font-semibold">Email:</span>{" "}
-                        <a href={`mailto:${a.email}`} className="text-blue-600 hover:underline">{a.email}</a>
+                        <span className="font-semibold">Email:</span> {a.email}
                       </p>
                     )}
                     {a.org_name && (
                       <p className="font-sans text-xs text-ink/70">
                         <span className="font-semibold">Org. Name:</span>{" "}
-                        <span className="text-blue-600">{a.org_name}</span>
+                        <a href={`/admin/agencies/${a.id}`} className="text-blue-600 hover:underline">{a.org_name}</a>
                       </p>
                     )}
                     {a.mobile && (
