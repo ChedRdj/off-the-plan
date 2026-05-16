@@ -161,39 +161,49 @@ export default function AgenciesTable({ agencies }: { agencies: Agency[] }) {
                 </td>
                 <td className="px-4 py-4 text-center">
                   {a.email_verified ? (
-                    <span className="inline-block px-2 py-0.5 text-xs font-sans font-semibold bg-green-100 text-green-700 rounded">
+                    <span className="inline-block font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 border border-green-500 text-green-600">
                       Verified
                     </span>
                   ) : (
-                    <span className="inline-block px-2 py-0.5 text-xs font-sans font-semibold bg-red-100 text-red-600 rounded">
+                    <span className="inline-block font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 border border-orange/50 text-orange/80">
                       Not Verified
                     </span>
                   )}
                 </td>
                 <td className="px-4 py-4 text-center">
-                  <span className={`inline-block px-2 py-0.5 text-xs font-sans font-semibold rounded ${
+                  <span className={`inline-block font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 border ${
                     a.portal_status === "active"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-gray-100 text-gray-500"
+                      ? "border-green-500 text-green-600"
+                      : "border-line text-ink/40"
                   }`}>
                     {a.portal_status === "active" ? "Active" : "Inactive"}
                   </span>
                 </td>
                 <td className="px-4 py-4">
-                  <div className="flex flex-col gap-1.5">
+                  <div className="flex flex-col gap-1.5 min-w-[160px]">
+                    <a
+                      href={`/admin/agencies/${a.id}`}
+                      className="font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border border-orange text-orange hover:bg-orange hover:text-white transition-colors text-center"
+                    >
+                      Manage Profile
+                    </a>
                     {a.total_active_listings > 0 && (
                       <a
                         href={`/admin/listings?agency=${a.id}`}
-                        className="text-xs font-sans font-semibold text-blue-600 border border-blue-300 px-3 py-1 hover:bg-blue-50 transition-colors text-center"
+                        className="font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border border-navy text-navy hover:bg-navy hover:text-white transition-colors text-center"
                       >
-                        VIEW LISTINGS
+                        View Listings ({a.total_active_listings})
                       </a>
                     )}
                     <button
                       onClick={() => openModal(a)}
-                      className="text-xs font-sans font-semibold text-white bg-black border border-black px-3 py-1 hover:bg-ink/80 transition-colors"
+                      className={`font-mono text-[10px] uppercase tracking-widest px-3 py-1.5 border transition-colors ${
+                        a.portal_status === "active"
+                          ? "border-red-300 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500"
+                          : "border-green-400 text-green-600 hover:bg-green-500 hover:text-white hover:border-green-500"
+                      }`}
                     >
-                      {a.portal_status === "active" ? "DEACTIVATE PORTAL" : "ACTIVATE PORTAL"}
+                      {a.portal_status === "active" ? "Deactivate Portal" : "Activate Portal"}
                     </button>
                   </div>
                 </td>
