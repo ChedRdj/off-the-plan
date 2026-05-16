@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 
 type Article = {
   id: string;
@@ -68,7 +67,7 @@ export default function NewsTable({ articles }: { articles: Article[] }) {
         <table className="w-full text-left">
           <thead>
             <tr className="border-b-2 border-orange/30">
-              {["Thumbnail", "Title", "Date & Time", "Status", "Actions"].map((h) => (
+              {["Title", "Date & Time", "Status", "Actions"].map((h) => (
                 <th key={h} className="font-mono text-[11px] uppercase tracking-widest text-orange px-4 py-3">
                   {h}
                 </th>
@@ -80,19 +79,6 @@ export default function NewsTable({ articles }: { articles: Article[] }) {
               const dateStr = a.published_at ?? a.created_at;
               return (
                 <tr key={a.id} className="border-b border-line last:border-0 hover:bg-cream-alt transition-colors">
-                  {/* Thumbnail */}
-                  <td className="px-4 py-3 w-24">
-                    {a.hero_image_url ? (
-                      <div className="relative w-20 h-14 overflow-hidden flex-shrink-0">
-                        <Image src={a.hero_image_url} alt={a.title} fill className="object-cover" sizes="80px" />
-                      </div>
-                    ) : (
-                      <div className="w-20 h-14 bg-navy/10 flex items-center justify-center flex-shrink-0">
-                        <span className="font-mono text-[9px] text-ink/30 uppercase">No img</span>
-                      </div>
-                    )}
-                  </td>
-
                   {/* Title */}
                   <td className="px-4 py-3 max-w-sm">
                     <a
