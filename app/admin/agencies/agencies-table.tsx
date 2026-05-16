@@ -161,11 +161,11 @@ export default function AgenciesTable({ agencies }: { agencies: Agency[] }) {
                 </td>
                 <td className="px-4 py-4 text-center">
                   {a.email_verified ? (
-                    <span className="inline-block font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 border border-green-500 text-green-600">
+                    <span className="inline-block font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 border border-green-500 text-green-800">
                       Verified
                     </span>
                   ) : (
-                    <span className="inline-block font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 border border-orange/50 text-orange/80">
+                    <span className="inline-block font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 border border-orange text-orange">
                       Not Verified
                     </span>
                   )}
@@ -173,8 +173,8 @@ export default function AgenciesTable({ agencies }: { agencies: Agency[] }) {
                 <td className="px-4 py-4 text-center">
                   <span className={`inline-block font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 border ${
                     a.portal_status === "active"
-                      ? "border-green-500 text-green-600"
-                      : "border-line text-ink/40"
+                      ? "border-green-500 text-green-800"
+                      : "border-line text-ink"
                   }`}>
                     {a.portal_status === "active" ? "Active" : "Inactive"}
                   </span>
@@ -182,12 +182,14 @@ export default function AgenciesTable({ agencies }: { agencies: Agency[] }) {
                 <td className="px-4 py-4">
                   <div className="flex flex-col gap-1.5 min-w-[180px]">
                     <div className="flex gap-1.5">
-                      <a
-                        href={`/admin/listings?agency=${a.id}`}
-                        className="flex-1 text-center font-mono text-[10px] uppercase tracking-widest px-2 py-1.5 border border-line text-ink hover:border-navy hover:text-navy transition-colors whitespace-nowrap"
-                      >
-                        View Listings {a.total_active_listings > 0 ? `(${a.total_active_listings})` : ""}
-                      </a>
+                      {a.total_active_listings > 0 && (
+                        <a
+                          href={`/admin/listings?agency=${a.id}`}
+                          className="flex-1 text-center font-mono text-[10px] uppercase tracking-widest px-2 py-1.5 border border-line text-ink hover:border-navy hover:text-navy transition-colors whitespace-nowrap"
+                        >
+                          View Listings ({a.total_active_listings})
+                        </a>
+                      )}
                       <a
                         href={`/admin/agencies/${a.id}`}
                         className="flex-1 text-center font-mono text-[10px] uppercase tracking-widest px-2 py-1.5 border border-orange text-orange hover:bg-orange hover:text-white transition-colors whitespace-nowrap"

@@ -93,7 +93,7 @@ export function ListingRowActions({ id, slug, isPublished, isFeatured, tier, age
             href={`/listings/${slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 text-center font-mono text-[10px] uppercase tracking-widest px-2 py-1.5 border border-line text-ink/60 hover:border-navy hover:text-navy transition-colors whitespace-nowrap"
+            className="flex-1 text-center font-mono text-[10px] uppercase tracking-widest px-2 py-1.5 border border-line text-ink hover:border-navy hover:text-navy transition-colors whitespace-nowrap"
           >
             View Listing
           </a>
@@ -112,8 +112,8 @@ export function ListingRowActions({ id, slug, isPublished, isFeatured, tier, age
             disabled={loading}
             className={`flex-1 font-mono text-[10px] uppercase tracking-widest px-2 py-1.5 border transition-colors disabled:opacity-50 ${
               isPublished
-                ? "border-red-300 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500"
-                : "border-green-400 text-green-600 hover:bg-green-500 hover:text-white hover:border-green-500"
+                ? "border-red-400 text-red-700 hover:bg-red-500 hover:text-white hover:border-red-500"
+                : "border-green-400 text-green-800 hover:bg-green-500 hover:text-white hover:border-green-500"
             }`}
           >
             {loading ? "…" : isPublished ? "Inactivate" : "Activate"}
