@@ -54,7 +54,8 @@ def read_env(path: str) -> dict[str, str]:
 
 env = read_env(".env.local")
 ADMIN_BASE   = env.get("OLD_ADMIN_URL", "").rstrip("/")
-NEWS_URL     = env.get("OLD_ADMIN_NEWS_URL", "") or f"{ADMIN_BASE}/admin/news-and-events"
+# Strip any trailing path so we get the true base (e.g. /all_agency → keep it)
+NEWS_URL     = env.get("OLD_ADMIN_NEWS_URL", "") or f"{ADMIN_BASE}/news-and-events"
 ADMIN_EMAIL  = env.get("OLD_ADMIN_EMAIL", "")
 ADMIN_PASS   = env.get("OLD_ADMIN_PASSWORD", "")
 
@@ -75,11 +76,17 @@ intercepted: list[dict] = []
 async def capture_response(response) -> None:
     url = response.url
     ct  = response.headers.get("content-type", "")
-    if "json" in ct and any(kw in url.lower() for kw in ["news", "article", "event", "post", "blog"]):
+    # Capture ALL JSON responses so we don't miss an unexpected endpoint name
+    if "json" in ct:
         try:
             body = await response.json()
-            intercepted.append({"url": url, "body": body})
-            print(f"  [API] Captured: {url}")
+            # Only keep if it looks like it might contain articles (list or dict with list values)
+            has_list = isinstance(body, list) or (
+                isinstance(body, dict) and any(isinstance(v, list) and len(v) > 0 for v in body.values())
+            )
+            if has_list:
+                intercepted.append({"url": url, "body": body})
+                print(f"  [API] Captured: {url}")
         except Exception:
             pass
 
@@ -224,14 +231,25 @@ async def scrape_html_pages(page: Page) -> list[dict]:
         url = f"{NEWS_URL}?page={page_num}" if page_num > 1 else NEWS_URL
         print(f"  Scraping HTML page {page_num}: {url}")
         await page.goto(url, wait_until="networkidle", timeout=30000)
-        await page.wait_for_timeout(DELAY * 1000)
+        await page.wait_for_timeout(2500)  # extra wait for dynamic content
+        # Scroll to trigger any lazy loading
+        await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        await page.wait_for_timeout(1000)
 
         html  = await page.content()
         soup  = BeautifulSoup(html, "html.parser")
-        rows  = soup.select("table tbody tr")
 
+        # Try table rows first, then fall back to div/li rows
+        rows = soup.select("table tbody tr")
         if not rows:
-            print(f"  No rows found on page {page_num} — stopping.")
+            # Some admin panels render as div rows
+            rows = soup.select("tr")  # any tr
+        if not rows:
+            print(f"  No table rows on page {page_num}.")
+            print(f"  Page title: {soup.title.string if soup.title else 'N/A'}")
+            # Dump a snippet to help debug
+            body_text = soup.get_text(" ", strip=True)[:300]
+            print(f"  Page text snippet: {body_text}")
             break
 
         page_articles: list[dict] = []
@@ -330,12 +348,18 @@ async def main() -> None:
 
         print(f"\nNavigating to News and Events: {NEWS_URL}")
         await page.goto(NEWS_URL, wait_until="networkidle", timeout=30000)
-        await page.wait_for_timeout(3000)
+        await page.wait_for_timeout(4000)
         print(f"  Landed at: {page.url}")
 
         # Scroll to trigger lazy-loaded API calls
         await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
         await page.wait_for_timeout(2000)
+        await page.evaluate("window.scrollTo(0, 0)")
+        await page.wait_for_timeout(1000)
+
+        print(f"\n  Intercepted {len(intercepted)} JSON call(s):")
+        for c in intercepted:
+            print(f"    {c['url']}")
 
         # Try API intercept first
         articles_raw = extract_from_api(intercepted)
