@@ -82,6 +82,7 @@ export default function NewsTable({ articles }: { articles: Article[] }) {
                   {/* Title */}
                   <td className="px-4 py-3 max-w-sm">
                     <Link
+                      prefetch={false}
                       href={`/admin/news-events/${a.id}`}
                       className="font-sans text-sm font-semibold text-navy hover:text-orange transition-colors line-clamp-2"
                     >
@@ -120,6 +121,7 @@ export default function NewsTable({ articles }: { articles: Article[] }) {
                         {loadingId === a.id ? "…" : a.is_published ? "Unpublish" : "Publish"}
                       </button>
                       <Link
+                        prefetch={false}
                         href={`/admin/news-events/${a.id}`}
                         className="font-mono text-[10px] uppercase tracking-widest px-2 py-1.5 border border-orange text-orange hover:bg-orange hover:text-white transition-colors whitespace-nowrap"
                       >
