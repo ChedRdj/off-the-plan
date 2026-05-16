@@ -81,14 +81,12 @@ export default function NewsTable({ articles }: { articles: Article[] }) {
                 <tr key={a.id} className="border-b border-line last:border-0 hover:bg-cream-alt transition-colors">
                   {/* Title */}
                   <td className="px-4 py-3 max-w-sm">
-                    <a
-                      href={`/guides/${a.slug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Link
+                      href={`/admin/news-events/${a.id}`}
                       className="font-sans text-sm font-semibold text-navy hover:text-orange transition-colors line-clamp-2"
                     >
                       {a.title}
-                    </a>
+                    </Link>
                   </td>
 
                   {/* Date */}

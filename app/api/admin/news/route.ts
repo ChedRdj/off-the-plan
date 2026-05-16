@@ -7,10 +7,17 @@ const schema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().min(1),
   slug: z.string().min(1),
+  subtitle: z.string().nullable().optional(),
   hero_image_url: z.string().nullable().optional(),
+  list_page_image_url: z.string().nullable().optional(),
+  article_image_one: z.string().nullable().optional(),
+  article_image_two: z.string().nullable().optional(),
   body_html: z.string().nullable().optional(),
   published_at: z.string().nullable().optional(),
   is_published: z.boolean().optional(),
+  read_time_minutes: z.number().int().positive().nullable().optional(),
+  meta_title: z.string().nullable().optional(),
+  meta_content: z.string().nullable().optional(),
 });
 
 export async function POST(req: Request) {
@@ -21,7 +28,7 @@ export async function POST(req: Request) {
     const { id: _id, ...data } = parsed.data;
     const { error } = await supabaseAdmin
       .from("journal_articles")
-      .insert({ ...data, category: "News", author: null, read_time_minutes: null });
+      .insert({ ...data, category: "News", author: null });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     revalidatePath("/guides");
     return NextResponse.json({ success: true }, { status: 201 });
