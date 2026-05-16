@@ -9,26 +9,24 @@ export default async function AdminListingsPage({ searchParams }: { searchParams
   const q = searchParams.q?.toLowerCase().trim() ?? "";
   const agencyId = searchParams.agency ?? "";
 
-  // If filtering by agency, look up their email first
+  // If filtering by agency, look up their label
   let agencyLabel = "";
-  let agencyEmail = "";
   if (agencyId) {
     const { data: agency } = await supabaseAdmin
       .from("agencies")
-      .select("name, org_name, email")
+      .select("name, org_name")
       .eq("id", agencyId)
       .single();
-    agencyEmail = agency?.email ?? "";
     agencyLabel = agency?.org_name ?? agency?.name ?? "Agency";
   }
 
   let listingsQuery = supabaseAdmin
     .from("developments")
-    .select("id, name, slug, suburb, state, is_published, is_featured, price_display, type, hero_image_url, agent_email, developer:developers(name)")
+    .select("id, name, slug, suburb, state, is_published, is_featured, price_display, type, hero_image_url, developer:developers(name)")
     .order("name");
 
-  if (agencyEmail) {
-    listingsQuery = listingsQuery.eq("agent_email", agencyEmail);
+  if (agencyId) {
+    listingsQuery = listingsQuery.eq("agency_id", agencyId);
   }
 
   const [{ data: allData }, { count: enquiryCount }] = await Promise.all([

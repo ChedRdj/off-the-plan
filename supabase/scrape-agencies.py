@@ -353,8 +353,14 @@ def normalise_api_agency(raw: dict) -> dict:
 
     # Total active listings: API has a 'listing' field (list or count)
     listing_raw = raw.get("listing")
+    listing_slugs: list[str] = []
     if isinstance(listing_raw, list):
         total = len(listing_raw)
+        for item in listing_raw:
+            if isinstance(item, dict):
+                slug = item.get("slug") or item.get("project_slug") or ""
+                if slug:
+                    listing_slugs.append(slug)
     elif isinstance(listing_raw, (int, float)):
         total = int(listing_raw)
     else:
@@ -413,6 +419,7 @@ def normalise_api_agency(raw: dict) -> dict:
         "portal_status": portal_status,
         "is_developer": is_developer,
         "legacy_id": legacy_id or None,
+        "_listing_slugs": listing_slugs,
     }
 
 
