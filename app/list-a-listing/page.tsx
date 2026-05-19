@@ -7,15 +7,41 @@ export default function ListWithUsPage() {
   const [role, setRole] = useState<"agency" | "developer">("agency");
   const [agreed, setAgreed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!agreed) return;
-    const form = e.currentTarget;
-    const data = new FormData(form);
-    data.set("role", role);
-    await fetch("/api/leads", { method: "POST", body: data });
-    setSubmitted(true);
+    setError(null);
+    setSubmitting(true);
+    const fd = new FormData(e.currentTarget);
+    const first = (fd.get("first_name") as string)?.trim() ?? "";
+    const last = (fd.get("last_name") as string)?.trim() ?? "";
+    try {
+      const res = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          source: "list-a-listing",
+          contact_name: `${first} ${last}`.trim(),
+          email: fd.get("email"),
+          phone: fd.get("phone"),
+          company: fd.get("company"),
+          subject: `New ${role} registration`,
+          message: `Role: ${role}`,
+        }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error ?? "Could not submit. Please try again.");
+      }
+      setSubmitted(true);
+    } catch (e: any) {
+      setError(e.message ?? "Something went wrong.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (submitted) {
@@ -110,20 +136,11 @@ export default function ListWithUsPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <input
-              name="password"
-              type="password"
-              placeholder="New Password"
-              className="border border-line px-3 py-2.5 font-sans text-body-md outline-none focus:border-orange/60 w-full"
-            />
-            <input
-              name="confirm_password"
-              type="password"
-              placeholder="Confirm Password"
-              className="border border-line px-3 py-2.5 font-sans text-body-md outline-none focus:border-orange/60 w-full"
-            />
-          </div>
+          {error && (
+            <p className="font-sans text-body-sm text-red-600 bg-red-50 border border-red-200 px-3 py-2">
+              {error}
+            </p>
+          )}
 
           {/* Terms */}
           <div className="flex items-center gap-2 mt-1">
@@ -149,10 +166,10 @@ export default function ListWithUsPage() {
             </Link>
             <button
               type="submit"
-              disabled={!agreed}
+              disabled={!agreed || submitting}
               className="bg-orange text-white font-mono text-label-lg uppercase tracking-widest px-8 py-2.5 hover:bg-orange/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Register
+              {submitting ? "Submitting…" : "Submit"}
             </button>
           </div>
 

@@ -7,9 +7,20 @@ export async function middleware(request: NextRequest) {
     request: { headers: request.headers },
   });
 
-  // Dev mode: skip auth when using placeholder Supabase credentials
+  // Dev mode: skip auth when using placeholder Supabase credentials.
+  // In production this must never trigger — a missing/placeholder URL would silently
+  // make /admin and other protected routes public.
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  if (!supabaseUrl || supabaseUrl.includes("placeholder") || supabaseUrl === "your-supabase-url") {
+  const looksUnconfigured =
+    !supabaseUrl || supabaseUrl.includes("placeholder") || supabaseUrl === "your-supabase-url";
+  if (looksUnconfigured) {
+    if (process.env.NODE_ENV === "production") {
+      // Refuse to serve protected routes in a misconfigured prod env.
+      return new NextResponse(
+        "Server misconfiguration: NEXT_PUBLIC_SUPABASE_URL is not set.",
+        { status: 503 },
+      );
+    }
     return response;
   }
 

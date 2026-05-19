@@ -202,7 +202,7 @@ export default async function PortalDashboard() {
                   </td>
                   <td className="px-5 py-3">
                     <Link
-                      href={`/admin/listings/${l.id}`}
+                      href={`/portal/listings/${l.id}/edit`}
                       className="font-mono text-[9px] uppercase tracking-widest px-3 py-1.5 border border-ink/30 text-ink/60 hover:border-ink hover:text-ink transition-colors whitespace-nowrap"
                     >
                       Edit

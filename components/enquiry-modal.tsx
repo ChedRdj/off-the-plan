@@ -331,7 +331,7 @@ export function EnquiryModal({
               <div className="flex items-center justify-between pt-1 pb-2">
                 <p className="font-sans text-[11px] text-ink/40">
                   View our:{" "}
-                  <a href="/privacy-policy" target="_blank" className="text-orange hover:underline">
+                  <a href="/privacy" target="_blank" className="text-orange hover:underline">
                     Privacy Policy
                   </a>{" "}
                   or{" "}

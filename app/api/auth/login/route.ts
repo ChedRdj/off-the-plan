@@ -9,7 +9,14 @@ export async function POST(request: Request) {
   const redirect = (formData.get("redirect") as string) || "/account";
 
   const cookieStore = cookies();
-  const successUrl = new URL(redirect.startsWith("/") ? redirect : "/account", request.url);
+  // Only allow same-origin relative paths. Reject protocol-relative URLs ("//...")
+  // and anything that doesn't look like a normal path.
+  const isSafeRedirect =
+    typeof redirect === "string" &&
+    redirect.startsWith("/") &&
+    !redirect.startsWith("//") &&
+    !redirect.startsWith("/\\");
+  const successUrl = new URL(isSafeRedirect ? redirect : "/account", request.url);
   const errorUrl = new URL("/login?error=invalid", request.url);
 
   const response = NextResponse.redirect(successUrl);

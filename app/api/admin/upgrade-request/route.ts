@@ -12,20 +12,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  // Get development name for reference
-  const { data: dev } = await supabaseAdmin
-    .from("developments")
-    .select("name")
-    .eq("id", projectId)
-    .single();
+  // Members can only request upgrades on their own listings.
+  if (!auth.isAdmin) {
+    const { data: dev } = await supabaseAdmin
+      .from("developments")
+      .select("owner_user_id")
+      .eq("id", projectId)
+      .single();
+    if (!dev || dev.owner_user_id !== auth.user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+  }
 
-  // Log the request — you can wire this to email/Stripe later
-  console.log("Upgrade request:", {
-    project: dev?.name,
-    upgradeType,
-    startDate,
-    endDate,
+  const { error } = await supabaseAdmin.from("upgrade_requests").insert({
+    user_id: auth.user.id,
+    development_id: projectId,
+    upgrade_type: upgradeType,
+    start_date: startDate || null,
+    end_date: endDate || null,
   });
 
-  return NextResponse.json({ ok: true });
+  if (error) {
+    console.error("Upgrade request insert error:", error);
+    return NextResponse.json({ error: "Could not record your request." }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
 }

@@ -26,11 +26,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Agency has no email on record." }, { status: 404 });
     }
 
-    // Find auth user by email
-    const { data: { users }, error: listError } = await supabaseAdmin.auth.admin.listUsers();
-    if (listError) return NextResponse.json({ error: listError.message }, { status: 500 });
-
-    const authUser = users.find(u => u.email?.toLowerCase() === agency.email.toLowerCase());
+    // Find the auth user by email — paginate so we don't silently miss past page 1.
+    const target = agency.email.toLowerCase();
+    let authUser: { id: string } | null = null;
+    for (let page = 1; page <= 50; page++) {
+      const { data, error: listError } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+      if (listError) return NextResponse.json({ error: listError.message }, { status: 500 });
+      const found = data.users.find((u) => u.email?.toLowerCase() === target);
+      if (found) { authUser = found; break; }
+      if (data.users.length < 200) break;
+    }
     if (!authUser) {
       return NextResponse.json({ error: "No portal account found for this agency's email." }, { status: 404 });
     }

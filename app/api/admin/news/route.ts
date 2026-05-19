@@ -41,14 +41,28 @@ export async function POST(req: Request) {
   }
 }
 
+const ALLOWED_PATCH_FIELDS = new Set([
+  "title", "slug", "subtitle",
+  "hero_image_url", "list_page_image_url", "article_image_one", "article_image_two",
+  "body_html", "published_at", "is_published",
+  "read_time_minutes", "meta_title", "meta_content",
+]);
+
 export async function PATCH(req: Request) {
   try {
     const auth = await requireAdmin();
     if ("error" in auth) return auth.error;
 
     const body = await req.json();
-    const { id, ...fields } = body;
+    const { id, ...raw } = body;
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    const fields: Record<string, unknown> = {};
+    for (const k of Object.keys(raw)) {
+      if (ALLOWED_PATCH_FIELDS.has(k)) fields[k] = raw[k];
+    }
+    if (Object.keys(fields).length === 0) {
+      return NextResponse.json({ error: "No editable fields provided" }, { status: 400 });
+    }
     const { error } = await supabaseAdmin
       .from("journal_articles")
       .update(fields)

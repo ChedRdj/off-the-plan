@@ -2,6 +2,18 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/supabase/auth-guards";
 
+async function findAuthUserIdByEmail(email: string): Promise<string | null> {
+  const target = email.toLowerCase();
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+    if (error) return null;
+    const found = data.users.find((u) => u.email?.toLowerCase() === target);
+    if (found) return found.id;
+    if (data.users.length < 200) break;
+  }
+  return null;
+}
+
 export async function PATCH(req: Request) {
   try {
     const auth = await requireAdmin();
@@ -30,16 +42,33 @@ export async function PATCH(req: Request) {
       if (key in fields) update[key] = fields[key] ?? null;
     }
 
-    // Rebuild name from first/last if either changed
-    if ("first_name" in fields || "last_name" in fields) {
+    // Rebuild name from first/last if either changed; also sync auth email if email changed.
+    if ("first_name" in fields || "last_name" in fields || "email" in fields) {
       const { data: current } = await supabaseAdmin
         .from("agencies")
-        .select("first_name, last_name")
+        .select("first_name, last_name, email")
         .eq("id", id)
         .single();
       const first = (fields.first_name ?? current?.first_name ?? "").trim();
       const last = (fields.last_name ?? current?.last_name ?? "").trim();
       update.name = `${first} ${last}`.trim() || null;
+
+      // Email change: update the linked Supabase Auth user so they can still log in.
+      if ("email" in fields && current?.email && fields.email && fields.email !== current.email) {
+        const authUserId = await findAuthUserIdByEmail(current.email);
+        if (authUserId) {
+          const { error: authErr } = await supabaseAdmin.auth.admin.updateUserById(authUserId, {
+            email: fields.email,
+            email_confirm: true,
+          });
+          if (authErr) {
+            return NextResponse.json(
+              { error: `Failed to update login email: ${authErr.message}` },
+              { status: 500 },
+            );
+          }
+        }
+      }
     }
 
     const { error } = await supabaseAdmin.from("agencies").update(update).eq("id", id);

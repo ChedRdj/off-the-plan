@@ -8,7 +8,19 @@ export async function POST(request: Request) {
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
-  const bucket = (formData.get("bucket") as string) ?? "development-images";
+  const requested = (formData.get("bucket") as string) ?? "development-images";
+
+  const ALLOWED_BUCKETS = new Set([
+    "development-images",
+    "journal-images",
+    "homepage-banners",
+    "ads",
+    "brochures",
+  ]);
+  if (!ALLOWED_BUCKETS.has(requested)) {
+    return NextResponse.json({ error: "Invalid upload destination" }, { status: 400 });
+  }
+  const bucket = requested;
 
   if (!file) {
     return NextResponse.json({ error: "No file provided" }, { status: 400 });

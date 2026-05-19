@@ -59,12 +59,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     .eq("is_published", true);
 
   if (searchParams.suburb) {
-    const s = searchParams.suburb;
-    query = query.or(`suburb.ilike.%${s}%,state.ilike.%${s}%`);
+    // Strip PostgREST-meaningful characters so user input can't break out of the filter.
+    const s = searchParams.suburb.replace(/[(),*"\\]/g, "").slice(0, 80);
+    if (s) query = query.or(`suburb.ilike.%${s}%,state.ilike.%${s}%`);
   }
   if (searchParams.state) query = query.eq("state", searchParams.state);
   if (searchParams.type)  query = query.eq("type", searchParams.type);
   if (searchParams.status) query = query.eq("status", searchParams.status);
+
+  // Defensive cap so a giant DB doesn't ship every row to the client.
+  query = query.limit(500);
 
   if (searchParams.price_range) {
     const range = PRICE_RANGES.find((r) => r.value === searchParams.price_range);

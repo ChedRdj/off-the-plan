@@ -9,10 +9,50 @@ interface RequestInfoFormProps {
 
 export function RequestInfoForm({ developmentName, developmentId }: RequestInfoFormProps) {
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setSent(true);
+    setError(null);
+    setSubmitting(true);
+    const fd = new FormData(e.currentTarget);
+    const first = (fd.get("first_name") as string)?.trim() ?? "";
+    const last = (fd.get("last_name") as string)?.trim() ?? "";
+    const fullName = `${first} ${last}`.trim();
+    const postcode = (fd.get("postcode") as string)?.trim() ?? "";
+    const describe = (fd.get("describe_yourself") as string)?.trim() ?? "";
+    const message = (fd.get("message") as string)?.trim() ?? "";
+
+    const notesParts = [
+      postcode && `Postcode: ${postcode}`,
+      message && `Message: ${message}`,
+      developmentName && `Listing: ${developmentName}`,
+    ].filter(Boolean);
+
+    try {
+      const res = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          development_id: developmentId,
+          full_name: fullName,
+          email: fd.get("email"),
+          mobile: fd.get("phone"),
+          buyer_type: describe || null,
+          notes: notesParts.join(" | ") || null,
+        }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(json.error ?? "Could not send your enquiry. Please try again.");
+      }
+      setSent(true);
+    } catch (e: any) {
+      setError(e.message ?? "Something went wrong.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (sent) {
@@ -29,6 +69,12 @@ export function RequestInfoForm({ developmentName, developmentId }: RequestInfoF
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
       <input type="hidden" name="development_id" value={developmentId} />
       <input type="hidden" name="development_name" value={developmentName} />
+
+      {error && (
+        <p className="font-sans text-body-sm text-red-600 bg-red-50 border border-red-200 px-3 py-2">
+          {error}
+        </p>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <input
@@ -74,6 +120,7 @@ export function RequestInfoForm({ developmentName, developmentId }: RequestInfoF
         />
         <select
           name="describe_yourself"
+          required
           className="border border-line px-3 py-2.5 font-sans text-[13px] text-ink/50 outline-none focus:border-navy/50 bg-white cursor-pointer"
         >
           <option value="">Describe Yourself*</option>
@@ -94,9 +141,10 @@ export function RequestInfoForm({ developmentName, developmentId }: RequestInfoF
       <div>
         <button
           type="submit"
-          className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest px-8 py-3 bg-navy text-white hover:bg-orange transition-colors"
+          disabled={submitting}
+          className="inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest px-8 py-3 bg-navy text-white hover:bg-orange transition-colors disabled:opacity-50"
         >
-          Send
+          {submitting ? "Sending…" : "Send"}
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M2 8h12M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>

@@ -16,12 +16,33 @@ export async function GET(req: NextRequest) {
   if (!allTime) since.setMonth(since.getMonth() - months);
   const sinceISO = since.toISOString();
 
+  // Members can only see stats for listings they own. If they pass a
+  // development_id they don't own, treat as not-found (return zeros).
+  let memberDevIds: string[] | null = null;
+  if (!auth.isAdmin) {
+    const { data: ownedIds } = await supabaseAdmin
+      .from("developments")
+      .select("id")
+      .eq("owner_user_id", auth.user.id);
+    memberDevIds = (ownedIds ?? []).map((r) => r.id as string);
+    if (developmentId && !memberDevIds.includes(developmentId)) {
+      return NextResponse.json({ views: 0, shares: 0, totalEnquiries: 0, chartData: [] });
+    }
+  }
+
   // Aggregate stats from developments
   let devQuery = supabaseAdmin
     .from("developments")
     .select("view_count, share_count, phone_click_count");
 
-  if (developmentId) devQuery = devQuery.eq("id", developmentId);
+  if (developmentId) {
+    devQuery = devQuery.eq("id", developmentId);
+  } else if (memberDevIds) {
+    if (memberDevIds.length === 0) {
+      return NextResponse.json({ views: 0, shares: 0, totalEnquiries: 0, chartData: [] });
+    }
+    devQuery = devQuery.in("id", memberDevIds);
+  }
 
   const { data: devData } = await devQuery;
   const views = (devData ?? []).reduce((s, d) => s + (d.view_count ?? 0), 0);
@@ -32,6 +53,7 @@ export async function GET(req: NextRequest) {
     .from("enquiries")
     .select("id", { count: "exact", head: true });
   if (developmentId) enqQuery = enqQuery.eq("development_id", developmentId);
+  else if (memberDevIds) enqQuery = enqQuery.in("development_id", memberDevIds);
   if (!allTime) enqQuery = enqQuery.gte("created_at", sinceISO);
   const { count: totalEnquiries } = await enqQuery;
 
@@ -41,6 +63,7 @@ export async function GET(req: NextRequest) {
     .select("viewed_at")
     .order("viewed_at");
   if (developmentId) viewEventsQuery = viewEventsQuery.eq("development_id", developmentId);
+  else if (memberDevIds) viewEventsQuery = viewEventsQuery.in("development_id", memberDevIds);
 
   const { data: viewEvents } = await viewEventsQuery;
 

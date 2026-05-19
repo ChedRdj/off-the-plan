@@ -170,10 +170,10 @@ export default async function FeaturesAndPricingPage() {
             </ul>
             <div className="flex flex-wrap gap-3 mb-10">
               <a
-                href="/media-kit.pdf"
+                href="mailto:info@offtheplan.com.au?subject=Media%20Kit%20Request"
                 className="font-mono text-[10px] uppercase tracking-widest bg-orange text-white px-6 py-2.5 hover:bg-orange/90 transition-colors"
               >
-                Download Media Kit
+                Request Media Kit
               </a>
               <Link
                 href="/contact"

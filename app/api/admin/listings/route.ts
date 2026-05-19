@@ -214,21 +214,69 @@ export async function POST(req: Request) {
   }
 }
 
+// Columns a member is allowed to edit on their own listing via PATCH.
+// Admins can edit anything in buildListingData, plus is_published / is_featured / status.
+const MEMBER_ALLOWED_FIELDS = new Set<string>([
+  "type", "tag", "tier",
+  "developer_id", "portal_developer_name", "developer_website",
+  "listing_duration", "logo_url", "residence_count",
+  "street_address", "street_address_2", "country", "state", "city",
+  "postcode", "suburb", "location_description",
+  "sale_office_street", "sale_office_street_2",
+  "sale_office_country", "sale_office_state", "sale_office_city", "sale_office_postcode",
+  "display_suite_timing", "description", "summary", "lat", "lng",
+  "price_from", "search_price_max", "price_display", "show_price_on_search",
+  "promotional_banner", "completion_quarter", "configuration_label",
+  "beds_min", "beds_max", "baths_min", "baths_max", "cars_min", "cars_max",
+  "levels", "internal_sqm_min", "internal_sqm_max", "land_size_min", "land_size_max",
+  "lifestyle", "features", "architect", "interiors", "landscape", "builder",
+  "nearby_amenities",
+  "agent_name", "agent_phone", "agent_email", "agent_agency",
+  "hero_image_url", "hero_alt_text", "feature_image_url",
+  "brochure_url", "video_url", "agent_logo_1", "agent_logo_2",
+  "virtual_tour_url", "floor_plan_upload_url", "additional_video_url",
+  "price_list_url", "specifications_url",
+  "seo_title", "seo_description",
+  "name", "slug",
+]);
+
+const ADMIN_EXTRA_FIELDS = ["status", "is_published", "is_featured", "owner_user_id"];
+const ADMIN_ALLOWED_FIELDS = new Set<string>(
+  Array.from(MEMBER_ALLOWED_FIELDS).concat(ADMIN_EXTRA_FIELDS),
+);
+
+function filterFields(fields: Record<string, unknown>, allow: Set<string>) {
+  const out: Record<string, unknown> = {};
+  for (const k of Object.keys(fields)) {
+    if (allow.has(k)) out[k] = fields[k];
+  }
+  return out;
+}
+
 export async function PATCH(req: Request) {
   try {
     const auth = await requireMemberOrAdmin();
     if ("error" in auth) return auth.error;
 
-    const { id, ...fields } = await req.json();
+    const { id, ...raw } = await req.json();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+
     if (!auth.isAdmin) {
       const owner = await getListingOwner(id);
       if (owner !== auth.user.id) {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       }
-      // Members cannot reassign ownership.
-      delete (fields as Record<string, unknown>).owner_user_id;
     }
+
+    const fields = filterFields(
+      raw as Record<string, unknown>,
+      auth.isAdmin ? ADMIN_ALLOWED_FIELDS : MEMBER_ALLOWED_FIELDS,
+    );
+
+    if (Object.keys(fields).length === 0) {
+      return NextResponse.json({ error: "No editable fields provided" }, { status: 400 });
+    }
+
     const { error } = await supabaseAdmin.from("developments").update(fields).eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     revalidateAll();

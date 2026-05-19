@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 type Agency = Record<string, any>;
@@ -132,6 +132,38 @@ export default function AgencyProfileForm({ agency }: { agency: Agency }) {
     }
   }
 
+  // Hidden file inputs for the three image slots.
+  const profilePicRef = useRef<HTMLInputElement>(null);
+  const orgLogoRef = useRef<HTMLInputElement>(null);
+  const devLogoRef = useRef<HTMLInputElement>(null);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
+
+  async function uploadImage(field: "profile_pic" | "org_logo_url" | "dev_logo_url", file: File) {
+    setUploadingField(field);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("bucket", "development-images");
+      const upRes = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const upJson = await upRes.json();
+      if (!upRes.ok) throw new Error(upJson.error ?? "Upload failed");
+
+      const patchRes = await fetch("/api/admin/agencies", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: agency.id, [field]: upJson.url }),
+      });
+      const patchJson = await patchRes.json();
+      if (!patchRes.ok) throw new Error(patchJson.error ?? "Save failed");
+      showToast("Image updated.");
+      startTransition(() => router.refresh());
+    } catch (e: any) {
+      showToast(e.message ?? "Upload failed", false);
+    } finally {
+      setUploadingField(null);
+    }
+  }
+
   async function changePassword() {
     if (!newPassword) return;
     setSavingPassword(true);
@@ -181,8 +213,25 @@ export default function AgencyProfileForm({ agency }: { agency: Agency }) {
           <p className="font-sans font-semibold text-ink text-base leading-tight">{agency.name ?? "—"}</p>
           {agency.email && <p className="font-sans text-sm text-ink/60 mt-0.5">{agency.email}</p>}
           <div className="flex gap-2 mt-2">
-            <button className="font-sans text-xs font-semibold px-3 py-1 border border-black bg-white hover:bg-cream-alt transition-colors uppercase tracking-wide">Take a Photo</button>
-            <button className="font-sans text-xs font-semibold px-3 py-1 border border-black bg-white hover:bg-cream-alt transition-colors uppercase tracking-wide">Upload Image</button>
+            <input
+              ref={profilePicRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) uploadImage("profile_pic", f);
+                e.target.value = "";
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => profilePicRef.current?.click()}
+              disabled={uploadingField === "profile_pic"}
+              className="font-sans text-xs font-semibold px-3 py-1 border border-black bg-white hover:bg-cream-alt transition-colors uppercase tracking-wide disabled:opacity-50"
+            >
+              {uploadingField === "profile_pic" ? "Uploading…" : "Upload Image"}
+            </button>
           </div>
         </div>
       </div>
@@ -289,7 +338,25 @@ export default function AgencyProfileForm({ agency }: { agency: Agency }) {
             ) : (
               <div className="h-24 flex items-center justify-center text-ink/25 text-sm font-sans italic mb-3">No logo uploaded</div>
             )}
-            <button className="font-sans text-xs font-semibold px-4 py-1.5 border border-black bg-white hover:bg-cream-alt transition-colors uppercase tracking-wide">Upload Logo</button>
+            <input
+              ref={orgLogoRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) uploadImage("org_logo_url", f);
+                e.target.value = "";
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => orgLogoRef.current?.click()}
+              disabled={uploadingField === "org_logo_url"}
+              className="font-sans text-xs font-semibold px-4 py-1.5 border border-black bg-white hover:bg-cream-alt transition-colors uppercase tracking-wide disabled:opacity-50"
+            >
+              {uploadingField === "org_logo_url" ? "Uploading…" : "Upload Logo"}
+            </button>
           </div>
           <div className="p-5 text-center">
             <p className="font-sans text-xs font-semibold uppercase tracking-widest text-ink mb-3">Developer Logo</p>
@@ -299,7 +366,25 @@ export default function AgencyProfileForm({ agency }: { agency: Agency }) {
             ) : (
               <div className="h-24 flex items-center justify-center text-ink/25 text-sm font-sans italic mb-3">No logo uploaded</div>
             )}
-            <button className="font-sans text-xs font-semibold px-4 py-1.5 border border-black bg-white hover:bg-cream-alt transition-colors uppercase tracking-wide">Upload Logo</button>
+            <input
+              ref={devLogoRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) uploadImage("dev_logo_url", f);
+                e.target.value = "";
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => devLogoRef.current?.click()}
+              disabled={uploadingField === "dev_logo_url"}
+              className="font-sans text-xs font-semibold px-4 py-1.5 border border-black bg-white hover:bg-cream-alt transition-colors uppercase tracking-wide disabled:opacity-50"
+            >
+              {uploadingField === "dev_logo_url" ? "Uploading…" : "Upload Logo"}
+            </button>
           </div>
         </div>
       </div>
