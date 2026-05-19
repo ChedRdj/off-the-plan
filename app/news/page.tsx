@@ -119,7 +119,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                           src={article.hero_image_url}
                           alt={article.title}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="object-contain transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 768px) 100vw, 50vw"
                         />
                       ) : (
@@ -166,7 +166,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                           src={article.hero_image_url}
                           alt={article.title}
                           fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="object-contain transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       ) : (
