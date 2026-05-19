@@ -15,7 +15,7 @@ export default async function PortalLayout({ children }: { children: React.React
     .from("profiles")
     .select("interest_type")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!profile || !["Developer", "Agent"].includes(profile.interest_type ?? "")) {
     redirect("/");

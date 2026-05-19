@@ -16,7 +16,7 @@ export default async function PortalListingEditPage({ params }: Props) {
       .select("*")
       .eq("id", params.id)
       .eq("owner_user_id", user.id)
-      .single(),
+      .maybeSingle(),
     supabaseAdmin
       .from("development_images")
       .select("id, url, sort_order")

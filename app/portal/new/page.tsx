@@ -9,7 +9,7 @@ export default async function PortalNew() {
     .eq("is_published", true)
     .not("hero_image_url", "is", null)
     .limit(1)
-    .single();
+    .maybeSingle();
 
   const bgImage = dev?.hero_image_url ?? null;
 

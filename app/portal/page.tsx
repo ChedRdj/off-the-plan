@@ -23,7 +23,7 @@ export default async function PortalDashboard() {
     .from("profiles")
     .select("full_name, company_logo_url, developer_logo_url")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   const { data: listings } = await supabaseAdmin
     .from("developments")

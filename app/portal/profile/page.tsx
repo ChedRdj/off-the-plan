@@ -21,7 +21,7 @@ export default async function PortalProfile() {
       facebook, instagram, linkedin, pinterest, youtube, website
     `)
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   return (
     <div>
