@@ -116,7 +116,7 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
                           src={article.hero_image_url}
                           alt={article.title}
                           fill
-                          className="object-contain transition-transform duration-500 group-hover:scale-105"
+                          className="object-cover object-right transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       ) : (
@@ -164,7 +164,7 @@ export default async function GuidesPage({ searchParams }: GuidesPageProps) {
                           src={article.hero_image_url}
                           alt={article.title}
                           fill
-                          className="object-contain transition-transform duration-500 group-hover:scale-105"
+                          className="object-cover object-right transition-transform duration-500 group-hover:scale-105"
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       ) : (
