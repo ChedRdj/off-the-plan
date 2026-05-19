@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { requireAdmin } from "@/lib/supabase/auth-guards";
 
 export async function GET(req: NextRequest) {
+  const auth = await requireAdmin();
+  if ("error" in auth) return auth.error;
+
   const { searchParams } = new URL(req.url);
   const filter = searchParams.get("filter") ?? "all";
   const page = parseInt(searchParams.get("page") ?? "1", 10);

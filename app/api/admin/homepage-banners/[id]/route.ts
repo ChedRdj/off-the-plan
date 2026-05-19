@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { requireAdmin } from "@/lib/supabase/auth-guards";
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await requireAdmin();
+  if ("error" in auth) return auth.error;
+
   const body = await req.json();
   const { title, link, description, desktop_image_url, mobile_image_url } = body;
 
@@ -17,6 +21,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  const auth = await requireAdmin();
+  if ("error" in auth) return auth.error;
+
   const { error } = await supabaseAdmin
     .from("homepage_banners")
     .delete()

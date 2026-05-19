@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { requireMemberOrAdmin } from "@/lib/supabase/auth-guards";
 
 export async function POST(req: NextRequest) {
+  const auth = await requireMemberOrAdmin();
+  if ("error" in auth) return auth.error;
+
   const { projectId, upgradeType, startDate, endDate } = await req.json();
 
   if (!projectId || !upgradeType) {

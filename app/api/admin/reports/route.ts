@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { requireMemberOrAdmin } from "@/lib/supabase/auth-guards";
 
 export async function GET(req: NextRequest) {
+  const auth = await requireMemberOrAdmin();
+  if ("error" in auth) return auth.error;
+
   const { searchParams } = new URL(req.url);
   const developmentId = searchParams.get("development_id") ?? "";
   const months = parseInt(searchParams.get("months") ?? "0", 10);

@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { requireAdmin } from "@/lib/supabase/auth-guards";
 
 export async function PATCH(req: Request) {
   try {
+    const auth = await requireAdmin();
+    if ("error" in auth) return auth.error;
+
     const { id, ...fields } = await req.json();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 

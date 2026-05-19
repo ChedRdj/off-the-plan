@@ -1107,6 +1107,7 @@ export function ListingForm({
       const json = await res.json().catch(() => ({}));
       setError(json.error ?? "Something went wrong. Please try again.");
       setSaving(false);
+      if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 

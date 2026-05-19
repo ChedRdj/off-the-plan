@@ -1,6 +1,39 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { requireMemberOrAdmin } from "@/lib/supabase/auth-guards";
+
+function slugify(input: string) {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+async function uniqueSlug(base: string, excludeId?: string) {
+  if (!base) base = "listing";
+  let candidate = base;
+  let n = 2;
+  while (true) {
+    const q = supabaseAdmin.from("developments").select("id").eq("slug", candidate).limit(1);
+    const { data } = await q;
+    const taken = (data ?? []).some((row) => row.id !== excludeId);
+    if (!taken) return candidate;
+    candidate = `${base}-${n++}`;
+    if (n > 200) return `${base}-${Date.now()}`;
+  }
+}
+
+async function getListingOwner(id: string) {
+  const { data } = await supabaseAdmin
+    .from("developments")
+    .select("owner_user_id")
+    .eq("id", id)
+    .single();
+  return (data?.owner_user_id as string | null | undefined) ?? null;
+}
 
 function revalidateAll() {
   revalidatePath("/");
@@ -124,20 +157,44 @@ async function syncFloorPlans(developmentId: string, floorPlans: unknown[]) {
 
 export async function POST(req: Request) {
   try {
+    const auth = await requireMemberOrAdmin();
+    if ("error" in auth) return auth.error;
+
     const body = await req.json();
     const { _method, id, floor_plans, ...fields } = body;
 
-    const data = buildListingData(fields);
+    const data = buildListingData(fields) as Record<string, unknown>;
 
-    if (!data.name || !data.slug) {
-      return NextResponse.json({ error: "Name and slug are required." }, { status: 400 });
+    if (!data.name) {
+      return NextResponse.json({ error: "Project name is required." }, { status: 400 });
+    }
+
+    // Members can only create/edit listings they own.
+    if (!auth.isAdmin) {
+      data.owner_user_id = auth.user.id;
     }
 
     if (_method === "PATCH" && id) {
+      if (!auth.isAdmin) {
+        const owner = await getListingOwner(id);
+        if (owner !== auth.user.id) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+      }
+      // Slug: keep existing if not provided, else dedupe.
+      if (!data.slug) {
+        delete data.slug;
+      } else {
+        data.slug = await uniqueSlug(slugify(String(data.slug)), id);
+      }
       const { error } = await supabaseAdmin.from("developments").update(data).eq("id", id);
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
       await syncFloorPlans(id, floor_plans ?? []);
     } else {
+      // INSERT — generate slug if not supplied (portal members never set one).
+      const baseSlug = data.slug ? slugify(String(data.slug)) : slugify(String(data.name));
+      data.slug = await uniqueSlug(baseSlug);
+
       const { data: inserted, error } = await supabaseAdmin
         .from("developments")
         .insert(data)
@@ -159,8 +216,19 @@ export async function POST(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
+    const auth = await requireMemberOrAdmin();
+    if ("error" in auth) return auth.error;
+
     const { id, ...fields } = await req.json();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    if (!auth.isAdmin) {
+      const owner = await getListingOwner(id);
+      if (owner !== auth.user.id) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      // Members cannot reassign ownership.
+      delete (fields as Record<string, unknown>).owner_user_id;
+    }
     const { error } = await supabaseAdmin.from("developments").update(fields).eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     revalidateAll();
@@ -173,8 +241,17 @@ export async function PATCH(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
+    const auth = await requireMemberOrAdmin();
+    if ("error" in auth) return auth.error;
+
     const { id } = await req.json();
     if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+    if (!auth.isAdmin) {
+      const owner = await getListingOwner(id);
+      if (owner !== auth.user.id) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    }
     const { error } = await supabaseAdmin.from("developments").delete().eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     revalidateAll();

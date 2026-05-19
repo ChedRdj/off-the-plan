@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { requireAdmin } from "@/lib/supabase/auth-guards";
 
 export async function POST(req: Request) {
   try {
+    const auth = await requireAdmin();
+    if ("error" in auth) return auth.error;
+
     const { id, password } = await req.json();
     if (!id || !password) {
       return NextResponse.json({ error: "Missing id or password" }, { status: 400 });

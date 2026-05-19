@@ -1,22 +1,10 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { requireMemberOrAdmin } from "@/lib/supabase/auth-guards";
 
 export async function POST(request: Request) {
-  // Auth check — must be logged-in admin
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { data: profile } = await supabaseAdmin
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile?.is_admin) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requireMemberOrAdmin();
+  if ("error" in auth) return auth.error;
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
