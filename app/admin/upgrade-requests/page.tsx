@@ -88,7 +88,7 @@ export default async function UpgradeRequestsPage({ searchParams }: Props) {
           <a
             key={f.key}
             href={f.key === "pending" ? "/admin/upgrade-requests" : `/admin/upgrade-requests?status=${f.key}`}
-            className={`font-mono text-[10px] uppercase tracking-widest px-4 py-2 border-b-2 transition-colors ${
+            className={`font-mono text-[12px] uppercase tracking-widest px-4 py-2 border-b-2 transition-colors ${
               status === f.key
                 ? "border-orange text-ink"
                 : "border-transparent text-ink/50 hover:text-ink"

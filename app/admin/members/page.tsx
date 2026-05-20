@@ -66,7 +66,7 @@ export default async function AdminMembersPage({ searchParams }: Props) {
           <a
             key={f.key}
             href={f.key === "pending" ? "/admin/members" : `/admin/members?status=${f.key}`}
-            className={`font-mono text-[10px] uppercase tracking-widest px-4 py-2 border-b-2 transition-colors ${
+            className={`font-mono text-[12px] uppercase tracking-widest px-4 py-2 border-b-2 transition-colors ${
               statusFilter === f.key
                 ? "border-orange text-ink"
                 : "border-transparent text-ink/50 hover:text-ink"
