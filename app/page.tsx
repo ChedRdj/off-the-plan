@@ -157,13 +157,14 @@ export default async function HomePage() {
       .single(),
   ]);
 
+  // Always use the client-supplied category images (not listing images)
   const CATEGORIES: SliderItem[] = [
-    { label: "New Apartments",   href: "/search?type=New+Apartments",   image: pickImage(newAptData     as never, CATEGORY_FALLBACKS["New Apartments"])   },
-    { label: "Townhouses",       href: "/search?type=Townhouses",       image: pickImage(thData         as never, CATEGORY_FALLBACKS["Townhouses"])        },
-    { label: "Land And Estates", href: "/search?type=Land+and+Estates", image: pickImage(landData       as never, CATEGORY_FALLBACKS["Land and Estates"])  },
-    { label: "Commercial",       href: "/search?type=Commercial",       image: pickImage(commercialData as never, CATEGORY_FALLBACKS["Commercial"])        },
-    { label: "House & Land",     href: "/search?type=Houses",           image: pickImage(housesData     as never, CATEGORY_FALLBACKS["Houses"])            },
-    { label: "New Home Design",  href: "/search?type=New+Home+Design",  image: pickImage(newHomeData    as never, CATEGORY_FALLBACKS["New Home Design"])   },
+    { label: "New Apartments",   href: "/search?type=New+Apartments",   image: CATEGORY_FALLBACKS["New Apartments"]   },
+    { label: "Townhouses",       href: "/search?type=Townhouses",       image: CATEGORY_FALLBACKS["Townhouses"]        },
+    { label: "Land And Estates", href: "/search?type=Land+and+Estates", image: CATEGORY_FALLBACKS["Land and Estates"]  },
+    { label: "Commercial",       href: "/search?type=Commercial",       image: CATEGORY_FALLBACKS["Commercial"]        },
+    { label: "House & Land",     href: "/search?type=Houses",           image: CATEGORY_FALLBACKS["Houses"]            },
+    { label: "New Home Design",  href: "/search?type=New+Home+Design",  image: CATEGORY_FALLBACKS["New Home Design"]   },
   ];
 
   // Use mock listings only outside production. In production, an empty tier

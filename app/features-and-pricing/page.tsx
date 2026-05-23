@@ -125,13 +125,14 @@ export default async function FeaturesAndPricingPage() {
     query("New Home Design"),
   ]);
 
+  // Always use the client-supplied category images (not listing images)
   const CATEGORIES: SliderItem[] = [
-    { label: "New Apartments",   href: "/search?type=New+Apartments",   image: pickImage(newAptData     as never, FALLBACKS["New Apartments"])   },
-    { label: "Townhouses",       href: "/search?type=Townhouses",       image: pickImage(thData         as never, FALLBACKS["Townhouses"])        },
-    { label: "Land And Estates", href: "/search?type=Land+and+Estates", image: pickImage(landData       as never, FALLBACKS["Land and Estates"])  },
-    { label: "Commercial",       href: "/search?type=Commercial",       image: pickImage(commercialData as never, FALLBACKS["Commercial"])        },
-    { label: "House & Land",     href: "/search?type=Houses",           image: pickImage(housesData     as never, FALLBACKS["Houses"])            },
-    { label: "New Home Design",  href: "/search?type=New+Home+Design",  image: pickImage(newHomeData    as never, FALLBACKS["New Home Design"])   },
+    { label: "New Apartments",   href: "/search?type=New+Apartments",   image: FALLBACKS["New Apartments"]   },
+    { label: "Townhouses",       href: "/search?type=Townhouses",       image: FALLBACKS["Townhouses"]        },
+    { label: "Land And Estates", href: "/search?type=Land+and+Estates", image: FALLBACKS["Land and Estates"]  },
+    { label: "Commercial",       href: "/search?type=Commercial",       image: FALLBACKS["Commercial"]        },
+    { label: "House & Land",     href: "/search?type=Houses",           image: FALLBACKS["Houses"]            },
+    { label: "New Home Design",  href: "/search?type=New+Home+Design",  image: FALLBACKS["New Home Design"]   },
   ];
 
   return (
