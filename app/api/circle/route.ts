@@ -17,8 +17,13 @@ export async function POST(req: Request) {
     }
     const { error } = await supabaseAdmin.from("circle_signups").insert(parsed.data);
     if (error) {
+      // Treat duplicate-email as success to prevent email enumeration via the
+      // email UNIQUE constraint. Log the actual error for debugging.
       console.error("Circle signup insert error:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error.code === "23505") {
+        return NextResponse.json({ success: true }, { status: 201 });
+      }
+      return NextResponse.json({ error: "Could not save signup. Please try again." }, { status: 500 });
     }
     return NextResponse.json({ success: true }, { status: 201 });
   } catch {

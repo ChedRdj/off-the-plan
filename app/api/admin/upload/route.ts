@@ -32,6 +32,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "File type not allowed. Use JPG, PNG, WebP, or PDF." }, { status: 400 });
   }
 
+  // Validate the actual MIME type, not just the filename extension — anyone
+  // can rename evil.exe to evil.png. Different buckets accept different
+  // content types: image-bearing buckets allow image/*, the brochures bucket
+  // also allows application/pdf.
+  const mime = (file.type || "").toLowerCase();
+  const IMAGE_MIMES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+  const PDF_MIME = "application/pdf";
+  const isImageBucket = bucket !== "brochures";
+  const mimeOk = isImageBucket
+    ? IMAGE_MIMES.has(mime)
+    : IMAGE_MIMES.has(mime) || mime === PDF_MIME;
+  if (!mimeOk) {
+    return NextResponse.json(
+      { error: isImageBucket ? "Only image files are allowed for this upload." : "Only image or PDF files are allowed." },
+      { status: 400 },
+    );
+  }
+
   if (file.size > 10 * 1024 * 1024) {
     return NextResponse.json({ error: "File too large. Maximum size is 10 MB." }, { status: 400 });
   }

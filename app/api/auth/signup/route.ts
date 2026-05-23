@@ -48,8 +48,15 @@ export async function POST(request: Request) {
   });
 
   if (error) {
+    // Log the real error server-side for debugging, but never leak the raw
+    // Supabase message to the client — it can enable email enumeration
+    // ("User already registered" vs "Password should be at least 6 chars").
+    console.error("Signup error:", error);
     const url = new URL("/signup?error=1", request.url);
-    url.searchParams.set("message", error.message);
+    url.searchParams.set(
+      "message",
+      "We could not create your account. Please check your details and try again.",
+    );
     return NextResponse.redirect(url);
   }
 
