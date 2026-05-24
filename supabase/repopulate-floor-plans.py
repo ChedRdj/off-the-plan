@@ -50,6 +50,36 @@ REST_HEADERS = {
 if not SUPABASE_URL or not SERVICE_ROLE_KEY:
     raise SystemExit("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local")
 
+
+# ── Value parsing ─────────────────────────────────────────────────────────────
+
+def parse_int(value) -> int | None:
+    """
+    Safely convert beds/bath/garage values that may be int, float, or strings
+    like "2+S", "1+", "3.5", "1-2", "2+P" to an integer.
+    - Floats → rounded down (3.5 → 3)
+    - Range strings like "1-2" → take the lower bound
+    - Strings with trailing non-numeric chars like "2+S", "1+" → strip and parse leading digits
+    """
+    if value is None:
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    s = str(value).strip()
+    if not s:
+        return None
+    # Range like "1-2" → take first number
+    range_match = re.match(r'^(\d+)\s*[-–]\s*\d+', s)
+    if range_match:
+        return int(range_match.group(1))
+    # Leading digits, possibly followed by junk like "+S", "+P", "+M", "+"
+    leading = re.match(r'^(\d+(?:\.\d+)?)', s)
+    if leading:
+        return int(float(leading.group(1)))
+    return None
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def get_development_id(slug: str, client: httpx.Client) -> str | None:
@@ -68,12 +98,14 @@ def delete_floor_plans(dev_id: str, client: httpx.Client) -> bool:
     return res.status_code in (200, 204)
 
 
-def insert_floor_plans(records: list[dict], client: httpx.Client) -> bool:
+def insert_floor_plans(records: list[dict], client: httpx.Client) -> tuple[bool, str]:
     if not records:
-        return True
+        return True, ""
     url = f"{SUPABASE_URL}/rest/v1/development_floor_plans"
     res = client.post(url, json=records, headers=REST_HEADERS, timeout=15)
-    return res.status_code in (200, 201)
+    ok = res.status_code in (200, 201)
+    msg = "" if ok else res.text[:200]
+    return ok, msg
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -149,9 +181,9 @@ def main():
                     except (TypeError, ValueError):
                         pass
 
-                beds = fp.get("beds")
-                bath = fp.get("bath")
-                garage = fp.get("garage")
+                beds = parse_int(fp.get("beds"))
+                bath = parse_int(fp.get("bath"))
+                garage = parse_int(fp.get("garage"))
                 internal_sqm = fp.get("internal_sqm")
 
                 # Build a human-readable config label as a fallback
@@ -177,11 +209,12 @@ def main():
                     "image_url": None,
                 })
 
-            if insert_floor_plans(records, client):
+            ok, err_msg = insert_floor_plans(records, client)
+            if ok:
                 print(f"OK    {slug}  ({len(records)} plans)")
                 success += 1
             else:
-                print(f"FAIL  {slug}  (insert failed)")
+                print(f"FAIL  {slug}  (insert failed: {err_msg})")
                 failed += 1
 
     print(f"\nDone: {success} updated, {skipped} skipped, {failed} failed")
