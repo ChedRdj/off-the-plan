@@ -251,23 +251,24 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 (d) => d.name?.trim().toLowerCase() === "florian",
               );
               const banner = (
-                <a
-                  key="otp-banner-square"
-                  href="https://raywhitestockerpreston.com.au/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="relative w-full aspect-square overflow-hidden bg-cream block"
-                  aria-label="Visit Ray White Stocker Preston"
-                >
-                  <Image
-                    src="/off-the-plan-banner-square.png"
-                    alt="Off The Plan"
-                    fill
-                    sizes="(min-width: 768px) 50vw, 100vw"
-                    className="object-cover"
-                    priority={false}
-                  />
-                </a>
+                <div key="otp-banner-square" className="flex items-center justify-center">
+                  <a
+                    href="https://raywhitestockerpreston.com.au/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative block w-[300px] h-[300px] md:w-[500px] md:h-[500px] overflow-hidden bg-cream"
+                    aria-label="Visit Ray White Stocker Preston"
+                  >
+                    <Image
+                      src="/off-the-plan-banner-square.png"
+                      alt="Off The Plan"
+                      fill
+                      sizes="(min-width: 768px) 500px, 300px"
+                      className="object-cover"
+                      priority={false}
+                    />
+                  </a>
+                </div>
               );
               const cards = results.map((dev) => (
                 <PropertyCard key={dev.id} development={dev} layout="tall" />
