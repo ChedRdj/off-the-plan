@@ -11,6 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ExportButtons, type ExportColumn } from "@/components/admin/export-buttons";
 
 type Development = { id: string; name: string };
 
@@ -55,6 +56,18 @@ export default function ReportsDashboard({ developments }: Props) {
     fetchData();
   }, [fetchData]);
 
+  const exportRows = [
+    { metric: "Views", value: views },
+    { metric: "Enquiries", value: totalEnquiries },
+    { metric: "Shares", value: shares },
+    ...chartData.map((p) => ({ metric: `Views — ${p.month}`, value: p.views })),
+  ];
+  const exportColumns: ExportColumn<{ metric: string; value: number }>[] = [
+    { header: "Metric", value: (r) => r.metric },
+    { header: "Value",  value: (r) => r.value },
+  ];
+  const selectedDevName = developments.find((d) => d.id === developmentId)?.name ?? "All Projects";
+
   return (
     <div>
       {/* Header bar */}
@@ -72,6 +85,12 @@ export default function ReportsDashboard({ developments }: Props) {
               <option key={d.id} value={d.id}>{d.name}</option>
             ))}
           </select>
+          <ExportButtons
+            rows={exportRows}
+            columns={exportColumns}
+            filename={`reports-${selectedDevName.replace(/\s+/g, "-").toLowerCase()}`}
+            pdfTitle={`Reports — ${selectedDevName}`}
+          />
         </div>
       </div>
 
