@@ -183,7 +183,7 @@ export function Footer() {
 
         <div className="border-t border-ink-light/10 pt-8 grid md:grid-cols-2 gap-6 mb-10">
           <p className="font-sans text-sm text-ink-light/80 leading-relaxed">
-            Australia's Home Of New Property | Off The Plan™ is an Australian property platform for new
+            Australia's Home Of New Property | Off The Plan® is an Australian property platform for new
             apartments, new homes, listings and house & land packages available off-the-plan®.
             We connect buyers with current and upcoming property opportunities across Australia,
             providing direct access to new projects, developers and project marketing teams.
@@ -192,7 +192,7 @@ export function Footer() {
             The platform is evolving beyond a listings portal into a more connected property ecosystem.
             Bringing together buyers, developers, agents and service providers through integrated tools,
             project insights and transaction support. Designed to be clear, user-friendly and practical,
-            Off The Plan™ helps you explore, compare and move forward with confidence when buying
+            Off The Plan® helps you explore, compare and move forward with confidence when buying
             off-the-plan® property.
           </p>
         </div>

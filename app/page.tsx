@@ -206,7 +206,7 @@ export default async function HomePage() {
               Australia&apos;s New Home Portal
             </p>
             <h1 className="font-brand font-normal text-ink-light leading-[0.9] tracking-tight text-[clamp(56px,9vw,148px)]">
-              Off{" "}<em className="not-italic italic text-orange">The</em>{" "}Plan
+              Off{" "}<em className="not-italic italic text-orange">The</em>{" "}Plan<sup className="text-[0.3em] align-super ml-1 font-normal text-ink-light/70">®</sup>
             </h1>
             <p className="font-brand font-normal text-ink-light/70 text-[clamp(16px,1.8vw,22px)] tracking-wide max-w-md">
               Where your future address begins
@@ -310,9 +310,9 @@ export default async function HomePage() {
                   Featured Developments
                 </p>
               </div>
-              <h2 className="font-light text-white leading-[0.95] tracking-tight text-[clamp(2.6rem,5.3vw,4.8rem)] mb-6" style={{ fontFamily: "var(--font-italiana), serif" }}>
+              <h2 className="text-white leading-[0.95] tracking-[0.01em] text-[clamp(3rem,6.5vw,6rem)] mb-6 uppercase font-normal" style={{ fontFamily: "var(--font-bebas-neue), sans-serif" }}>
                 Australia&apos;s finest<br />
-                <em className="not-italic text-orange">off&#8209;the&#8209;plan properties</em>
+                <span className="text-orange">off&#8209;the&#8209;plan properties</span>
               </h2>
               <p className="font-display font-light text-white/50 text-[clamp(1rem,1.4vw,1.2rem)] leading-relaxed max-w-2xl">
                 Your future address, carefully chosen{" "}
