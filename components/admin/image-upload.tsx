@@ -62,20 +62,23 @@ export function ImageUpload({
     <div>
       <p className="section-label block mb-1.5">{label}</p>
 
-      {/* Preview */}
+      {/* Preview — uses `object-contain` so logos (and any non-16:9 images)
+          keep their natural aspect instead of being stretched/cropped by
+          the larger preview box. Padding lets the image breathe inside the
+          frame instead of bleeding to the edges. */}
       {value && (
         <div className="relative mb-3 w-full h-48 bg-navy/5 border border-line overflow-hidden">
           <Image
             src={value}
             alt="Preview"
             fill
-            className="object-cover"
+            className="object-contain p-4"
             sizes="(max-width: 768px) 100vw, 600px"
           />
           <button
             type="button"
             onClick={() => onChange("")}
-            className="absolute top-2 right-2 bg-white/90 hover:bg-white text-ink px-2 py-1 font-mono text-label-sm uppercase tracking-widest transition-colors"
+            className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-ink px-2 py-1 font-mono text-label-sm uppercase tracking-widest transition-colors"
           >
             Remove
           </button>
