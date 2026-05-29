@@ -8,10 +8,11 @@ const moreInfoLinks = [
   { label: "Contact us", href: "/contact" },
   { label: "About us", href: "/about" },
   { label: "Listings", href: "/search" },
-  { label: "Resources", href: "/resources" },
-  { label: "News", href: "/journal" },
-  { label: "Guides", href: "/resources" },
-  { label: "Features & Pricing", href: "/list-a-listing" },
+  { label: "Developers", href: "/developers" },
+  { label: "Resources", href: "/resources/calculators" },
+  { label: "News", href: "/news" },
+  { label: "Guides", href: "/guides" },
+  { label: "Features & Pricing", href: "/features-and-pricing" },
   { label: "List with us", href: "/list-a-listing" },
 ];
 
