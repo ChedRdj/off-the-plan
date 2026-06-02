@@ -1,5 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# Generated member-migration password export — contains plaintext credentials,
+# never commit. Re-run `node scripts/import-members.mjs --apply` to regenerate.
+/scripts/member-passwords.csv
+
 # dependencies
 /node_modules
 /.pnp
