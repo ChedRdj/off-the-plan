@@ -249,25 +249,25 @@ export function NewsForm({ id, existing }: Props) {
               <p className="font-sans text-xs font-semibold uppercase tracking-wider text-orange mb-3">
                 Main Article Image <span className="text-ink/40 normal-case font-normal">(1600×500)</span>
               </p>
-              <ImageUpload value={heroImageUrl} onChange={setHeroImageUrl} folder="news" />
+              <ImageUpload label="" value={heroImageUrl} onChange={setHeroImageUrl} bucket="journal-images" />
             </div>
             <div className="bg-white border border-line p-5">
               <p className="font-sans text-xs font-semibold uppercase tracking-wider text-orange mb-3">
                 List Page Image <span className="text-ink/40 normal-case font-normal">(600×500)</span>
               </p>
-              <ImageUpload value={listPageImage} onChange={setListPageImage} folder="news" />
+              <ImageUpload label="" value={listPageImage} onChange={setListPageImage} bucket="journal-images" />
             </div>
             <div className="bg-white border border-line p-5">
               <p className="font-sans text-xs font-semibold uppercase tracking-wider text-orange mb-3">
                 Article Image One <span className="text-ink/40 normal-case font-normal">(600×500)</span>
               </p>
-              <ImageUpload value={articleImageOne} onChange={setArticleImageOne} folder="news" />
+              <ImageUpload label="" value={articleImageOne} onChange={setArticleImageOne} bucket="journal-images" />
             </div>
             <div className="bg-white border border-line p-5">
               <p className="font-sans text-xs font-semibold uppercase tracking-wider text-orange mb-3">
                 Article Image Two <span className="text-ink/40 normal-case font-normal">(600×500)</span>
               </p>
-              <ImageUpload value={articleImageTwo} onChange={setArticleImageTwo} folder="news" />
+              <ImageUpload label="" value={articleImageTwo} onChange={setArticleImageTwo} bucket="journal-images" />
             </div>
           </div>
         </div>

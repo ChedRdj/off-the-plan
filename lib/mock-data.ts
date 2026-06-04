@@ -104,6 +104,7 @@ export const mockDevelopments: Development[] = [
     type: "Apartments",
     developer_id: "dev-1",
     tag: "Featured",
+    tier: null,
     status: "Selling now",
     summary:
       "An iconic landmark rising 41 levels above Chevron Island, maximising space and natural light with breathtaking panoramic views of the ocean, Nerang River and Gold Coast hinterland. Architecturally inspired by the natural shapes and textures of the coastline.",
@@ -137,6 +138,7 @@ export const mockDevelopments: Development[] = [
     type: "Apartments",
     developer_id: "dev-6",
     tag: "New launch",
+    tier: null,
     status: "Selling now",
     summary:
       "Luxury beachside living half a block from Kurrawa patrolled beach. Features the Gold Coast's first Olympic-sized 50m infinity edge pool spanning the entire podium level, alongside a gym, steam room, sauna, spa, outdoor lawn, BBQ, teppanyaki grill and private dining room.",
@@ -170,6 +172,7 @@ export const mockDevelopments: Development[] = [
     type: "Apartments",
     developer_id: "dev-2",
     tag: "Editor's pick",
+    tier: null,
     status: "Selling now",
     summary:
       "An exclusive address on the very last park-side location in Chermside. Nestled on the edge of Seventh Brigade Park, moments from Westfield Chermside. A contemporary facade with a Spanish twist — the arches adopt a reference to the Spanish essence of 'Estilo'. The perfect blend of tranquillity, convenience and contemporary living.",
@@ -203,6 +206,7 @@ export const mockDevelopments: Development[] = [
     type: "Apartments",
     developer_id: "dev-2",
     tag: "Trending",
+    tier: null,
     status: "Selling now",
     summary:
       "169 contemporary apartments adjacent to The Gabba sporting ground in Woolloongabba — one of Brisbane's most rapidly evolving inner-city precincts. A range of one and two bedroom configurations with exceptional access to public transport, dining and entertainment.",
@@ -236,6 +240,7 @@ export const mockDevelopments: Development[] = [
     type: "Apartments",
     developer_id: "dev-3",
     tag: "Featured",
+    tier: null,
     status: "Selling now",
     summary:
       "163 residences set on the edge of Perry Lakes, 3km from City Beach and 7km from the Perth CBD. Over 1,800sqm of resort-style amenities including a heated 25m pool, gymnasium, yoga studio, steam room, sauna, private dining rooms and wine cellar. Views across Perry Lakes to the Indian Ocean.",
@@ -269,6 +274,7 @@ export const mockDevelopments: Development[] = [
     type: "Apartments",
     developer_id: "dev-5",
     tag: "Editor's pick",
+    tier: null,
     status: "Final release",
     summary:
       "37 elegant homes at the Paris end of Subiaco. Grand arches and vertical ribbed details draw inspiration from Subiaco's historic architectural character. Nestled beside Kings Park, surrounded by tree-lined streets, boutique shopping, gourmet Farmers Markets and cafes.",
@@ -302,6 +308,7 @@ export const mockDevelopments: Development[] = [
     type: "Townhouses",
     developer_id: "dev-4",
     tag: "New launch",
+    tier: null,
     status: "Register interest",
     summary:
       "Six architecturally designed townhouses located on a leafy street in Doncaster East, surrounded by diverse amenity and every convenience within walking distance. Only 18km from Melbourne CBD with access to major shopping precincts, arterial roads and Eastlink Freeway.",
@@ -335,6 +342,7 @@ export const mockDevelopments: Development[] = [
     type: "Apartments",
     developer_id: "dev-4",
     tag: "Editor's pick",
+    tier: null,
     status: "Register interest",
     summary:
       "The flagship Miura development. A boutique collection of 20 residences — including a full-floor penthouse and three levels of half-floor sub-penthouses — inspired by Hawthorn's heritage architecture. Gaggenau-appointed, generously proportioned, and sensitively conceived for the location's buoyant village lifestyle.",
@@ -424,6 +432,10 @@ export const mockFloorPlans: DevelopmentFloorPlan[] = [
     internal_sqm: 85,
     price_from: 106700000,
     image_url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
+    price_display: null,
+    beds: null,
+    bath: null,
+    garage: null,
   },
   {
     id: "fp2",
@@ -433,6 +445,10 @@ export const mockFloorPlans: DevelopmentFloorPlan[] = [
     internal_sqm: 102,
     price_from: 145000000,
     image_url: "https://images.unsplash.com/photo-1574359411659-15573a27fd0c?w=600&q=80",
+    price_display: null,
+    beds: null,
+    bath: null,
+    garage: null,
   },
   {
     id: "fp3",
@@ -442,6 +458,10 @@ export const mockFloorPlans: DevelopmentFloorPlan[] = [
     internal_sqm: 138,
     price_from: 198000000,
     image_url: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=600&q=80",
+    price_display: null,
+    beds: null,
+    bath: null,
+    garage: null,
   },
   {
     id: "fp4",
@@ -451,5 +471,9 @@ export const mockFloorPlans: DevelopmentFloorPlan[] = [
     internal_sqm: 198,
     price_from: 265800000,
     image_url: "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=600&q=80",
+    price_display: null,
+    beds: null,
+    bath: null,
+    garage: null,
   },
 ];
