@@ -7,12 +7,13 @@
  *
  * The 'Property Features' checkbox list in the admin listing form should
  * render the entries here that match the currently-selected `type` value.
- * Categories without a confirmed list yet (TBD) fall back to the
- * residential set so we never render an empty checklist; once Tim's
- * spec doc arrives we'll replace those with the right ones.
+ * Confirmed against the live admin for 6 of 7 categories. New Home Design
+ * had no listings on the live site to inspect, so it falls back to the
+ * residential list as a sensible placeholder; revise when Tim creates a
+ * real listing of that type.
  */
 
-const RESIDENTIAL_FEATURES = [
+const NEW_APARTMENTS_FEATURES = [
   "Bar area",
   "BBQ Facilities",
   "Bike share",
@@ -58,6 +59,46 @@ const RESIDENTIAL_FEATURES = [
   "Yoga Studio",
 ];
 
+const TOWNHOUSES_FEATURES = [
+  "Bar area",
+  "BBQ Facilities",
+  "Bike share",
+  "Bin Chute",
+  "Book Retreat and Library",
+  "Building manager / Concierge",
+  "Business center",
+  "Cabanas",
+  "Car share",
+  "City views",
+  "Co working options",
+  "Consultation Room",
+  "Delivery Room",
+  "Dining room(s)",
+  "EV charging capability",
+  "Fireplaces",
+  "Fully Equipped Gym",
+  "Guest apartment",
+  "Jacuzzi/Spa(s)",
+  "Kids Play Area",
+  "Lounge and Casual dining",
+  "Massage Room",
+  "Music Room",
+  "Outdoor fireplace",
+  "Outdoor Gym",
+  "Outdoor Theatre",
+  "Putting Green",
+  "Rooftop Garden",
+  "Sauna and Steam Rooms",
+  "Sky Deck",
+  "Swimming Pool(s)",
+  "Tennis Courts",
+  "Teppanyaki Grill",
+  "Theatre",
+  "Waterfront",
+  "Wine Cellar",
+  "Yoga Studio",
+];
+
 const COMMERCIAL_FEATURES = [
   "Air conditioned",
   "Car parking",
@@ -80,27 +121,99 @@ const COMMERCIAL_FEATURES = [
   "Staff Facilities",
 ];
 
+const LAND_AND_ESTATES_FEATURES = [
+  "Bar area",
+  "BBQ Facilities",
+  "Bike share",
+  "Bin Chute",
+  "Business center",
+  "Cabanas",
+  "Car share",
+  "City views",
+  "Co working options",
+  "Consultation Room",
+  "Delivery Room",
+  "Dining room(s)",
+  "EV charging capability",
+  "Fireplaces",
+  "Fully Equipped Gym",
+  "Guest apartment",
+  "Jacuzzi/Spa(s)",
+  "Lounge and Casual dining",
+  "Outdoor fireplace",
+  "Outdoor Theatre",
+  "Putting Green",
+  "Rooftop Garden",
+  "Sauna and Steam Rooms",
+  "Swimming Pool(s)",
+  "Theatre",
+  "Waterfront",
+  "Wine Cellar",
+];
+
+// House & Land doesn't really use the Property Features section on the
+// live admin — the only checkbox the form shows is the "is there a
+// display home for this design?" toggle, which is functionally a
+// separate field, not a feature. We treat House & Land as having no
+// property features and rely on the rest of the form (floor plans,
+// brochures, etc.) for its content.
+const HOUSE_AND_LAND_FEATURES: string[] = [];
+
+// Retirement listings on the live admin show a community/lifestyle-oriented
+// set that has no overlap with the apartment list — emphasises proximity to
+// services, gated community amenities, public facilities, etc.
+const OVER_55S_FEATURES = [
+  "Bin Chute",
+  "Close to Primary schools",
+  "Community center planned",
+  "Fencing packages",
+  "Gated Community",
+  "Landscaping packages",
+  "Natural parklands",
+  "New primary school planned",
+  "New secondary school planned",
+  "New Shopping Centre",
+  "Public activity area",
+  "Public BBQ facilities",
+  "Security",
+  "Boating nearby",
+  "Bowling green nearby",
+  "Church nearby",
+  "Close to beach",
+  "Close to golf",
+  "Close to nature",
+  "Close to parklands",
+  "Close to shops",
+  "Close to transport",
+  "Close to water",
+  "Clubs nearby",
+  "Medical services nearby",
+  "Quiet location",
+];
+
 /**
  * Category name (matches the `type` column on `developments`) → feature list.
  *
- * Categories that we haven't been able to scrape yet (most listings of
- * those types are archived on the live site) fall back to the
- * residential set as a sensible placeholder. Tim's spec doc will refine
- * these when it arrives.
+ * Confirmed by direct scrape from the live admin on 2026-06-04:
+ *   New Apartments, Townhouses, Commercial, Land and Estates,
+ *   House & Land, Over 55's / Retirement.
+ *
+ * Placeholders (live admin had no example listing to inspect):
+ *   New Home Design — falls back to apartments residential set.
  */
 export const CATEGORY_FEATURES: Record<string, string[]> = {
-  "New Apartments":         RESIDENTIAL_FEATURES,
-  Townhouses:               RESIDENTIAL_FEATURES, // TBD — assumes residential
-  "Land and Estates":       RESIDENTIAL_FEATURES, // TBD — likely a lighter, land-focused set
+  "New Apartments":         NEW_APARTMENTS_FEATURES,
+  Townhouses:               TOWNHOUSES_FEATURES,
+  "Land and Estates":       LAND_AND_ESTATES_FEATURES,
   Commercial:               COMMERCIAL_FEATURES,
-  "House & Land":           RESIDENTIAL_FEATURES, // TBD — builder-package
-  Houses:                   RESIDENTIAL_FEATURES, // legacy alias for House & Land
-  "New Home Design":        RESIDENTIAL_FEATURES, // TBD — builder-package
-  "Over 55's / Retirement": RESIDENTIAL_FEATURES, // TBD — likely accessibility-tilted
+  "House & Land":           HOUSE_AND_LAND_FEATURES,
+  Houses:                   HOUSE_AND_LAND_FEATURES, // legacy alias for House & Land
+  "New Home Design":        NEW_APARTMENTS_FEATURES, // TBD — no example on live site
+  "Over 55's / Retirement": OVER_55S_FEATURES,
 };
 
 /** Returns the feature checklist for a given category, defaulting to residential. */
 export function featuresForCategory(category: string | null | undefined): string[] {
-  if (!category) return RESIDENTIAL_FEATURES;
-  return CATEGORY_FEATURES[category] ?? RESIDENTIAL_FEATURES;
+  if (!category) return NEW_APARTMENTS_FEATURES;
+  return CATEGORY_FEATURES[category] ?? NEW_APARTMENTS_FEATURES;
 }

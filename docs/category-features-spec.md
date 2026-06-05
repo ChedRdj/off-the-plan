@@ -138,27 +138,42 @@ Business / industrial-focused.
 - Shop Front
 - Staff Facilities
 
-### Townhouses (TBD — needs scrape from live admin)
+### Townhouses (37 checkboxes — confirmed)
 
-Likely a subset of the New Apartments residential features.
+Subset of New Apartments — missing 6 apartment-specific items
+("Flowing, Light-Filled Layouts", "Lush Residents' Pool", "Premium
+Appliances Throughout", "Private Gardens & Terraces", "Sculptural
+Architecture", "Winter Garden"). Everything else identical.
 
-### House & Land (TBD — needs scrape from live admin)
+### House & Land (0 feature checkboxes — confirmed)
 
-Probably emphasises land + finishes — distinct from apartments.
+The live admin form for House & Land listings doesn't render the
+Property Features section at all — only an "is there a display home
+for this design?" toggle, which is a separate concept. Treat as
+having no property features and rely on floor plans, brochures,
+specs, etc.
 
-### Land and Estates (TBD — needs scrape from live admin)
+### Land and Estates (27 checkboxes — confirmed)
 
-Probably the lightest feature set — land-only listings have fewer
-amenity-style features and more land-spec ones.
+Subset of the apartment list focused on community-scale amenities
+(BBQ Facilities, Cabanas, Outdoor Theatre, Rooftop Garden, Swimming
+Pool, Waterfront, Wine Cellar, etc.). Drops the small-format
+apartment items. See lib/category-features.ts for the exact list.
 
-### New Home Design (TBD — needs scrape from live admin)
+### New Home Design (no example on live site — falls back to apartments)
 
-Builder-package focused — probably mirrors House & Land.
+The live admin had no listings of this category to inspect. Treated
+as equivalent to New Apartments for now; revise when Tim creates a
+real New Home Design listing or sends the spec doc.
 
-### Over 55's / Retirement (TBD — needs scrape from live admin)
+### Over 55's / Retirement (26 checkboxes — confirmed)
 
-Likely an amenity set tilted toward accessibility / community
-(elevators, dining room, healthcare proximity, etc.).
+Totally unique feature set, very lifestyle/community focused with no
+overlap with the apartment list. Examples: "Gated Community", "Bowling
+green nearby", "Close to beach", "Medical services nearby", "New
+Shopping Centre", "Church nearby", "Community center planned",
+"Fencing packages", "Landscaping packages", "Public BBQ facilities",
+"Quiet location". See lib/category-features.ts for the exact list.
 
 ## Implementation plan for our Vercel build
 
