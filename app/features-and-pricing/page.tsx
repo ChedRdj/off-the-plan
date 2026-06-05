@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ImageAutoSlider } from "@/components/ui/image-auto-slider";
 import type { SliderItem } from "@/components/ui/image-auto-slider";
 import { supabase } from "@/lib/supabase/public";
+import { UPGRADE_TIERS } from "@/lib/upgrade-tiers";
 
 export const dynamic = "force-dynamic";
 
@@ -364,6 +365,76 @@ export default async function FeaturesAndPricingPage() {
               </div>
             </div>
 
+          </div>
+        </div>
+      </div>
+
+      {/* ── 4b. Featured Upgrades — public preview of the 4 add-on tiers
+              (Promo Flag, Tier 2, Tier 1, Home Banner). Card UI mirrors the
+              member-portal cards but the CTA routes to /list-a-listing
+              since prospective members can't request upgrades on a
+              listing they don't own yet. ── */}
+      <div className="bg-[#eeecea] py-16 border-t border-line">
+        <div className="container-padded">
+          <div className="text-center mb-10">
+            <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-orange/80 mb-2">
+              Featured Upgrades
+            </p>
+            <h2 className="font-mono text-[1.6rem] md:text-[2rem] uppercase tracking-[0.18em] text-navy font-semibold mb-3">
+              Stand out from the listings
+            </h2>
+            <p className="font-sans text-[14px] text-ink/60 max-w-2xl mx-auto leading-relaxed">
+              Optional monthly add-ons available to all members. Billed
+              alongside your standard subscription.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {UPGRADE_TIERS.map((u) => (
+              <div key={u.name} className="bg-white border border-line flex flex-col">
+                {/* Header strip */}
+                <div className="bg-navy text-white text-center px-4 py-3 font-mono text-[10px] uppercase tracking-[0.18em]">
+                  {u.name}
+                </div>
+                {/* Price */}
+                <div className="px-5 pt-5 pb-3 text-center border-b border-line">
+                  <span className="font-display font-light text-navy text-[2.6rem] leading-none">
+                    ${u.price.toLocaleString()}
+                  </span>
+                  <span className="font-sans text-ink/40 text-sm ml-1">/month</span>
+                </div>
+                {/* Features */}
+                <ul className="px-5 py-5 flex flex-col gap-2.5 flex-1">
+                  {u.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="flex-shrink-0 mt-0.5" aria-hidden="true">
+                        <circle cx="8" cy="8" r="7.5" stroke="#E07B39" />
+                        <path d="M5 8l2 2 4-4" stroke="#E07B39" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <span className="font-sans text-[12px] text-ink/70 leading-relaxed">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Single CTA below the cards — prospective members can't request
+              an upgrade until they have a listing, so we route them through
+              the standard listing-signup flow. */}
+          <div className="text-center mt-10">
+            <Link
+              href="/list-a-listing"
+              className="inline-block font-mono text-[10px] uppercase tracking-widest bg-orange text-white px-10 py-4 hover:bg-orange/90 transition-colors"
+            >
+              List with us to access upgrades
+            </Link>
+            <p className="font-sans text-[12px] text-ink/40 mt-3">
+              Already a member?{" "}
+              <Link href="/portal/pricing" className="text-orange hover:underline">
+                Request an upgrade in the portal →
+              </Link>
+            </p>
           </div>
         </div>
       </div>

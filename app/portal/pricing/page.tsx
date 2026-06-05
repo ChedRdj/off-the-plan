@@ -4,6 +4,7 @@ import { CheckCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import UpgradeCards from "@/components/admin/upgrade-cards";
+import { UPGRADE_TIERS } from "@/lib/upgrade-tiers";
 
 const plans = [
   {
@@ -32,56 +33,10 @@ const plans = [
   },
 ];
 
-const upgrades = [
-  {
-    name: "Promo Flag",
-    price: 50,
-    features: [
-      "Available for all properties",
-      "Promotional flag on the listing",
-      "Add a short snappy message",
-      "$50 + GST per month",
-    ],
-    cta: "ADD A PROMO FLAG",
-    isPromoFlag: true,
-  },
-  {
-    name: "Featured Project Tier 2",
-    price: 200,
-    features: [
-      "Available for all properties",
-      "Property featured under the home page banner (2nd row)",
-      "$200 + GST per month",
-      "Up to 8 available each month",
-    ],
-    cta: "REQUEST AN UPGRADE",
-    isPromoFlag: false,
-  },
-  {
-    name: "Featured Project Tier 1",
-    price: 400,
-    features: [
-      "Available to New Apartments and Townhouses",
-      "Property featured under the home page banner",
-      "$400 + GST per month",
-      "Up to 6 available each month",
-    ],
-    cta: "REQUEST AN UPGRADE",
-    isPromoFlag: false,
-  },
-  {
-    name: "Home Page Main Banner",
-    price: 1000,
-    features: [
-      "Available to: New Apartments and Townhouses",
-      "Up to 3 available per month, 33% share of voice",
-      "Feature HERO project on home page",
-      "$1000 + GST",
-    ],
-    cta: "REQUEST AN UPGRADE",
-    isPromoFlag: false,
-  },
-];
+// Featured Upgrade tiers live in lib/upgrade-tiers.ts so both this
+// member-portal page and the public /features-and-pricing page render
+// the same data and stay in sync.
+const upgrades = UPGRADE_TIERS;
 
 export default async function PortalPricing() {
   const supabase = createClient();
