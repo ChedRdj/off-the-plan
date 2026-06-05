@@ -161,13 +161,18 @@ async function importMember(m) {
   }
 
   if (APPLY && userId) {
-    // Upsert profile
+    // Upsert profile.
+    // member_status='approved' so the imported members appear on the
+    // admin Members page under the default Approved tab — Tim sending
+    // the spreadsheet to import IS the approval. Without this they sit
+    // in Pending and effectively can't be used.
     const { error: profErr } = await supabase
       .from("profiles")
       .upsert({
         id: userId,
         full_name: m.name,
         interest_type: "Developer",
+        member_status: "approved",
       });
     if (profErr) throw profErr;
 
