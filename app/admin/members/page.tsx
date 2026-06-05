@@ -1,5 +1,6 @@
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { MemberActions } from "./member-actions";
+import { MemberRowActions } from "./member-row-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -40,8 +41,28 @@ export default async function AdminMembersPage({ searchParams }: Props) {
     query = query.eq("member_status", statusFilter);
   }
 
-  const { data } = await query;
-  const profiles = (data ?? []) as Profile[];
+  // Run all queries in parallel so count badges don't block render
+  const [
+    { data: filteredData },
+    { count: pendingCount },
+    { count: approvedCount },
+    { count: rejectedCount },
+    { count: totalCount },
+  ] = await Promise.all([
+    query,
+    supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).eq("member_status", "pending"),
+    supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).eq("member_status", "approved"),
+    supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }).eq("member_status", "rejected"),
+    supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }),
+  ]);
+
+  const profiles = (filteredData ?? []) as Profile[];
+  const counts: Record<string, number> = {
+    pending: pendingCount ?? 0,
+    approved: approvedCount ?? 0,
+    rejected: rejectedCount ?? 0,
+    all: totalCount ?? 0,
+  };
 
   // Fetch emails from auth.users for each profile.
   const emailById = new Map<string, string>();
@@ -60,19 +81,27 @@ export default async function AdminMembersPage({ searchParams }: Props) {
         </h1>
       </div>
 
-      {/* Status filter */}
+      {/* Status filter with count badges so admins can see at a glance
+          how many members sit in each bucket without clicking around. */}
       <div className="flex items-center gap-1 border-b border-line">
         {STATUS_FILTERS.map((f) => (
           <a
             key={f.key}
             href={f.key === "pending" ? "/admin/members" : `/admin/members?status=${f.key}`}
-            className={`font-mono text-[12px] uppercase tracking-widest px-4 py-2 border-b-2 transition-colors ${
+            className={`font-mono text-[12px] uppercase tracking-widest px-4 py-2 border-b-2 transition-colors flex items-center gap-2 ${
               statusFilter === f.key
                 ? "border-orange text-ink"
                 : "border-transparent text-ink/50 hover:text-ink"
             }`}
           >
             {f.label}
+            <span className={`inline-flex items-center justify-center min-w-[18px] h-[16px] px-1 rounded-full text-[9px] font-bold ${
+              statusFilter === f.key
+                ? "bg-orange text-white"
+                : "bg-ink/10 text-ink/60"
+            }`}>
+              {counts[f.key] ?? 0}
+            </span>
           </a>
         ))}
       </div>
@@ -119,7 +148,10 @@ export default async function AdminMembersPage({ searchParams }: Props) {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <MemberActions id={p.id} status={p.member_status} />
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <MemberActions id={p.id} status={p.member_status} />
+                        <MemberRowActions email={emailById.get(p.id) ?? null} />
+                      </div>
                     </td>
                   </tr>
                 );

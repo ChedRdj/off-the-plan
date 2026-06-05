@@ -40,8 +40,15 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
             : "bg-cream/95 backdrop-blur-sm text-ink border-b border-line"
         )}
       >
-        {/* Logo */}
-        <a href="/" className="flex items-center flex-shrink-0">
+        {/* Logo
+            Note: the source PNG bakes in a 'TM' superscript that we
+            can't programmatically edit. The wordmark in our copy is now
+            registered (Tim's May 29 reply), so we overlay a small ®
+            in the same position to visually replace the ™ until Tim
+            provides an updated PNG. The overlay inherits the same
+            invert / multiply blend so it matches the logo on dark and
+            light backgrounds. */}
+        <a href="/" className="flex items-center flex-shrink-0 relative">
           <Image
             src="/logo.png"
             alt="Off The Plan"
@@ -53,6 +60,24 @@ export function NavBar({ tone = "light", position = "fixed", user = null }: NavB
             )}
             priority
           />
+          <span
+            aria-hidden="true"
+            className={cn(
+              "absolute pointer-events-none font-bold leading-none select-none",
+              isDark ? "text-ink-light" : "text-ink"
+            )}
+            style={{
+              top: "4px",
+              right: "1px",
+              fontSize: "9px",
+              // Small white block behind ® masks the ™ underneath; matches
+              // the page chrome colour so the swap is seamless.
+              background: isDark ? "transparent" : "#f5f4f1",
+              padding: "0 1px",
+            }}
+          >
+            ®
+          </span>
         </a>
 
         {/* Desktop nav */}
