@@ -18,12 +18,13 @@ const U = (id: string) =>
 
 // ── Fallback images per category — self-hosted in /public/categories ─────────
 const FALLBACKS: Record<string, string> = {
-  "New Apartments":   "/categories/category-apartments.jpg",
-  Townhouses:         "/categories/category-townhouse.jpg",
-  "Land and Estates": "/categories/category-landestate.jpg",
-  Commercial:         "/categories/category-commercial.jpg",
-  Houses:             "/categories/category-house-and-land.jpg",
-  "New Home Design":  "/categories/category-house-and-land.jpg",
+  "New Apartments":          "/categories/category-apartments.jpg",
+  Townhouses:                "/categories/category-townhouse.jpg",
+  "Land and Estates":        "/categories/category-landestate.jpg",
+  Commercial:                "/categories/category-commercial.jpg",
+  Houses:                    "/categories/category-house-and-land.jpg",
+  "New Home Design":         "/categories/category-house-and-land.jpg",
+  "Over 55's / Retirement":  "/categories/category-apartments.jpg",
 };
 
 function pickImage(
@@ -127,12 +128,13 @@ export default async function FeaturesAndPricingPage() {
 
   // Always use the client-supplied category images (not listing images)
   const CATEGORIES: SliderItem[] = [
-    { label: "New Apartments",   href: "/search?type=New+Apartments",   image: FALLBACKS["New Apartments"]   },
-    { label: "Townhouses",       href: "/search?type=Townhouses",       image: FALLBACKS["Townhouses"]        },
-    { label: "Land And Estates", href: "/search?type=Land+and+Estates", image: FALLBACKS["Land and Estates"]  },
-    { label: "Commercial",       href: "/search?type=Commercial",       image: FALLBACKS["Commercial"]        },
-    { label: "House & Land",     href: "/search?type=Houses",           image: FALLBACKS["Houses"]            },
-    { label: "New Home Design",  href: "/search?type=New+Home+Design",  image: FALLBACKS["New Home Design"]   },
+    { label: "New Apartments",          href: "/search?type=New+Apartments",                 image: FALLBACKS["New Apartments"]          },
+    { label: "Townhouses",              href: "/search?type=Townhouses",                     image: FALLBACKS["Townhouses"]               },
+    { label: "Land And Estates",        href: "/search?type=Land+and+Estates",               image: FALLBACKS["Land and Estates"]         },
+    { label: "Commercial",              href: "/search?type=Commercial",                     image: FALLBACKS["Commercial"]               },
+    { label: "House & Land",            href: "/search?type=Houses",                         image: FALLBACKS["Houses"]                   },
+    { label: "New Home Design",         href: "/search?type=New+Home+Design",                image: FALLBACKS["New Home Design"]          },
+    { label: "Over 55's / Retirement",  href: "/search?type=Over+55%27s+%2F+Retirement",     image: FALLBACKS["Over 55's / Retirement"]   },
   ];
 
   return (

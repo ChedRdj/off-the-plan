@@ -66,12 +66,16 @@ const MOCK_TIER2: Development[] = [
 
 // Fallback images per category — self-hosted in /public/categories
 const CATEGORY_FALLBACKS: Record<string, string> = {
-  "New Apartments":   "/categories/category-apartments.jpg",
-  Townhouses:         "/categories/category-townhouse.jpg",
-  "Land and Estates": "/categories/category-landestate.jpg",
-  Commercial:         "/categories/category-commercial.jpg",
-  Houses:             "/categories/category-house-and-land.jpg",
-  "New Home Design":  "/categories/category-house-and-land.jpg",
+  "New Apartments":          "/categories/category-apartments.jpg",
+  Townhouses:                "/categories/category-townhouse.jpg",
+  "Land and Estates":        "/categories/category-landestate.jpg",
+  Commercial:                "/categories/category-commercial.jpg",
+  Houses:                    "/categories/category-house-and-land.jpg",
+  "New Home Design":         "/categories/category-house-and-land.jpg",
+  // Reusing the apartments image for Over 55's / Retirement until a
+  // dedicated category image is supplied — retirement villages are
+  // typically apartment-style, so visually it reads OK.
+  "Over 55's / Retirement":  "/categories/category-apartments.jpg",
 };
 
 function pickImage(dev: { hero_image_url?: string | null; images?: { url: string }[] } | null, fallback: string): string {
@@ -166,12 +170,13 @@ export default async function HomePage() {
 
   // Always use the client-supplied category images (not listing images)
   const CATEGORIES: SliderItem[] = [
-    { label: "New Apartments",   href: "/search?type=New+Apartments",   image: CATEGORY_FALLBACKS["New Apartments"]   },
-    { label: "Townhouses",       href: "/search?type=Townhouses",       image: CATEGORY_FALLBACKS["Townhouses"]        },
-    { label: "Land And Estates", href: "/search?type=Land+and+Estates", image: CATEGORY_FALLBACKS["Land and Estates"]  },
-    { label: "Commercial",       href: "/search?type=Commercial",       image: CATEGORY_FALLBACKS["Commercial"]        },
-    { label: "House & Land",     href: "/search?type=Houses",           image: CATEGORY_FALLBACKS["Houses"]            },
-    { label: "New Home Design",  href: "/search?type=New+Home+Design",  image: CATEGORY_FALLBACKS["New Home Design"]   },
+    { label: "New Apartments",          href: "/search?type=New+Apartments",                  image: CATEGORY_FALLBACKS["New Apartments"]          },
+    { label: "Townhouses",              href: "/search?type=Townhouses",                      image: CATEGORY_FALLBACKS["Townhouses"]               },
+    { label: "Land And Estates",        href: "/search?type=Land+and+Estates",                image: CATEGORY_FALLBACKS["Land and Estates"]         },
+    { label: "Commercial",              href: "/search?type=Commercial",                      image: CATEGORY_FALLBACKS["Commercial"]               },
+    { label: "House & Land",            href: "/search?type=Houses",                          image: CATEGORY_FALLBACKS["Houses"]                   },
+    { label: "New Home Design",         href: "/search?type=New+Home+Design",                 image: CATEGORY_FALLBACKS["New Home Design"]          },
+    { label: "Over 55's / Retirement",  href: "/search?type=Over+55%27s+%2F+Retirement",      image: CATEGORY_FALLBACKS["Over 55's / Retirement"]   },
   ];
 
   // Use mock listings only outside production. In production, an empty tier
@@ -344,6 +349,7 @@ export default async function HomePage() {
                       ["Commercial", "Commercial"],
                       ["Houses", "House & Land"],
                       ["New Home Design", "New Home Design"],
+                      ["Over 55's / Retirement", "Over 55's / Retirement"],
                     ].map(([value, label]) => (
                       <option key={value} value={value}>{label}</option>
                     ))}

@@ -17,12 +17,17 @@ const moreInfoLinks = [
 ];
 
 const propertyLinks = [
-  { label: "New Apartments", href: "/search?type=apartments" },
-  { label: "Townhouses", href: "/search?type=townhouses" },
-  { label: "Land and Estates", href: "/search?type=land-estates" },
-  { label: "Commercial", href: "/search?type=commercial" },
-  { label: "House & Land", href: "/search?type=house-and-land" },
-  { label: "New Home Design", href: "/search?type=new-home-design" },
+  // Hrefs match the canonical type values used on /search (URL-encoded
+  // so plus-signs survive Next routing). Previously these used
+  // lowercased slugs (apartments / townhouses / etc.) that didn't
+  // resolve to any actual filter — now they filter correctly.
+  { label: "New Apartments",         href: "/search?type=New+Apartments" },
+  { label: "Townhouses",             href: "/search?type=Townhouses" },
+  { label: "Land and Estates",       href: "/search?type=Land+and+Estates" },
+  { label: "Commercial",             href: "/search?type=Commercial" },
+  { label: "House & Land",           href: "/search?type=Houses" },
+  { label: "New Home Design",        href: "/search?type=New+Home+Design" },
+  { label: "Over 55's / Retirement", href: "/search?type=Over+55%27s+%2F+Retirement" },
 ];
 
 const stateLinks = [

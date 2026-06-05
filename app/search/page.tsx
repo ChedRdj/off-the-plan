@@ -43,6 +43,7 @@ const CATEGORIES = [
   "Commercial",
   "House & Land",
   "New Home Design",
+  "Over 55's / Retirement",
 ];
 
 const PRICE_RANGES = [
