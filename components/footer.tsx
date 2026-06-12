@@ -171,7 +171,7 @@ export function Footer() {
   return (
     <footer className="bg-navy text-ink-light">
       {/* Top: logo + tagline + description */}
-      <div className="max-w-screen-xl mx-auto px-6 md:px-10 pt-14 pb-10">
+      <div className="max-w-screen-xl mx-auto px-6 md:px-10 pt-10 pb-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <Link href="/" className="inline-block">
             <Image
@@ -187,7 +187,7 @@ export function Footer() {
           </p>
         </div>
 
-        <div className="border-t border-ink-light/10 pt-8 grid md:grid-cols-2 gap-6 mb-10">
+        <div className="border-t border-ink-light/10 pt-6 grid md:grid-cols-2 gap-6 mb-6">
           <p className="font-sans text-sm text-ink-light/80 leading-relaxed">
             Australia's Home Of New Property | Off The Plan® is an Australian property platform for new
             apartments, new homes, listings and house & land packages available off-the-plan®.
