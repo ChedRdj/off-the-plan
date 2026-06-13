@@ -297,6 +297,71 @@ function SectionDivider({ label }: { label: string }) {
   );
 }
 
+/**
+ * Click-to-open hint that explains where a given input surfaces on the public
+ * listing card. Used next to fields the client flagged as confusing during
+ * the June 1-7 testing round.
+ */
+function ExampleHint({ title, children }: { title: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="font-sans text-xs text-orange underline underline-offset-2 hover:text-orange/80 ml-2"
+      >
+        (View Example)
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden="true" />
+          <div className="absolute left-0 top-full mt-2 z-50 w-[440px] max-w-[90vw] bg-white border-2 border-orange shadow-xl rounded-sm p-4 text-left">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <h4 className="font-sans font-semibold text-sm text-ink">{title}</h4>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="text-ink/40 hover:text-ink text-xl leading-none -mt-1"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
+            <div className="font-sans text-sm text-ink/70 space-y-3">{children}</div>
+          </div>
+        </>
+      )}
+    </span>
+  );
+}
+
+/**
+ * Tiny mock of a listing card used inside ExampleHint popovers. Highlights
+ * the input being explained by wrapping it in <mark>.
+ */
+function CardPreview({ highlight }: { highlight: "price" | "config" | "summary" }) {
+  return (
+    <div className="border border-line bg-cream-alt p-3 font-sans text-xs">
+      <p className="text-[9px] uppercase tracking-widest text-ink/40 mb-2">Listing card preview</p>
+      <div className="bg-white p-3 border border-line">
+        <p className="font-semibold text-ink">Sample Project · Suburb NSW</p>
+        <p className="text-ink/60 text-[11px] mb-2">
+          Price Guide: {highlight === "price"
+            ? <mark className="bg-yellow-200 px-1">From $650,000</mark>
+            : <span>From $650,000</span>}
+        </p>
+        <p className="text-[10px] uppercase tracking-widest text-orange mb-2">
+          New Apartments {highlight === "config" && <mark className="bg-yellow-200 px-1 normal-case font-sans tracking-normal">· 1, 2 &amp; 3 Bedrooms</mark>}
+        </p>
+        <div className={`flex gap-3 text-[11px] text-ink ${highlight === "summary" ? "bg-yellow-200 p-1 -mx-1" : ""}`}>
+          <span>🛏 3</span><span>🛁 2</span><span>🚗 2</span><span>↔ 185</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TagInput({
   value,
   onChange,
@@ -1552,7 +1617,13 @@ export function ListingForm({
               <input type="text" value={completionQuarter} onChange={(e) => setCompletionQuarter(e.target.value)} placeholder="e.g. Q1 2028" className={inp} />
             </div>
             <div>
-              <label className={lbl}>Lead In Pricing</label>
+              <label className={lbl}>
+                Lead In Pricing
+                <ExampleHint title="Where Lead In Pricing appears">
+                  <p>This is the headline price shown on the listing card on search results. Free-text, so you can write "From $650,000", "Contact Agent", "Auction", etc.</p>
+                  <CardPreview highlight="price" />
+                </ExampleHint>
+              </label>
               <input type="text" value={priceDisplay} onChange={(e) => setPriceDisplay(e.target.value)} placeholder="e.g. From $650,000" className={inp} />
             </div>
             <div>
@@ -1564,6 +1635,10 @@ export function ListingForm({
             <label className={lbl}>
               Configuration{" "}
               <span className="font-sans text-xs text-ink/40 font-normal">(max 25 characters)</span>
+              <ExampleHint title="Where the Configuration label appears">
+                <p>A short summary chip shown beneath the category badge on the listing card. Keep it under 25 characters so it fits without wrapping.</p>
+                <CardPreview highlight="config" />
+              </ExampleHint>
             </label>
             <input
               type="text"
@@ -1627,6 +1702,16 @@ export function ListingForm({
             <p className="font-sans text-sm text-ink/40 italic">Save the listing first to add unit configurations.</p>
           ) : (
             <div>
+              <div className="mb-4 flex items-center">
+                <p className="font-sans text-xs text-ink/50">
+                  Up to 4 rows shown on the public listing card.
+                </p>
+                <ExampleHint title="Where Configuration Summary appears">
+                  <p>Each row you add here becomes one line of the <strong>Properties Available</strong> stats strip on the listing card on search results.</p>
+                  <p className="text-ink/50 text-xs">Max 4 rows — the card has space for 4 lines plus the price.</p>
+                  <CardPreview highlight="summary" />
+                </ExampleHint>
+              </div>
               {floorPlans.length > 0 && (
                 <div className="overflow-x-auto mb-4">
                   <table className="w-full text-left">
