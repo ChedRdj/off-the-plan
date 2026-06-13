@@ -3,11 +3,16 @@
  * (listing results card) and Mini Stocklist (admin form + listing
  * detail page).
  *
- * Source of truth for which columns to render on the public card,
- * which inputs to show in the admin form's Configuration Summary
- * and Mini Stocklist tables, and which icons go with each field.
+ * Two field lists per category:
+ *   - card: ≤ 4 fields shown on the search-results card and the
+ *     admin Configuration Summary table.
+ *   - stocklist: shown in the admin Mini Stocklist table and the
+ *     "Properties Available" table on the listing detail page.
+ *     Can be longer than the card list (e.g. House and Land's
+ *     stocklist captures House Size + Frontage on top of the card
+ *     fields). Defaults to the card list when not specified.
  *
- * Per dev spec v4 — PDF page 7 visibility matrix.
+ * Per dev spec v4 — PDF pages 2–7.
  */
 
 import type { ComponentType } from "react";
@@ -24,10 +29,8 @@ import {
 
 export interface CardFieldDef {
   /**
-   * Key used on the DevelopmentFloorPlan record (Configuration Summary)
-   * AND on the MiniStocklistRow record (Mini Stocklist). When the two
-   * differ (e.g. floor_plan uses `land_area_sqm` numeric while stocklist
-   * uses `land_area` text), pass both via stocklistKey.
+   * Key used on the DevelopmentFloorPlan record (Configuration Summary).
+   * Also used on MiniStocklistRow unless `stocklistKey` overrides it.
    */
   key: string;
   /** Mini Stocklist jsonb key, if different from `key`. */
@@ -120,24 +123,67 @@ const DEPTH: CardFieldDef = {
   cardUnit: "m",
   inputWidth: "w-24",
 };
+const LAND_SIZE: CardFieldDef = {
+  key: "land_size_sqm",
+  stocklistKey: "land_size",
+  label: "Land Size (m²)",
+  icon: LandAreaIcon,
+  type: "number",
+  placeholder: "400",
+  cardUnit: "m²",
+  inputWidth: "w-28",
+};
+const HOUSE_SIZE: CardFieldDef = {
+  key: "house_size_sqm",
+  stocklistKey: "house_size",
+  label: "House Size (m²)",
+  icon: ExpandIcon,
+  type: "number",
+  placeholder: "210",
+  cardUnit: "m²",
+  inputWidth: "w-28",
+};
+
+interface CategoryConfig {
+  card: CardFieldDef[];
+  /** Defaults to the card list when omitted. */
+  stocklist?: CardFieldDef[];
+}
 
 /**
- * The default residential field set, used by all categories until each
- * is migrated to its category-specific set per the dev spec.
+ * The default residential field set, used when a category isn't
+ * registered explicitly.
  */
 export const DEFAULT_CARD_FIELDS: CardFieldDef[] = [BEDS, BATH, GARAGE, TOTAL_SIZE];
 
-const CARD_FIELDS_BY_CATEGORY: Record<string, CardFieldDef[]> = {
-  "New Apartments":         [BEDS, BATH, GARAGE, TOTAL_SIZE],
-  Townhouses:               [BEDS, BATH, GARAGE, TOTAL_SIZE],
-  "Land and Estates":       [LOT_NUMBER, LAND_AREA, FRONTAGE, DEPTH],
-  "House & Land":           [BEDS, BATH, GARAGE, TOTAL_SIZE], // updated in House+Land step
-  Houses:                   [BEDS, BATH, GARAGE, TOTAL_SIZE], // legacy alias
-  "Over 55's / Retirement": [BEDS, BATH, GARAGE, TOTAL_SIZE],
-  Commercial:               [BEDS, BATH, GARAGE, TOTAL_SIZE], // updated in Commercial step
+const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
+  "New Apartments":         { card: [BEDS, BATH, GARAGE, TOTAL_SIZE] },
+  Townhouses:               { card: [BEDS, BATH, GARAGE, TOTAL_SIZE] },
+  "Land and Estates":       { card: [LOT_NUMBER, LAND_AREA, FRONTAGE, DEPTH] },
+  "House & Land":           {
+    card:       [BEDS, BATH, GARAGE, LAND_SIZE],
+    stocklist:  [BEDS, BATH, GARAGE, HOUSE_SIZE, LAND_SIZE, FRONTAGE],
+  },
+  Houses:                   {
+    card:       [BEDS, BATH, GARAGE, LAND_SIZE],
+    stocklist:  [BEDS, BATH, GARAGE, HOUSE_SIZE, LAND_SIZE, FRONTAGE],
+  }, // legacy alias for House & Land
+  "Over 55's / Retirement": { card: [BEDS, BATH, GARAGE, TOTAL_SIZE] },
+  Commercial:               { card: [BEDS, BATH, GARAGE, TOTAL_SIZE] }, // updated in Commercial step
 };
 
 export function getCardFields(category: string | null | undefined): CardFieldDef[] {
   if (!category) return DEFAULT_CARD_FIELDS;
-  return CARD_FIELDS_BY_CATEGORY[category] ?? DEFAULT_CARD_FIELDS;
+  return CATEGORY_CONFIG[category]?.card ?? DEFAULT_CARD_FIELDS;
+}
+
+/**
+ * Used by the admin Mini Stocklist table + listing detail page
+ * Properties Available table. Defaults to the card field list when
+ * a category doesn't define a separate stocklist.
+ */
+export function getStocklistFields(category: string | null | undefined): CardFieldDef[] {
+  if (!category) return DEFAULT_CARD_FIELDS;
+  const conf = CATEGORY_CONFIG[category];
+  return conf?.stocklist ?? conf?.card ?? DEFAULT_CARD_FIELDS;
 }

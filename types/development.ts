@@ -68,6 +68,9 @@ export interface MiniStocklistRow {
   land_area?: string | null;
   frontage?: string | null;
   depth?: string | null;
+  // House and Land fields — populated when listing type is "House & Land".
+  house_size?: string | null;
+  land_size?: string | null;
 }
 
 export interface DevelopmentImage {
@@ -96,6 +99,9 @@ export interface DevelopmentFloorPlan {
   land_area_sqm?: number | null;
   frontage_m?: number | null;
   depth_m?: number | null;
+  // House and Land fields (PDF spec v4, migration 031).
+  house_size_sqm?: number | null;
+  land_size_sqm?: number | null;
 }
 
 export interface DevelopmentFilters {

@@ -24,7 +24,7 @@ export default async function PortalListingEditPage({ params }: Props) {
       .order("sort_order"),
     supabaseAdmin
       .from("development_floor_plans")
-      .select("id, beds, bath, garage, internal_sqm, price_from, plan_type, config, image_url, lot_number, land_area_sqm, frontage_m, depth_m")
+      .select("id, beds, bath, garage, internal_sqm, price_from, plan_type, config, image_url, lot_number, land_area_sqm, frontage_m, depth_m, house_size_sqm, land_size_sqm")
       .eq("development_id", params.id)
       .order("id"),
     supabaseAdmin
@@ -63,6 +63,8 @@ export default async function PortalListingEditPage({ params }: Props) {
     land_area_sqm: fp.land_area_sqm != null ? String(fp.land_area_sqm) : "",
     frontage_m: fp.frontage_m != null ? String(fp.frontage_m) : "",
     depth_m: fp.depth_m != null ? String(fp.depth_m) : "",
+    house_size_sqm: fp.house_size_sqm != null ? String(fp.house_size_sqm) : "",
+    land_size_sqm: fp.land_size_sqm != null ? String(fp.land_size_sqm) : "",
   }));
 
   const agents = (agentsResult.data ?? []).map((a) => ({

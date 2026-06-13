@@ -2,7 +2,7 @@
 
 import { formatPrice } from "@/lib/utils";
 import type { DevelopmentFloorPlan, MiniStocklistRow } from "@/types/development";
-import { getCardFields } from "@/lib/listing-card-fields";
+import { getStocklistFields } from "@/lib/listing-card-fields";
 
 interface PropertiesTableProps {
   floorPlans: DevelopmentFloorPlan[];
@@ -29,7 +29,7 @@ interface TableRow {
 }
 
 export function PropertiesTable({ floorPlans, bedsMin, bedsMax, miniStocklist, developmentType }: PropertiesTableProps) {
-  const cardFields = getCardFields(developmentType);
+  const cardFields = getStocklistFields(developmentType);
 
   const allRows: TableRow[] = (() => {
     // 1. Mini stocklist wins when populated.

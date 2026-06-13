@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { ImageUpload } from "@/components/admin/image-upload";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { featuresForCategory } from "@/lib/category-features";
-import { getCardFields } from "@/lib/listing-card-fields";
+import { getCardFields, getStocklistFields } from "@/lib/listing-card-fields";
 
 /**
  * Wrap plain text in <p>/<br> tags so it's safe to load into a TipTap editor
@@ -58,6 +58,9 @@ interface FloorPlan {
   land_area_sqm: string;
   frontage_m: string;
   depth_m: string;
+  // House and Land fields — empty string for categories that don't use them.
+  house_size_sqm: string;
+  land_size_sqm: string;
 }
 
 // Mini stocklist row — every cell stays a free-text string so admins
@@ -74,6 +77,9 @@ interface MiniStocklistEntry {
   land_area?: string;
   frontage?: string;
   depth?: string;
+  // House and Land fields — empty string for non-H&L categories.
+  house_size?: string;
+  land_size?: string;
 }
 const MAX_STOCKLIST_ROWS = 20;
 const MAX_CONFIG_SUMMARY_ROWS = 4;
@@ -1185,7 +1191,7 @@ export function ListingForm({
     setFloorPlans((prev) =>
       prev.length >= MAX_CONFIG_SUMMARY_ROWS
         ? prev
-        : [...prev, { beds: "", bath: "", garage: "", internal_sqm: "", price_from: "", plan_type: "", config: "", image_url: "", lot_number: "", land_area_sqm: "", frontage_m: "", depth_m: "" }],
+        : [...prev, { beds: "", bath: "", garage: "", internal_sqm: "", price_from: "", plan_type: "", config: "", image_url: "", lot_number: "", land_area_sqm: "", frontage_m: "", depth_m: "", house_size_sqm: "", land_size_sqm: "" }],
     );
   }
 
@@ -1205,7 +1211,7 @@ export function ListingForm({
     setMiniStocklist((prev) =>
       prev.length >= MAX_STOCKLIST_ROWS
         ? prev
-        : [...prev, { bed: "", bath: "", parking: "", size: "", price: "", lot_number: "", land_area: "", frontage: "", depth: "" }],
+        : [...prev, { bed: "", bath: "", parking: "", size: "", price: "", lot_number: "", land_area: "", frontage: "", depth: "", house_size: "", land_size: "" }],
     );
   }
 
@@ -1326,7 +1332,7 @@ export function ListingForm({
       // Mini stocklist — only send rows where the user typed something
       // so empty drafts don't leak through.
       mini_stocklist: miniStocklist.filter(
-        (r) => r.bed || r.bath || r.parking || r.size || r.price || r.lot_number || r.land_area || r.frontage || r.depth,
+        (r) => r.bed || r.bath || r.parking || r.size || r.price || r.lot_number || r.land_area || r.frontage || r.depth || r.house_size || r.land_size,
       ),
     };
 
@@ -1810,7 +1816,7 @@ export function ListingForm({
               leave blank cells empty to show as "—" on the public table.
             </p>
             {miniStocklist.length > 0 && (() => {
-              const stockFields = getCardFields(type);
+              const stockFields = getStocklistFields(type);
               return (
                 <div className="overflow-x-auto mb-4">
                   <table className="w-full text-left">
