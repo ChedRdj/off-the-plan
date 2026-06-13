@@ -71,6 +71,11 @@ export interface MiniStocklistRow {
   // House and Land fields — populated when listing type is "House & Land".
   house_size?: string | null;
   land_size?: string | null;
+  // Commercial fields — populated when listing type is "Commercial".
+  floor_area?: string | null;
+  level?: string | null;
+  unit_suite_no?: string | null;
+  property_sub_type?: string | null;
 }
 
 export interface DevelopmentImage {
@@ -102,6 +107,11 @@ export interface DevelopmentFloorPlan {
   // House and Land fields (PDF spec v4, migration 031).
   house_size_sqm?: number | null;
   land_size_sqm?: number | null;
+  // Commercial fields (PDF spec v4, migration 032).
+  floor_area_sqm?: number | null;
+  level?: string | null;
+  unit_suite_no?: string | null;
+  property_sub_type?: string | null;
 }
 
 export interface DevelopmentFilters {

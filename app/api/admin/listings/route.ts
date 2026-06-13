@@ -164,6 +164,10 @@ async function syncFloorPlans(developmentId: string, floorPlans: unknown[]) {
     depth_m: fp.depth_m ? Number(fp.depth_m) : null,
     house_size_sqm: fp.house_size_sqm ? Number(fp.house_size_sqm) : null,
     land_size_sqm: fp.land_size_sqm ? Number(fp.land_size_sqm) : null,
+    floor_area_sqm: fp.floor_area_sqm ? Number(fp.floor_area_sqm) : null,
+    level: fp.level || null,
+    unit_suite_no: fp.unit_suite_no || null,
+    property_sub_type: fp.property_sub_type || null,
   }));
   await supabaseAdmin.from("development_floor_plans").insert(rows);
 }

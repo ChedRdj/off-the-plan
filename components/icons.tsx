@@ -203,3 +203,26 @@ export function LandAreaIcon({ className, size = 20 }: IconProps) {
     </svg>
   );
 }
+
+// ─── Commercial icons (per dev spec v4) ────────────────────────────────
+
+export function FloorAreaIcon({ className, size = 20 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      {/* Floorplan: outer rectangle with one interior partition */}
+      <rect x="3" y="4" width="14" height="12" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M10 4v5M10 12v4M3 10h7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function LevelIcon({ className, size = 20 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      {/* Three stacked floors, middle one filled to indicate "this level" */}
+      <rect x="4" y="4" width="12" height="3" stroke="currentColor" strokeWidth="1.4" />
+      <rect x="4" y="8.5" width="12" height="3" stroke="currentColor" strokeWidth="1.4" fill="currentColor" fillOpacity="0.25" />
+      <rect x="4" y="13" width="12" height="3" stroke="currentColor" strokeWidth="1.4" />
+    </svg>
+  );
+}

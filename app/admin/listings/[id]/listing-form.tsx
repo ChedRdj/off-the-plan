@@ -61,6 +61,11 @@ interface FloorPlan {
   // House and Land fields — empty string for categories that don't use them.
   house_size_sqm: string;
   land_size_sqm: string;
+  // Commercial fields — empty string for non-Commercial categories.
+  floor_area_sqm: string;
+  level: string;
+  unit_suite_no: string;
+  property_sub_type: string;
 }
 
 // Mini stocklist row — every cell stays a free-text string so admins
@@ -80,6 +85,11 @@ interface MiniStocklistEntry {
   // House and Land fields — empty string for non-H&L categories.
   house_size?: string;
   land_size?: string;
+  // Commercial fields — empty string for non-Commercial categories.
+  floor_area?: string;
+  level?: string;
+  unit_suite_no?: string;
+  property_sub_type?: string;
 }
 const MAX_STOCKLIST_ROWS = 20;
 const MAX_CONFIG_SUMMARY_ROWS = 4;
@@ -1191,7 +1201,7 @@ export function ListingForm({
     setFloorPlans((prev) =>
       prev.length >= MAX_CONFIG_SUMMARY_ROWS
         ? prev
-        : [...prev, { beds: "", bath: "", garage: "", internal_sqm: "", price_from: "", plan_type: "", config: "", image_url: "", lot_number: "", land_area_sqm: "", frontage_m: "", depth_m: "", house_size_sqm: "", land_size_sqm: "" }],
+        : [...prev, { beds: "", bath: "", garage: "", internal_sqm: "", price_from: "", plan_type: "", config: "", image_url: "", lot_number: "", land_area_sqm: "", frontage_m: "", depth_m: "", house_size_sqm: "", land_size_sqm: "", floor_area_sqm: "", level: "", unit_suite_no: "", property_sub_type: "" }],
     );
   }
 
@@ -1211,7 +1221,7 @@ export function ListingForm({
     setMiniStocklist((prev) =>
       prev.length >= MAX_STOCKLIST_ROWS
         ? prev
-        : [...prev, { bed: "", bath: "", parking: "", size: "", price: "", lot_number: "", land_area: "", frontage: "", depth: "", house_size: "", land_size: "" }],
+        : [...prev, { bed: "", bath: "", parking: "", size: "", price: "", lot_number: "", land_area: "", frontage: "", depth: "", house_size: "", land_size: "", floor_area: "", level: "", unit_suite_no: "", property_sub_type: "" }],
     );
   }
 
@@ -1332,7 +1342,7 @@ export function ListingForm({
       // Mini stocklist — only send rows where the user typed something
       // so empty drafts don't leak through.
       mini_stocklist: miniStocklist.filter(
-        (r) => r.bed || r.bath || r.parking || r.size || r.price || r.lot_number || r.land_area || r.frontage || r.depth || r.house_size || r.land_size,
+        (r) => r.bed || r.bath || r.parking || r.size || r.price || r.lot_number || r.land_area || r.frontage || r.depth || r.house_size || r.land_size || r.floor_area || r.level || r.unit_suite_no || r.property_sub_type,
       ),
     };
 
@@ -1746,17 +1756,34 @@ export function ListingForm({
                       <tbody>
                         {floorPlans.map((fp, i) => (
                           <tr key={i} className="border-b border-line last:border-0">
-                            {cardFields.map((f) => (
-                              <td key={f.key} className="px-4 py-3">
-                                <input
-                                  type={f.type}
-                                  value={(fp[f.key as keyof FloorPlan] as string) ?? ""}
-                                  onChange={(e) => updateFloorPlan(i, f.key as keyof FloorPlan, e.target.value)}
-                                  placeholder={f.placeholder}
-                                  className={`border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 ${f.inputWidth ?? "w-24"}`}
-                                />
-                              </td>
-                            ))}
+                            {cardFields.map((f) => {
+                              const cellValue = (fp[f.key as keyof FloorPlan] as string) ?? "";
+                              const cellClass = `border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 ${f.inputWidth ?? "w-24"}`;
+                              return (
+                                <td key={f.key} className="px-4 py-3">
+                                  {f.type === "select" ? (
+                                    <select
+                                      value={cellValue}
+                                      onChange={(e) => updateFloorPlan(i, f.key as keyof FloorPlan, e.target.value)}
+                                      className={`${cellClass} cursor-pointer`}
+                                    >
+                                      <option value="">{f.placeholder ?? "—"}</option>
+                                      {f.options?.map((opt) => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                      ))}
+                                    </select>
+                                  ) : (
+                                    <input
+                                      type={f.type}
+                                      value={cellValue}
+                                      onChange={(e) => updateFloorPlan(i, f.key as keyof FloorPlan, e.target.value)}
+                                      placeholder={f.placeholder}
+                                      className={cellClass}
+                                    />
+                                  )}
+                                </td>
+                              );
+                            })}
                             <td className="px-4 py-3">
                               <input type="number" value={fp.price_from} onChange={(e) => updateFloorPlan(i, "price_from", e.target.value)} placeholder="650000" className="border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 w-32" />
                             </td>
@@ -1834,15 +1861,30 @@ export function ListingForm({
                         <tr key={i} className="border-b border-line last:border-0">
                           {stockFields.map((f) => {
                             const stockKey = (f.stocklistKey ?? f.key) as keyof MiniStocklistEntry;
+                            const cellValue = (r[stockKey] as string | undefined) ?? "";
+                            const cellClass = `border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 ${f.inputWidth ?? "w-24"}`;
                             return (
                               <td key={f.key} className="px-4 py-3">
-                                <input
-                                  type="text"
-                                  value={(r[stockKey] as string | undefined) ?? ""}
-                                  onChange={(e) => updateStocklistRow(i, stockKey, e.target.value)}
-                                  placeholder={f.placeholder}
-                                  className={`border border-line px-3 py-2 bg-white font-sans text-sm text-ink outline-none focus:border-orange/60 ${f.inputWidth ?? "w-24"}`}
-                                />
+                                {f.type === "select" ? (
+                                  <select
+                                    value={cellValue}
+                                    onChange={(e) => updateStocklistRow(i, stockKey, e.target.value)}
+                                    className={`${cellClass} cursor-pointer`}
+                                  >
+                                    <option value="">{f.placeholder ?? "—"}</option>
+                                    {f.options?.map((opt) => (
+                                      <option key={opt} value={opt}>{opt}</option>
+                                    ))}
+                                  </select>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    value={cellValue}
+                                    onChange={(e) => updateStocklistRow(i, stockKey, e.target.value)}
+                                    placeholder={f.placeholder}
+                                    className={cellClass}
+                                  />
+                                )}
                               </td>
                             );
                           })}

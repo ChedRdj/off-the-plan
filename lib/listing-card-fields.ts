@@ -25,6 +25,8 @@ import {
   FrontageIcon,
   DepthIcon,
   LandAreaIcon,
+  FloorAreaIcon,
+  LevelIcon,
 } from "@/components/icons";
 
 export interface CardFieldDef {
@@ -39,8 +41,10 @@ export interface CardFieldDef {
   label: string;
   /** Icon shown next to the value on the public card */
   icon: ComponentType<{ size?: number; className?: string }>;
-  /** HTML input type for the admin form (number = numeric only) */
-  type: "number" | "text";
+  /** HTML input type for the admin form (select renders a dropdown) */
+  type: "number" | "text" | "select";
+  /** Options for a select-type field */
+  options?: string[];
   /** Placeholder shown in the admin input */
   placeholder?: string;
   /** Unit suffix rendered on the card after the value (e.g. "m²", "m") */
@@ -143,6 +147,51 @@ const HOUSE_SIZE: CardFieldDef = {
   cardUnit: "m²",
   inputWidth: "w-28",
 };
+const FLOOR_AREA: CardFieldDef = {
+  key: "floor_area_sqm",
+  stocklistKey: "floor_area",
+  label: "Floor Area (m²)",
+  icon: FloorAreaIcon,
+  type: "number",
+  placeholder: "143",
+  cardUnit: "m²",
+  inputWidth: "w-28",
+};
+const LEVEL: CardFieldDef = {
+  key: "level",
+  label: "Level",
+  icon: LevelIcon,
+  type: "text",
+  placeholder: "Level 2",
+  inputWidth: "w-24",
+};
+// Commercial reuses the existing parking column under a different label.
+const CAR_SPACES: CardFieldDef = {
+  key: "garage",
+  stocklistKey: "parking",
+  label: "Car Spaces",
+  icon: CarIcon,
+  type: "number",
+  placeholder: "1",
+  inputWidth: "w-20",
+};
+const UNIT_SUITE: CardFieldDef = {
+  key: "unit_suite_no",
+  label: "Unit / Suite No.",
+  icon: LotNumberIcon,
+  type: "text",
+  placeholder: "Suite 12",
+  inputWidth: "w-28",
+};
+const PROPERTY_SUB_TYPE: CardFieldDef = {
+  key: "property_sub_type",
+  label: "Property Sub-Type",
+  icon: FloorAreaIcon,
+  type: "select",
+  options: ["Office", "Retail", "Industrial", "Warehouse", "Medical", "Childcare", "Development Site"],
+  placeholder: "— Select —",
+  inputWidth: "w-40",
+};
 
 interface CategoryConfig {
   card: CardFieldDef[];
@@ -169,7 +218,10 @@ const CATEGORY_CONFIG: Record<string, CategoryConfig> = {
     stocklist:  [BEDS, BATH, GARAGE, HOUSE_SIZE, LAND_SIZE, FRONTAGE],
   }, // legacy alias for House & Land
   "Over 55's / Retirement": { card: [BEDS, BATH, GARAGE, TOTAL_SIZE] },
-  Commercial:               { card: [BEDS, BATH, GARAGE, TOTAL_SIZE] }, // updated in Commercial step
+  Commercial:               {
+    card:       [FLOOR_AREA, LEVEL, CAR_SPACES],
+    stocklist:  [UNIT_SUITE, PROPERTY_SUB_TYPE, FLOOR_AREA, LEVEL, CAR_SPACES],
+  },
 };
 
 export function getCardFields(category: string | null | undefined): CardFieldDef[] {
