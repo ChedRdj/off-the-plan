@@ -39,7 +39,7 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
 
 const APPLY = process.argv.includes("--apply");
 const fileArg = process.argv.find((a) => a.startsWith("--file="));
-const DEFAULT_FILE = "../June 1 - 7 Client Feedback/OTP_Data_Export_2026-06-12.xlsx";
+const DEFAULT_FILE = "June 1 - 7 Client Feedback/OTP_Data_Export_2026-06-12.xlsx";
 const filePath = resolve(process.cwd(), fileArg ? fileArg.slice("--file=".length) : DEFAULT_FILE);
 
 const SOURCE_TAG = "legacy_import_2026_06_12";
